@@ -1,0 +1,60 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="container py-5">
+    <div class="row align-items-center g-5 py-5">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold lh-1 mb-3 text-primary">ClientSphere - A Friendly Customer Management</h1>
+            <p class="lead">
+                A comprehensive CRM platform designed for sales and service-oriented businesses. Manage customer interactions, track sales, handle support tickets, run marketing campaigns, and integrate billing—all in one centralized system.
+            </p>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold">Get Started</a>
+                <a asp-controller="Home" asp-action="Privacy" class="btn btn-outline-secondary btn-lg px-4">About Clientsphere</a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="p-5 bg-light rounded-3 border shadow-sm text-center">
+                 <!-- Placeholder for the industrial image -->
+                 <img src="https://via.placeholder.com/600x400/e9ecef/adb5bd?text=Industrial+Machinery" class="img-fluid rounded-3 shadow" alt="ClientSphere Dashboard" />
+            </div>
+        </div>
+    </div>
+
+    <div class="row text-center mt-5">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="feature-icon bg-primary bg-gradient text-white rounded-3 mb-3 d-inline-block p-3">
+                        <i class="bi bi-people-fill fs-3"></i>
+                    </div>
+                    <h2>Customer Data</h2>
+                    <p>Centralize your customer contact details and interaction history.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="feature-icon bg-primary bg-gradient text-white rounded-3 mb-3 d-inline-block p-3">
+                        <i class="bi bi-graph-up-arrow fs-3"></i>
+                    </div>
+                    <h2>Sales Tracking</h2>
+                    <p>Monitor opportunities, manage orders, and analyze sales performance.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="feature-icon bg-primary bg-gradient text-white rounded-3 mb-3 d-inline-block p-3">
+                        <i class="bi bi-credit-card-2-front-fill fs-3"></i>
+                    </div>
+                    <h2>Billing & Invoices</h2>
+                    <p>Generate invoices and process payments seamlessly.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

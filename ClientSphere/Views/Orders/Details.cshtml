@@ -1,0 +1,91 @@
+@model ClientSphere.Models.Order
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+                    <h5 class="mb-0">INVOICE #@Model.Id</h5>
+                    <span class="badge bg-light text-primary">@Model.Status</span>
+                </div>
+                <div class="card-body p-5">
+                    <!-- Invoice Header -->
+                    <div class="row mb-5">
+                        <div class="col-sm-6">
+                            <h6 class="text-uppercase text-muted">Billed To:</h6>
+                            @if(Model.Customer != null)
+                            {
+                                <h5 class="fw-bold">@Model.Customer.CompanyName</h5>
+                                <p class="mb-0">Attn: @Model.Customer.ContactName</p>
+                                <p class="mb-0">@Model.Customer.Address</p>
+                                <p class="mb-0">@Model.Customer.City, @Model.Customer.Country @Model.Customer.PostalCode</p>
+                                <p>@Model.Customer.Email</p>
+                            }
+                            else
+                            {
+                                <p class="text-danger">Customer Information Unavailable</p>
+                            }
+                        </div>
+                        <div class="col-sm-6 text-end">
+                            <h6 class="text-uppercase text-muted">Order Info:</h6>
+                            <p class="mb-1"><strong>Order Date:</strong> @Model.OrderDate.ToString("MMM dd, yyyy")</p>
+                            <p class="mb-1"><strong>Due Date:</strong> @Model.OrderDate.AddDays(30).ToString("MMM dd, yyyy")</p>
+                        </div>
+                    </div>
+
+                    <!-- Items Table -->
+                    <div class="table-responsive mb-5">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th class="text-center">Quantity</th>
+                                    <th class="text-end">Unit Price</th>
+                                    <th class="text-end">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderItems)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@(item.Product?.Name ?? "Unknown Product")</strong>
+                                            @if(!string.IsNullOrEmpty(item.Product?.Description))
+                                            {
+                                                <br /><small class="text-muted">@item.Product.Description</small>
+                                            }
+                                        </td>
+                                        <td class="text-center">@item.Quantity</td>
+                                        <td class="text-end">@item.UnitPrice.ToString("C")</td>
+                                        <td class="text-end">@((item.Quantity * item.UnitPrice).ToString("C"))</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Invoice Footer -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="text-muted small">
+                                <strong>Payment Terms:</strong> Net 30 Days.<br />
+                                Please make checks payable to ClientSphere Inc.
+                            </p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <h4 class="mb-0">Total: @Model.TotalAmount.ToString("C")</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Back to Orders</a>
+                    <button onclick="window.print()" class="btn btn-primary ms-2"><i class="bi bi-printer"></i> Print Invoice</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

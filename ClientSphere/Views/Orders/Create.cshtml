@@ -1,0 +1,114 @@
+@model ClientSphere.ViewModels.OrderCreateViewModel
+
+@{
+    ViewData["Title"] = "Create Order";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h4 class="card-title mb-0">Create New Sales Order</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" id="orderForm">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="CustomerId" class="form-label fw-bold">Select Customer</label>
+                            <select asp-for="CustomerId" class="form-select" asp-items="Model.CustomerList">
+                                <option value="">-- Select Customer --</option>
+                            </select>
+                            <span asp-validation-for="CustomerId" class="text-danger"></span>
+                        </div>
+
+                        <h5 class="mb-3 border-bottom pb-2">Order Items</h5>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="itemsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 60%">Product</th>
+                                        <th style="width: 20%">Quantity</th>
+                                        <th style="width: 20%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="itemsBody">
+                                    @for (int i = 0; i < Model.Items.Count; i++)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <select name="Items[@i].ProductId" class="form-select product-select" asp-items="Model.ProductList">
+                                                    <option value="">-- Select Product --</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input name="Items[@i].Quantity" type="number" class="form-control" value="1" min="1" />
+                                            </td>
+                                            <td>
+                                                <button type="button" class="btn btn-danger btn-sm remove-row">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="mb-4">
+                            <button type="button" id="addItemBtn" class="btn btn-outline-primary">
+                                <i class="bi bi-plus-lg"></i> Add Item
+                            </button>
+                        </div>
+
+                        <div class="d-flex justify-content-between pt-3 border-top">
+                            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-success px-4">Place Order</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            let itemIndex = @Model.Items.Count;
+
+            $("#addItemBtn").click(function () {
+                let newRow = `
+                    <tr>
+                        <td>
+                            <select name="Items[${itemIndex}].ProductId" class="form-select product-select">
+                                ${$("#itemsBody tr:first select").html()}
+                            </select>
+                        </td>
+                        <td>
+                            <input name="Items[${itemIndex}].Quantity" type="number" class="form-control" value="1" min="1" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm remove-row">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                $("#itemsBody").append(newRow);
+                itemIndex++;
+            });
+
+            $(document).on("click", ".remove-row", function () {
+                if ($("#itemsBody tr").length > 1) {
+                    $(this).closest("tr").remove();
+                } else {
+                    alert("You must have at least one item.");
+                }
+            });
+        });
+    </script>
+}
