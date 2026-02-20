@@ -142,5 +142,25 @@ namespace ClientSphere.Controllers
             await _customerService.DeleteCustomerAsync(id);
             return RedirectToAction(nameof(Index));
         }
+
+        // POST: Customers/ToggleActive/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ToggleActive(int id)
+        {
+            var customer = await _customerService.GetCustomerByIdAsync(id);
+            if (customer == null) return NotFound();
+
+            customer.IsActive = !customer.IsActive;
+            customer.UpdatedAt = DateTime.UtcNow;
+            await _customerService.UpdateCustomerAsync(customer);
+
+            TempData["ToastMessage"] = customer.IsActive
+                ? $"{customer.CompanyName} has been set to Active."
+                : $"{customer.CompanyName} has been set to Inactive.";
+            TempData["ToastType"] = customer.IsActive ? "success" : "warning";
+
+            return RedirectToAction(nameof(Index));
+        }
     }
 }
