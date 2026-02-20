@@ -1,0 +1,97 @@
+@model ClientSphere.Models.Campaign
+
+@{
+    ViewData["Title"] = "Create Campaign";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">Create Campaign</h1>
+            <p class="text-muted small">Launch a new marketing campaign.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Name" class="form-label fw-bold"></label>
+                        <input asp-for="Name" class="form-control" placeholder="Campaign Name" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+                     <div class="col-md-6">
+                         <label asp-for="Type" class="form-label fw-bold"></label>
+                        <select asp-for="Type" class="form-select">
+                            <option value="Email">Email</option>
+                            <option value="SMS">SMS</option>
+                            <option value="Social Media">Social Media</option>
+                            <option value="Call">Call</option>
+                        </select>
+                        <span asp-validation-for="Type" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="Budget" class="form-label fw-bold"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="Budget" class="form-control" type="number" step="0.01" />
+                        </div>
+                        <span asp-validation-for="Budget" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="TargetAudienceSize" class="form-label fw-bold">Target Audience Size</label>
+                        <input asp-for="TargetAudienceSize" class="form-control" type="number" />
+                        <span asp-validation-for="TargetAudienceSize" class="text-danger small"></span>
+                    </div>
+                     <div class="col-md-4">
+                        <label asp-for="ExpectedRevenue" class="form-label fw-bold">Expected Revenue</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="ExpectedRevenue" class="form-control" type="number" step="0.01" />
+                        </div>
+                        <span asp-validation-for="ExpectedRevenue" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="StartDate" class="form-label fw-bold"></label>
+                        <input asp-for="StartDate" class="form-control" type="date" />
+                        <span asp-validation-for="StartDate" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="EndDate" class="form-label fw-bold"></label>
+                        <input asp-for="EndDate" class="form-control" type="date" />
+                        <span asp-validation-for="EndDate" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Description" class="form-label fw-bold"></label>
+                    <textarea asp-for="Description" class="form-control" rows="4" placeholder="Campaign description and goals..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-rocket-takeoff me-2"></i> Launch Campaign
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

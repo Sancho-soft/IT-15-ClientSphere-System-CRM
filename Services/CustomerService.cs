@@ -44,5 +44,10 @@ namespace ClientSphere.Services
         {
             return await _repository.ExistsAsync(id);
         }
+
+        public async Task<IEnumerable<Customer>> SearchCustomersAsync(string query)
+        {
+            return await _repository.SearchAsync(query);
+        }
     }
 }

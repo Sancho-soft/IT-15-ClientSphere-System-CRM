@@ -1,0 +1,181 @@
+@model ClientSphere.ViewModels.CustomerDashboardViewModel
+
+@{
+    ViewData["Title"] = "My Account Overview";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+    ViewData["CurrentPage"] = "Dashboard";
+}
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="d-flex align-items-center">
+                <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                    <i class="bi bi-box-seam h4 mb-0"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Total Orders</div>
+                    <h3 class="fw-bold mb-0 text-dark">@Model.TotalOrders</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="d-flex align-items-center">
+                <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                    <i class="bi bi-ticket-perforated h4 mb-0"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Active Tickets</div>
+                    <h3 class="fw-bold mb-0 text-dark">@Model.ActiveTickets</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-3">
+            <div class="d-flex align-items-center">
+                <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                    <i class="bi bi-wallet2 h4 mb-0"></i>
+                </div>
+                <div>
+                    <div class="text-muted small">Total Spent</div>
+                    <h3 class="fw-bold mb-0 text-dark">$@Model.TotalSpent.ToString("N2")</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="fw-bold mb-3">Quick Actions</h5>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a asp-controller="CustomerPortal" asp-action="MyOrders" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 mb-3 mx-auto" style="width: fit-content;">
+                        <i class="bi bi-cart-check h3 mb-0"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">My Orders</h6>
+                    <p class="text-muted small mb-0">View order history</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a asp-controller="CustomerPortal" asp-action="MyTickets" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 mb-3 mx-auto" style="width: fit-content;">
+                        <i class="bi bi-ticket-perforated h3 mb-0"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Support Tickets</h6>
+                    <p class="text-muted small mb-0">View and create tickets</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a asp-controller="CustomerPortal" asp-action="MyInvoices" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 mb-3 mx-auto" style="width: fit-content;">
+                        <i class="bi bi-receipt h3 mb-0"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Invoices</h6>
+                    <p class="text-muted small mb-0">View and pay invoices</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a asp-controller="CustomerPortal" asp-action="MyProfile" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 mb-3 mx-auto" style="width: fit-content;">
+                        <i class="bi bi-person-circle h3 mb-0"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">My Profile</h6>
+                    <p class="text-muted small mb-0">Update profile settings</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Recent Orders</h5>
+                <a href="#" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0 ps-4">Order ID</th>
+                            <th class="border-0">Date</th>
+                            <th class="border-0">Status</th>
+                            <th class="border-0 text-end pe-4">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model.RecentOrders)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold">@order.OrderId</td>
+                                <td class="text-muted">@order.OrderDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @if(order.Status == "Completed") { <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Completed</span> }
+                                    else if(order.Status == "Processing") { <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3">Processing</span> }
+                                    else { <span class="badge bg-secondary text-light rounded-pill px-3">@order.Status</span> }
+                                </td>
+                                <td class="text-end fw-bold pe-4">$@order.TotalAmount.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Tickets -->
+    <div class="col-lg-4 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">My Support Tickets</h5>
+                <a asp-controller="CustomerPortal" asp-action="CreateTicket" class="btn btn-sm btn-outline-gray"><i class="bi bi-plus-lg"></i></a>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    @foreach (var ticket in Model.RecentTickets)
+                    {
+                        <a href="#" class="list-group-item list-group-item-action border-0 px-4 py-3">
+                            <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                                <span class="badge bg-light text-dark border">@ticket.TicketId</span>
+                                <small class="text-muted">@ticket.LastUpdated.ToString("MMM dd")</small>
+                            </div>
+                            <h6 class="mb-1 text-truncate" style="max-width: 250px;">@ticket.Subject</h6>
+                            <div class="d-flex align-items-center mt-2">
+                                @if(ticket.Status == "Resolved") 
+                                { <span class="badge bg-success bg-opacity-10 text-success me-2" style="font-size: 0.7rem;">Resolved</span> }
+                                else if(ticket.Status == "In Progress")
+                                { <span class="badge bg-warning bg-opacity-10 text-warning me-2" style="font-size: 0.7rem;">In Progress</span> }
+                                
+                                <span class="text-muted small" style="font-size: 0.75rem;">Priority: @ticket.Priority</span>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+            <div class="card-footer bg-white border-0 text-center py-3">
+                <a href="#" class="text-decoration-none small fw-bold">View All Tickets <i class="bi bi-arrow-right ms-1"></i></a>
+            </div>
+        </div>
+    </div>
+</div>

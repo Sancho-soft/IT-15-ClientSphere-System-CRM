@@ -10,7 +10,17 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
+    options.SignIn.RequireConfirmedAccount = false;
+    // TEMPORARY: Relax password requirements to allow email address as password
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 1;
+    options.Password.RequiredUniqueChars = 0;
+})
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultUI()
     .AddDefaultTokenProviders();
@@ -22,6 +32,17 @@ builder.Services.AddScoped<ClientSphere.Repositories.IOrderRepository, ClientSph
 builder.Services.AddScoped<ClientSphere.Services.ICustomerService, ClientSphere.Services.CustomerService>();
 builder.Services.AddScoped<ClientSphere.Services.IProductService, ClientSphere.Services.ProductService>();
 builder.Services.AddScoped<ClientSphere.Services.IOrderService, ClientSphere.Services.OrderService>();
+
+builder.Services.AddScoped<ClientSphere.Services.ILeadService, ClientSphere.Services.LeadService>();
+builder.Services.AddScoped<ClientSphere.Services.IOpportunityService, ClientSphere.Services.OpportunityService>();
+builder.Services.AddScoped<ClientSphere.Services.ISupportService, ClientSphere.Services.SupportService>();
+builder.Services.AddScoped<ClientSphere.Services.ICampaignService, ClientSphere.Services.CampaignService>();
+builder.Services.AddScoped<ClientSphere.Services.IInvoiceService, ClientSphere.Services.InvoiceService>();
+
+// API Integration Services
+builder.Services.AddScoped<ClientSphere.Services.IPaymentService, ClientSphere.Services.StripePaymentService>();
+builder.Services.AddScoped<ClientSphere.Services.IEmailService, ClientSphere.Services.SendGridEmailService>();
+builder.Services.AddScoped<ClientSphere.Services.ICalendarService, ClientSphere.Services.GraphCalendarService>();
 
 builder.Services.AddControllersWithViews();
 
@@ -43,12 +64,14 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
+// Configure the HTTP request pipeline.
+// if (!app.Environment.IsDevelopment())
+// {
+//     app.UseExceptionHandler("/Home/Error");
+//     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+//     app.UseHsts();
+// }
+app.UseDeveloperExceptionPage(); // FORCE DETAILED ERRORS FOR DEBUGGING
 
 app.UseHttpsRedirection();
 app.UseRouting();
@@ -56,12 +79,11 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapStaticAssets();
+app.UseStaticFiles();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
-    .WithStaticAssets();
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
 

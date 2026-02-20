@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using ClientSphere.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -15,36 +20,51 @@
         .btn-primary:hover { background-color: #0b5ed7; border-color: #0a58ca; }
     </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white py-3">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
-                    <i class="bi bi-layers-fill me-2"></i> ClientSphere
+                <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/logolanding.png" alt="ClientSphere" style="height: 190px;" class="d-inline-block align-text-top">
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between align-items-center">
                     <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Features</a>
+                        <!-- Public Menu -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="featuresDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Features
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="featuresDropdown">
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "Home")#features-crm">CRM Tools</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "Home")#features-sales">Sales Tracking</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "Home")#features-marketing">Marketing Automation</a></li>
+                            </ul>
                         </li>
-                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Solutions</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="solutionsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Solutions
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="solutionsDropdown">
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "Home")#solutions-smb">Small Business</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "Home")#solutions-enterprise">Enterprise</a></li>
+                            </ul>
                         </li>
-                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">About</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="aboutDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                About
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="aboutDropdown">
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "Home")#about">Our Story</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "Home")#about">Team</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("Index", "Home")#about">Careers</a></li>
+                            </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Customers" asp-action="Index">Customers</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Products" asp-action="Index">Products</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Orders" asp-action="Index">Sales</a>
+                            <a class="nav-link text-dark" href="@Url.Action("Index", "Home")#contact">Contact</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
@@ -52,15 +72,59 @@
             </div>
         </nav>
     </header>
-    <div class="container-fluid p-0">
+    <div class="container-fluid p-0 flex-grow-1">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="bg-dark text-white pt-5 pb-4 mt-auto">
         <div class="container">
-            &copy; 2026 - ClientSphere - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="text-uppercase mb-4 fw-bold text-primary">ClientSphere</h5>
+                    <p class="small text-white-50 mb-4">
+                        Empowering businesses with a friendly, comprehensive customer relationship management solution.
+                    </p>
+                    <div class="d-flex">
+                        <a href="#" class="text-white me-3"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white me-3"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="text-white me-3"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" class="text-white"><i class="bi bi-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="text-uppercase mb-4 fw-bold">Product</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none slide-hover">CRM Tools</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none slide-hover">Sales Tracking</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none slide-hover">Marketing</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none slide-hover">Billing</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="text-uppercase mb-4 fw-bold">Company</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none slide-hover">About Us</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none slide-hover">Careers</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none slide-hover">Blog</a></li>
+                        <li class="mb-2"><a href="#" class="text-light text-decoration-none slide-hover">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="text-uppercase mb-4 fw-bold">Newsletter</h5>
+                    <p class="small text-white-50 mb-4">Subscribe to our newsletter for the latest updates.</p>
+                    <form action="#">
+                        <div class="input-group">
+                            <input type="email" class="form-control" placeholder="Email address" aria-label="Email address">
+                            <button class="btn btn-primary" type="button"><i class="bi bi-send"></i></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="border-top border-secondary mt-4 pt-4 text-center text-white-50 small">
+                &copy; 2026 ClientSphere. All rights reserved. <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-light text-decoration-none ms-2">Privacy Policy</a>
+            </div>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

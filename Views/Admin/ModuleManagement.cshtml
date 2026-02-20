@@ -1,0 +1,202 @@
+@model ClientSphere.ViewModels.ModuleManagementViewModel
+
+@{
+    ViewData["Title"] = "Module Management";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-check-circle-fill h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Active Modules</div>
+                        <h4 class="fw-bold mb-0">@Model.Modules.Count</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-people-fill h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Records</div>
+                        <h4 class="fw-bold mb-0">@Model.Modules.Sum(m => m.TotalRecords)</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+     <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-exclamation-circle-fill h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Pending Updates</div>
+                        <h4 class="fw-bold mb-0">0</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+     <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-2">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-gear-fill h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Configurations</div>
+                        <h4 class="fw-bold mb-0">@Model.Modules.Count</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    @foreach (var module in Model.Modules)
+    {
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="@GetModuleIconClass(module.Name) rounded p-2 me-3">
+                            <i class="@GetModuleIcon(module.Name) h5 mb-0"></i>
+                        </div>
+                        <h5 class="mb-0 fw-bold">@module.Name</h5>
+                    </div>
+                    <span class="badge bg-success-subtle text-success rounded-pill">@module.Status</span>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">@module.Description</p>
+                    <div class="row text-center mb-3">
+                        <div class="col-4 border-end">
+                            <div class="h5 mb-0 fw-bold">@module.ActiveUsers</div>
+                            <div class="small text-muted">Active Users</div>
+                        </div>
+                        <div class="col-4 border-end">
+                            <div class="h5 mb-0 fw-bold">@module.TotalRecords</div>
+                            <div class="small text-muted">Records</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="h5 mb-0 fw-bold">@module.LastUpdated.ToString("yyyy-MM-dd")</div>
+                            <div class="small text-muted">Last Updated</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 py-3 d-flex justify-content-between">
+                    <button class="btn btn-sm btn-link text-decoration-none" disabled title="Coming Soon">Configure</button>
+                    <button class="btn btn-sm btn-link text-decoration-none text-muted" disabled title="Coming Soon">View Analytics</button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-white border-0 py-3">
+        <h5 class="mb-0 fw-bold">Module Permissions by Role</h5>
+    </div>
+    <div class="card-body p-0">
+         <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="border-0 text-muted small text-uppercase ps-4">Module</th>
+                        <th class="border-0 text-muted small text-uppercase text-center">Admin</th>
+                        <th class="border-0 text-muted small text-uppercase text-center">Sales</th>
+                        <th class="border-0 text-muted small text-uppercase text-center">Support</th>
+                        <th class="border-0 text-muted small text-uppercase text-center">Marketing</th>
+                        <th class="border-0 text-muted small text-uppercase text-center">Billing</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="ps-4 fw-bold">Customer Management</td>
+                        <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                        <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                        <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                        <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                        <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="ps-4 fw-bold">Sales Management</td>
+                        <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                        <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                        <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                        <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                        <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="ps-4 fw-bold">Support Tickets</td>
+                        <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                        <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                        <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                        <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                        <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="ps-4 fw-bold">Marketing Campaigns</td>
+                         <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                        <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                        <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                        <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                        <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                    </tr>
+                    <tr>
+                        <td class="ps-4 fw-bold">Billing & Invoices</td>
+                         <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                        <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                        <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                        <td class="text-center text-muted"><i class="bi bi-dash"></i></td>
+                        <td class="text-center text-success"><i class="bi bi-check-circle-fill"></i></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetModuleIconClass(string moduleName)
+    {
+        // Using lighter backgrounds for icons instead of opacity
+        return moduleName switch
+        {
+            "Customer Management" => "bg-light text-primary",
+            "Sales Management" => "bg-light text-success",
+            "Support Tickets" => "bg-light text-warning",
+            "Marketing Campaigns" => "bg-light text-info",
+            "Billing & Invoices" => "bg-light text-danger",
+            _ => "bg-light text-secondary"
+        };
+    }
+
+    string GetModuleIcon(string moduleName)
+    {
+        return moduleName switch
+        {
+            "Customer Management" => "bi bi-file-person",
+            "Sales Management" => "bi bi-graph-up-arrow",
+            "Support Tickets" => "bi bi-headset",
+            "Marketing Campaigns" => "bi bi-megaphone",
+            "Billing & Invoices" => "bi bi-receipt",
+            _ => "bi bi-gear"
+        };
+    }
+}

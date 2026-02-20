@@ -1,0 +1,209 @@
+@model ClientSphere.ViewModels.SalesManagerDashboardViewModel
+
+@{
+    ViewData["Title"] = "Sales Manager Dashboard";
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "Dashboard";
+}
+
+<!-- Header removed to prevent duplication with Layout -->
+
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                    <i class="bi bi-currency-dollar h4 mb-0"></i>
+                </div>
+                <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2">
+                    <i class="bi bi-arrow-up-short"></i> @Model.RevenueGrowth%
+                </span>
+            </div>
+            <h3 class="fw-bold mb-0 text-dark">$@Model.TotalRevenueMTD.ToString("N0")K</h3>
+            <div class="text-muted small">Total Revenue (MTD)</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                    <i class="bi bi-bullseye h4 mb-0"></i>
+                </div>
+                <span class="text-primary fw-bold small">85%</span>
+            </div>
+            <h3 class="fw-bold mb-0 text-dark">$253K</h3>
+            <div class="text-muted small">Quota Achievement</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+             <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                    <i class="bi bi-graph-up-arrow h4 mb-0"></i>
+                </div>
+                 <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2">
+                    <i class="bi bi-arrow-up-short"></i> @Model.DealsGrowth%
+                </span>
+            </div>
+            <h3 class="fw-bold mb-0 text-dark">@Model.DealsClosedMTD</h3>
+            <div class="text-muted small">Deals Closed (MTD)</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+             <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                    <i class="bi bi-people h4 mb-0"></i>
+                </div>
+                <span class="text-muted small">3 members</span>
+            </div>
+            <h3 class="fw-bold mb-0 text-dark">$@((Model.AvgDealSize/1000).ToString("N0"))K</h3>
+            <div class="text-muted small">Avg Deal Size</div>
+        </div>
+    </div>
+</div>
+
+<!-- Team Performance -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold">Team Performance</h5>
+        <a href="#" class="btn btn-sm btn-link text-decoration-none">View All Sales &rarr;</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+            @foreach (var person in Model.TeamPerformance)
+            {
+                <div class="list-group-item border-0 py-3 px-4 d-flex align-items-center">
+                    <div class="me-3">
+                        <span class="badge rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">#@person.Rank</span>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold text-dark">@person.Name</div>
+                        <div class="small text-muted">@person.Role</div>
+                    </div>
+                    <div class="text-end me-4">
+                        <div class="fw-bold text-dark">$@((person.TotalSales/1000).ToString("N0"))K</div>
+                        <div class="small text-muted">@person.DealsCount deals</div>
+                    </div>
+                    <div class="text-end" style="width: 80px;">
+                        @if(person.Growth > 0)
+                        {
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">
+                                <i class="bi bi-arrow-up-short"></i> @person.Growth%
+                            </span>
+                        }
+                        else
+                        {
+                             <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">
+                                <i class="bi bi-arrow-down-short"></i> @Math.Abs(person.Growth)%
+                            </span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Pending Approvals -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 py-3">
+        <h5 class="mb-0 fw-bold text-danger">Pending High-Value Orders (Requires Approval)</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Order ID</th>
+                        <th>Customer</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.PendingHighValueDeals != null && Model.PendingHighValueDeals.Any())
+                    {
+                        @foreach (var order in Model.PendingHighValueDeals)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold">#ORD-@order.Id</td>
+                                <td>
+                                    <!-- Simple check if Customer is loaded, otherwise just ID -->
+                                    @(order.Customer != null ? order.Customer.CompanyName : "Client #" + order.CustomerId)
+                                </td>
+                                <td class="fw-bold">$@order.TotalAmount.ToString("N2")</td>
+                                <td>@order.OrderDate.ToString("MMM dd")</td>
+                                <td><span class="badge bg-warning text-dark">@order.Status</span></td>
+                                <td class="text-end pe-4">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <form asp-action="ApproveOrder" asp-route-id="@order.Id" method="post" style="display:inline;">
+                                            <button type="submit" class="btn btn-sm btn-success text-white">
+                                                <i class="bi bi-check-lg"></i> Approve
+                                            </button>
+                                        </form>
+                                        <form asp-action="RejectOrder" asp-route-id="@order.Id" method="post" style="display:inline;">
+                                             <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-x-lg"></i> Reject
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                         <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">
+                                <i class="bi bi-check-circle h4 d-block mb-2"></i>
+                                No pending high-value orders.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Actions Grid -->
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 shadow-sm h-100 hover-card cursor-pointer">
+            <div class="card-body">
+                <i class="bi bi-bar-chart-line h3 text-primary mb-3 d-block"></i>
+                <h5 class="fw-bold">View Sales Reports</h5>
+                <p class="text-muted small mb-0">Detailed analytics and pipeline reports</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 shadow-sm h-100 hover-card cursor-pointer">
+            <div class="card-body">
+                <i class="bi bi-people h3 text-success mb-3 d-block"></i>
+                <h5 class="fw-bold">Customer Database</h5>
+                <p class="text-muted small mb-0">Access customer information</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card border-0 shadow-sm h-100 hover-card cursor-pointer">
+            <div class="card-body">
+                <i class="bi bi-check2-circle h3 text-purple mb-3 d-block" style="color: #6f42c1;"></i>
+                <h5 class="fw-bold">Approve High-Value Deals</h5>
+                <p class="text-muted small mb-0">@Model.PendingHighValueDeals.Count deals pending approval</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-card:hover {
+        transform: translateY(-5px);
+        transition: transform 0.2s ease;
+    }
+</style>

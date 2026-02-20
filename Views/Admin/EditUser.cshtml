@@ -1,0 +1,69 @@
+@model ClientSphere.Models.ApplicationUser
+@{
+    ViewData["Title"] = "Edit User";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-pencil-square me-2"></i>Edit User</h5>
+                    <a asp-action="UserManagement" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Back to List
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="EditUser" asp-route-id="@Model.Id" method="post">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">First Name</label>
+                            <input type="text" name="firstName" value="@Model.FirstName" class="form-control" placeholder="Enter first name" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Last Name</label>
+                            <input type="text" name="lastName" value="@Model.LastName" class="form-control" placeholder="Enter last name" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Company Name</label>
+                        <input type="text" name="companyName" value="@Model.CompanyName" class="form-control" placeholder="Enter company name" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
+                        <input type="email" name="email" value="@Model.Email" class="form-control" placeholder="user@example.com" required />
+                        <small class="text-muted">This will be used as the username</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Role <span class="text-danger">*</span></label>
+                        <select name="role" class="form-select" required>
+                            <option value="">-- Select Role --</option>
+                            <option value="Super Admin" selected="@(ViewBag.CurrentRole == "Super Admin")">Super Admin</option>
+                            <option value="Admin" selected="@(ViewBag.CurrentRole == "Admin")">Admin</option>
+                            <option value="Sales Manager" selected="@(ViewBag.CurrentRole == "Sales Manager")">Sales Manager</option>
+                            <option value="Sales Staff" selected="@(ViewBag.CurrentRole == "Sales Staff")">Sales Staff</option>
+                            <option value="Marketing Staff" selected="@(ViewBag.CurrentRole == "Marketing Staff")">Marketing Staff</option>
+                            <option value="Support Staff" selected="@(ViewBag.CurrentRole == "Support Staff")">Support Staff</option>
+                            <option value="Billing Staff" selected="@(ViewBag.CurrentRole == "Billing Staff")">Billing Staff</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="UserManagement" class="btn btn-light">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

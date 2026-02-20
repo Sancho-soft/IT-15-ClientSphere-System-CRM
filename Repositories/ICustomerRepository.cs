@@ -9,6 +9,7 @@ namespace ClientSphere.Repositories
         Task AddAsync(Customer customer);
         Task UpdateAsync(Customer customer);
         Task DeleteAsync(int id);
+        Task<IEnumerable<Customer>> SearchAsync(string query);
         Task<bool> ExistsAsync(int id);
     }
 }

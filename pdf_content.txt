@@ -1,0 +1,370 @@
+
+--- Processing IT15_PROJECT_TITLE_PROPOSAL-V4_1.pdf ---
+Pages: 6
+ 
+NAME ALDREN LOUIE L. REYES 
+PROJECT TITLE  ClientSphere: Customer Relationship Management 
+System 
+SUBJECT: 
+CODE: 
+TIME: 
+IT15/L Integrative Programming and Technologies 
+8441 
+10:00 am - 12:00 nn 
+TOPIC (Type of 
+Business Process) 
+#5 Customer Relationship Management (CRM) 
+Products/Services Sales and Service-Oriented Business 
+Tools Needed:  Visual Studio 2022– IDE, SSMS, Domain, Hosting 
+ 
+ 
+Technology:  C#, ASP.NET Core, HTML5, CSS3, SQL Server Management Studio, Microsoft 
+Graph API, Stripe API, SendGrid API 
+ 
+ 
+Security Features Role-Based Access Control (RBAC), User Authentication, Authorization and 
+Permission Management, Data Encryption, Audit Logs and Activity Monitoring, 
+Secure Session Management, Input Validation and Protection Against Common 
+Attacks 
+Target user/s: Customers/Clients, Sales Manager, Sales Staff, Marketing Manager, Customer 
+Support Staff, Billing Staff, System Administrator 
+ 
+Subs System / 
+Management 
+Transaction/Modules 
+1.Customer Master Data 
+2.Sales Management 
+3.Customer Support / Ticketing 
+4. Marketing Campaign Management 
+5.Billing and insurance integration 
+LOGO 
+ 
+Project Objectives: 1. To develop a centralized Customer Master Data module that securely stores 
+and manages complete customer information, including contact details, 
+interaction history, and transaction records, to ensure accurate and 
+consistent customer data shared across all system modules. 
+2. To implement a Sales Management module that allows users to record sales 
+transactions, manage client meeting schedules, and analyze performance, 
+enabling the organization to identify trends and improve revenue 
+management. 
+3. To design a Customer Support and Service Module that centralizes client 
+inquiries, complaints, and warranty claims. This module converts incoming 
+requests into tracked "cases" or "tickets," enabling support staff to view the 
+customer’s purchase history and resolve issues efficiently 
+4. To integrate a Marketing Campaign Management module that supports the 
+creation, monitoring, and evaluation of marketing campaigns, promotions, 
+and customer engagement activities to help businesses improve customer 
+retention and brand awareness. 
+5. To develop a Billing and Invoice Integration module that automatically 
+generates invoices from sales data, tracks customer payments, and 
+maintains accurate billing records to reduce manual errors and improve 
+financial transparency. 
+
+Project Description: 
+ClientSphere is a web -based Customer Relationship Management (CRM) system 
+designed for businesses focused on sales and customer service. It provides an all-
+in-one platform to manage customer interactions and streamline business 
+processes. Built with an Ent erprise Resource Planning (ERP) approach, 
+ClientSphere integrates multiple business functions into a single centralized 
+system using a shared database. The system includes five main modules: 
+Customer Master Data, Sales Management, Customer Support and Tick eting, 
+Marketing Campaign Management, and Billing and Invoice Management. 
+The system is designed for different types of users, including administrators, sales 
+teams, customer support staff, marketing teams, and billing personnel. Each user 
+is granted access based on their role, ensuring data security and proper usage 
+across departments. 
+ClientSphere helps businesses overcome common challenges such as customer 
+information being stored in multiple, disconnected locations, which can lead to 
+duplicate records, errors, and delays. It also addresses inefficient sales tracking, 
+slow support resp onses, unorganized marketing campaigns, and manual billing 
+processes. By centralizing these functions, the system improves operational 
+efficiency, ensures accurate data, enhances collaboration between departments, 
+and increases overall customer satisfaction. 
+To enhance functionality, the system integrates three key APIs. The Microsoft 
+Graph API syncs sales schedules and meetings directly with staff Outlook 
+calendars. An Email Notification API automates communication by sending 
+updates for support tickets, billing reminders, and marketing campaigns. A 
+Payment API helps confirm payment statuses and automatically updates billing 
+and invoice records, ensuring accurate financial tracking. 
+ClientSphere is built using modern web technologies, including ASP.NET Core for 
+backend logic, SQL Server for database management, and responsive web 
+technologies for the interface. These technologies were chosen for their 
+reliability, security, and ability to support scalable, enterprise-level applications. 
+Overall, ClientSphere  provides businesses with a powerful, ERP -based CRM 
+solution that improves decision-making, strengthens customer relationships, and 
+enhances overall business performance. 
+Use Case Diagram 
+ (Role-Based Access) 
+ 
+ 
+ 
+
+Role-Based Access for Customer Relationship Management (CRM) 
+Admin 
+• Manage Users & Permissions 
+• System Configuration 
+• Full System Access & Audit Logs 
+Sales Manager 
+• View Sales Reports & Analytics  
+• Monitor Sales Team Performance 
+• Approve High-Value Orders 
+Sales Staff 
+• View/Add Customers 
+• Create & Update Sales Records 
+• Manage Client Meeting Schedules  
+Customer Support Staff 
+• View Customer Profiles 
+• Create & Update Support Tickets 
+• Trigger Email Notifications  
+• Resolve Issues 
+Marketing Manager  
+• Track Campaign Performance & ROI  
+• Analyze Customer Engagement Reports 
+Marketing Staff 
+• Create Marketing Campaigns 
+• Manage Promotions & Email Blasts 
+Billing Staff 
+• Generate Invoices 
+• Process Online Payments  
+• Update Billing Records 
+ 
+Date Submitted: January 29 2026 
+Teacher’s Feedback  
+_________________________________________________________________ 
+_________________________________________________________________ 
+_________________________________________________________________ 
+_________________________________________________________________ 
+_________________________________________________________________ 
+_________________________________________________________________ 
+ 
+________________________________            __________________________    
+Student’s Signature (after feedbacking)                       Teacher’s Signature 
+ 
+  
+ 
+
+==================================================
+
+--- Processing IT15_ERD_DATADICTIONARY-V3.pdf ---
+Pages: 8
+ 
+NAME ALDREN LOUIE REYES 
+PROJECT TITLE  ClientSphere: Customer Relationship Management System 
+SUBJECT: 
+CODE: 
+TIME: 
+IT15/L Integrative Programming and Technologies 
+8441 
+10:00 am - 12:00 nn 
+TOPIC (Type of 
+Business Process) 
+#5 - Customer Relationship Management (CRM) 
+Products/Service
+s 
+Sales and Customer Service 
+Agile Model - 
+SDLC 
+The ClientSphere Customer Relationship Management System follows the Agile Software 
+Development Life Cycle (SDLC) to ensure flexibility, continuous improvement, and 
+effective collaboration among stakeholders. During the Requirements and Planning phase, 
+the development team identifies the core needs of the system based on the roles involved, 
+such as Admin, Sales Staff, Support Staff, Marketing Staff, and Customers. The primary goal 
+of the system is to provide an organized platform for managing customer data, tracking 
+sales, handling support tickets, running marketing campaigns, and generating invoices, all 
+with proper role-based access. 
+ 
+In this phase, the major functional requirements were gathered through system analysis 
+and use-case identification. These include customer management (add/edit/delete/view), 
+sales tracking, support ticket creation and resolution, marketing campaign managem ent, 
+invoice generation, and reporting. The planning process also defines the project scope, 
+prioritizes features into Agile iterations or sprints, and ensures that each role has the 
+correct permissions within the system. 
+By applying Agile planning, the system is developed incrementally, allowing feedback and 
+improvements after every sprint to ensure the final software meets the needs of both 
+management and operational users, while enhancing efficiency in customer relations hip 
+processes. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Use Case 
+Diagram 
+(Diagram Only) 
+  
+
+Entity Relational 
+Diagram  
+ 
+ 
+ 
+ 
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Data Dictionary  
+ 
+ 
+ClientSphere: Customer Relationship Management System 
+ 
+Customers Table 
+Field Names Datatype Length  Description 
+CustomerID-PK Int-AI 9 Customer unique ID 
+number 
+FirstName Text 50 Customer first name 
+LastName Text 50 Customer last name 
+Email Text 100 Customer email 
+address 
+Phone Text 20 Customer phone 
+number 
+Address Text 255 Street address 
+City Text 50 City 
+Country Text 50 Country 
+DateCreated Datetime - Date account created 
+Status Enum - Active / Inactive 
+ 
+Sales Table 
+Field Names Datatype Length  Description 
+SaleID-PK Int-AI 9 Unique sale ID 
+CustomerID-FK  Int 9 Product/service sold 
+Product Text 100 Employees ’s  Company 
+Number 
+Quantity Int - Number of units sold 
+UnitPrice Decimal 10,2 Price per unit 
+TotalAmount Decimal 10,2 Total sale amount 
+SaleDate Datetime - Sale date 
+Status Enum - Pending / Completed / 
+Cancelled 
+ 
+SupportTicket Table 
+Field Names Datatype Length  Description 
+TicketID-PK Int-AI 9 Unique ticket ID 
+CustomerID-FK 
+ 
+Int 9 Linked customer ID 
+Subject Text 100 Ticket subject 
+Description Text - Ticket details 
+Priority Enum - Low / Medium / High 
+Status Enum - Open / In Progress / 
+Closed 
+CreatedDate Datetime - Ticket creation date 
+ClosedDate Datetime - Ticket closed date 
+AssignedTo-FK Int 9 Staff ID assigned 
+ 
+MarketingCampaign Table 
+Field Names Datatype Length  Description 
+CampaignID-PK Int-AI 9 Unique campaign ID 
+Name 
+ 
+Int 9 Campaign name 
+Type Enum 
+  
+ 
+25 Email / SMS / Call / 
+Other 
+ 
+StartDate Datetime 20 Start date 
+EndDate Datetime 30 End date 
+Status Enum 20 Active / Inactive 
+Budget Decimal 10,2 Campaign budget 
+ 
+CampaignRecipients Table 
+Field Names Datatype Length  Description 
+CampaignID-FK Int-AI 9 Linked campaign ID 
+ 
+CustomerID-FK  Int 9 Linked customer ID 
+ResponseStatus Enum - Clicked / Opened / 
+Responded / No 
+Response 
+ 
+Billing Table 
+Field Names Datatype Length  Description 
+InvoiceID-PK Int-AI 9 Unique invoice ID 
+SaleID-FK  Int 9 Linked sale ID 
+CustomerID-FK Int 9 Linked customer ID 
+InvoiceDate Datetime - Invoice creation date 
+DueDate Datetime - Payment due date 
+Amount Decimal 10,2 Invoice total amount 
+Status Enum - Paid / Unpaid / 
+Overdue 
+PaymentMethod Text 50 Payment method 
+ 
+Staff Table 
+Field Names Datatype Length  Description 
+UserID-PK Int-AI 9 Unique staff ID 
+FirstName  Text 50 Staff first name 
+LastName Text 50 Staff last name 
+Email Text 100 Staff email 
+Role Enum - Admin / Sales / Support / 
+Marketing 
+PasswordHash Text 255 Password hash 
+DateCreated Datetime - Account creation 
+Status Enum - Active / Inactive 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Date Submitted: February 4 2026 
+Teacher’s 
+Feedback 
+ 
+_________________________________________________________________ 
+_________________________________________________________________ 
+_________________________________________________________________ 
+_________________________________________________________________ 
+_________________________________________________________________ 
+_________________________________________________________________ 
+ 
+________________________________            __________________________    
+Student’s Signature (after feedbacking)                       Teacher’s Signature 
+ 
+  
+ 
+ 
+  
+ 
+
+==================================================

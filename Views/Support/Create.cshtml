@@ -1,0 +1,79 @@
+@model ClientSphere.Models.SupportTicket
+
+@{
+    ViewData["Title"] = "Create Support Ticket";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">Create Support Ticket</h1>
+            <p class="text-muted small">Open a new support ticket for a customer.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="Subject" class="form-label fw-bold"></label>
+                        <input asp-for="Subject" class="form-control" placeholder="Enter ticket subject" />
+                        <span asp-validation-for="Subject" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="CustomerId" class="form-label fw-bold">Customer ID / Name</label>
+                        <input asp-for="CustomerId" class="form-control" placeholder="Enter customer identifier (e.g., CUST-001)" />
+                        <span asp-validation-for="CustomerId" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                         <label asp-for="Priority" class="form-label fw-bold"></label>
+                        <select asp-for="Priority" class="form-select">
+                            <option value="">Select Priority</option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                        <span asp-validation-for="Priority" class="text-danger small"></span>
+                    </div>
+                     <div class="col-md-6">
+                         <label asp-for="Status" class="form-label fw-bold"></label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="Open">Open</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Resolved">Resolved</option>
+                            <option value="Closed">Closed</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Description" class="form-label fw-bold"></label>
+                    <textarea asp-for="Description" class="form-control" rows="5" placeholder="Detailed description of the issue..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-save me-2"></i> Create Ticket
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

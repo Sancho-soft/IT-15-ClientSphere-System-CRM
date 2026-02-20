@@ -3,25 +3,55 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
-<ul class="navbar-nav">
+<ul class="navbar-nav align-items-center">
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a  class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
+        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
+    </li>
+    <li class="nav-item ms-2">
+        @if (User.IsInRole("Admin"))
+        {
+            <a class="btn btn-primary btn-sm px-3 fw-bold" asp-controller="Admin" asp-action="Dashboard">Dashboard</a>
+        }
+        else if (User.IsInRole("Sales Manager"))
+        {
+            <a class="btn btn-primary btn-sm px-3 fw-bold" asp-controller="SalesManager" asp-action="Dashboard">Dashboard</a>
+        }
+        else if (User.IsInRole("Sales Staff"))
+        {
+            <a class="btn btn-primary btn-sm px-3 fw-bold" asp-controller="SalesStaff" asp-action="Dashboard">Dashboard</a>
+        }
+        else if (User.IsInRole("Support Staff"))
+        {
+            <a class="btn btn-primary btn-sm px-3 fw-bold" asp-controller="SupportStaff" asp-action="Dashboard">Dashboard</a>
+        }
+        else if (User.IsInRole("Marketing Staff") || User.IsInRole("Marketing Manager"))
+        {
+             <a class="btn btn-primary btn-sm px-3 fw-bold" asp-controller="MarketingStaff" asp-action="Dashboard">Dashboard</a>
+        }
+        else if (User.IsInRole("Billing Staff"))
+        {
+             <a class="btn btn-primary btn-sm px-3 fw-bold" asp-controller="Billing" asp-action="Index">Dashboard</a>
+        }
+         else if (User.IsInRole("Customer"))
+        {
+             <a class="btn btn-primary btn-sm px-3 fw-bold" asp-controller="CustomerPortal" asp-action="Dashboard">Portal</a>
+        }
     </li>
     <li class="nav-item ms-2">
         <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button  type="submit" class="btn btn-outline-danger">Logout</button>
+            <button  type="submit" class="btn btn-outline-danger btn-lg px-4 fs-6">Logout</button>
         </form>
     </li>
 }
 else
 {
     <li class="nav-item">
-        <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
     </li>
     <li class="nav-item ms-2">
-        <a class="btn btn-primary px-4 fw-bold text-white" asp-area="Identity" asp-page="/Account/Register">Register</a>
+        <a class="btn btn-primary btn-lg px-4 fs-6 fw-bold text-white shadow-sm" asp-area="Identity" asp-page="/Account/Register">Register</a>
     </li>
 }
 </ul>

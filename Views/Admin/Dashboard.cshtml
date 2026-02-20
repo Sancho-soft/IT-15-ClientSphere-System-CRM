@@ -1,0 +1,287 @@
+@model ClientSphere.ViewModels.AdminDashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row mb-4">
+    <!-- Total Users -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-shape icon-md bg-secondary-subtle text-secondary rounded-3 me-3 p-3">
+                            <i class="bi bi-people h4 mb-0"></i>
+                        </div>
+                        <h6 class="text-muted mb-0">Total Users</h6>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-end">
+                    <h3 class="fw-bold mb-0">@Model.TotalUsers</h3>
+                    <small class="text-success fw-bold"><i class="bi bi-arrow-up"></i> 12.5%</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Active Sales -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-shape icon-md bg-secondary-subtle text-secondary rounded-3 me-3 p-3">
+                            <i class="bi bi-graph-up-arrow h4 mb-0"></i>
+                        </div>
+                        <h6 class="text-muted mb-0">Active Sales</h6>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-end">
+                    <h3 class="fw-bold mb-0">@Model.TotalOrders</h3>
+                    <small class="text-success fw-bold"><i class="bi bi-arrow-up"></i> 8.2%</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Open Tickets -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center">
+                         <div class="icon-shape icon-md bg-secondary-subtle text-secondary rounded-3 me-3 p-3">
+                            <i class="bi bi-ticket-perforated h4 mb-0"></i>
+                        </div>
+                        <h6 class="text-muted mb-0">Open Tickets</h6>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-end">
+                    <h3 class="fw-bold mb-0">@Model.ActiveTickets</h3>
+                    <small class="text-danger fw-bold"><i class="bi bi-arrow-down"></i> 4.3%</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Revenue -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center">
+                         <div class="icon-shape icon-md bg-secondary-subtle text-secondary rounded-3 me-3 p-3">
+                            <i class="bi bi-currency-dollar h4 mb-0"></i>
+                        </div>
+                        <h6 class="text-muted mb-0">Revenue</h6>
+                    </div>
+                </div>
+               <div class="d-flex justify-content-between align-items-end">
+                    <h3 class="fw-bold mb-0">$@Model.TotalRevenue.ToString("N0")</h3>
+                    <small class="text-success fw-bold"><i class="bi bi-arrow-up"></i> 15.8%</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (User.IsInRole("Super Admin"))
+{
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h5 class="fw-bold mb-3">Quick Actions</h5>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a href="@Url.Action("Index", "Customers")" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 mb-3 mx-auto" style="width: fit-content;">
+                        <i class="bi bi-people h3 mb-0"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Manage Customers</h6>
+                    <p class="text-muted small mb-0">View, add, edit customers</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a href="@Url.Action("UserManagement", "Admin")" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 mb-3 mx-auto" style="width: fit-content;">
+                        <i class="bi bi-person-badge h3 mb-0"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Manage Users</h6>
+                    <p class="text-muted small mb-0">View, add, edit staff users</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a href="@Url.Action("Index", "Products")" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 mb-3 mx-auto" style="width: fit-content;">
+                        <i class="bi bi-box-seam h3 mb-0"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Manage Products</h6>
+                    <p class="text-muted small mb-0">View, add, edit products</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-3 mb-3">
+        <a href="@Url.Action("Index", "Orders")" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 mb-3 mx-auto" style="width: fit-content;">
+                        <i class="bi bi-cart-check h3 mb-0"></i>
+                    </div>
+                    <h6 class="fw-bold mb-1">Manage Orders</h6>
+                    <p class="text-muted small mb-0">View, add, edit orders</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+}
+
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-bottom-0 py-3">
+                <h5 class="mb-0 fw-bold">Recent Activity</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0 ps-4">User</th>
+                            <th class="border-0">Action</th>
+                            <th class="border-0">Module</th>
+                            <th class="border-0 text-end pe-4">Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.RecentActivities.Any())
+                        {
+                            foreach (var activity in Model.RecentActivities)
+                            {
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle-sm me-2 @GetActivityColor(activity.Action)">@GetInitials(activity.UserName)</div>
+                                            <span class="fw-bold">@activity.UserName</span>
+                                        </div>
+                                    </td>
+                                    <td>@activity.Action</td>
+                                    <td><span class="badge @GetBadgeColor(activity.Action)">@GetActivityCategory(activity.Action)</span></td>
+                                    <td class="text-end pe-4 text-muted small">@GetTimeAgo(activity.Timestamp)</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center py-4 text-muted">No recent activity found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Module Status -->
+    <div class="col-md-4 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+             <div class="card-header bg-white border-bottom-0 py-3">
+                <h5 class="mb-0 fw-bold">System Status</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div class="d-flex align-items-center">
+                         <div class="icon-shape bg-light text-primary rounded-circle p-2 me-3">
+                            <i class="bi bi-database"></i>
+                        </div>
+                        <div>
+                             <h6 class="mb-0 fw-bold">Database</h6>
+                            <small class="text-muted">Connected</small>
+                        </div>
+                    </div>
+                     <span class="badge bg-success rounded-pill">Result: Ok</span>
+                </div>
+                 <div class="d-flex align-items-center justify-content-between mb-4">
+                    <div class="d-flex align-items-center">
+                         <div class="icon-shape bg-light text-info rounded-circle p-2 me-3">
+                            <i class="bi bi-hdd-network"></i>
+                        </div>
+                        <div>
+                             <h6 class="mb-0 fw-bold">API Services</h6>
+                            <small class="text-muted">Online</small>
+                        </div>
+                    </div>
+                     <span class="badge bg-success rounded-pill">Running</span>
+                </div>
+                 <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                         <div class="icon-shape bg-light text-warning rounded-circle p-2 me-3">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+                        <div>
+                             <h6 class="mb-0 fw-bold">Server Load</h6>
+                            <small class="text-muted">Optimal</small>
+                        </div>
+                    </div>
+                     <span class="badge bg-success rounded-pill">Normal</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetInitials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "??";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length >= 2)
+            return $"{parts[0][0]}{parts[1][0]}".ToUpper();
+        return parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpper();
+    }
+
+    string GetTimeAgo(DateTime timestamp)
+    {
+        var timeAgo = DateTime.UtcNow - timestamp;
+        if (timeAgo.TotalMinutes < 1) return "Just now";
+        if (timeAgo.TotalMinutes < 60) return $"{(int)timeAgo.TotalMinutes}m ago";
+        if (timeAgo.TotalHours < 24) return $"{(int)timeAgo.TotalHours}h ago";
+        if (timeAgo.TotalDays < 7) return $"{(int)timeAgo.TotalDays}d ago";
+        return timestamp.ToString("MMM dd");
+    }
+
+    string GetActivityColor(string action)
+    {
+        return "bg-light text-secondary"; 
+    }
+    
+    // Helper to return badge color implementation
+     string GetBadgeColor(string action)
+    {
+        if (action.Contains("Created") || action.Contains("Added")) return "bg-success-subtle text-success";
+        if (action.Contains("Updated") || action.Contains("Modified")) return "bg-primary-subtle text-primary";
+        if (action.Contains("Deleted") || action.Contains("Removed")) return "bg-danger-subtle text-danger";
+        return "bg-secondary-subtle text-secondary";
+    }
+
+    string GetActivityCategory(string action)
+    {
+        if (action.Contains("Customer")) return "Customer";
+        if (action.Contains("Order") || action.Contains("Sales")) return "Sales";
+        if (action.Contains("Ticket") || action.Contains("Support")) return "Support";
+        if (action.Contains("Campaign") || action.Contains("Marketing")) return "Marketing";
+        if (action.Contains("Invoice") || action.Contains("Billing")) return "Billing";
+        if (action.Contains("Login") || action.Contains("Logout")) return "System";
+        return "General";
+    }
+}

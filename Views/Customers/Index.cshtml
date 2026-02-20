@@ -1,61 +1,161 @@
 @model IEnumerable<ClientSphere.Models.Customer>
 
 @{
-    ViewData["Title"] = "Customers";
+    ViewData["Title"] = "Customer Master Data";
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "Customers";
 }
 
-<div class="container-fluid py-4">
+<div class="container-fluid p-0">
+    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Customer Management</h1>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus-lg me-2"></i>New Customer
+        <div>
+            <p class="text-muted mb-0">Centralized repository for all customer information</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary px-4">
+            <i class="bi bi-plus-lg me-2"></i>Add New Customer
         </a>
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">All Customers</h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover" id="customersTable" width="100%" cellspacing="0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Company</th>
-                            <th>Contact</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>City/Country</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td>@Html.DisplayFor(modelItem => item.CompanyName)</td>
-                                <td>@Html.DisplayFor(modelItem => item.ContactName)</td>
-                                <td>@Html.DisplayFor(modelItem => item.Email)</td>
-                                <td>@Html.DisplayFor(modelItem => item.Phone)</td>
-                                <td>@item.City, @item.Country</td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white" title="Details">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning text-white" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Delete">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-people h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Customers</div>
+                        <h3 class="fw-bold mb-0">@Model.Count()</h3>
+                    </div>
+                </div>
             </div>
         </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-building h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Active</div>
+                        <h3 class="fw-bold mb-0 text-success">@Model.Count()</h3> <!-- Mocked as all active for now -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+             <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-building-slash h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Inactive</div>
+                        <h3 class="fw-bold mb-0 text-danger">0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+             <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-calendar-check h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">New This Month</div>
+                        <h3 class="fw-bold mb-0 text-info">@Model.Count(c => c.CreatedAt.Month == DateTime.Now.Month && c.CreatedAt.Year == DateTime.Now.Year)</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-2">
+            <form asp-action="Index" method="get">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control border-0" placeholder="Search customers by name, ID, contact person, or email...">
+                    <button class="btn btn-light border-start rounded-0 px-4" type="submit"><i class="bi bi-search me-2"></i> Search</button>
+                    @if (ViewData["CurrentFilter"] != null)
+                    {
+                         <a asp-action="Index" class="btn btn-light border-start rounded-0 px-3">Clear</a>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Customer Cards Grid -->
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3 d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-building h5 mb-0"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-0">@item.CompanyName</h5>
+                                    <div class="text-muted small">CUST-@item.Id.ToString("D3")</div>
+                                </div>
+                            </div>
+                            <span class="badge bg-success-subtle text-success rounded-pill px-3">Active</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center mb-2 text-muted small">
+                                <i class="bi bi-envelope me-2"></i> @item.Email
+                            </div>
+                            <div class="d-flex align-items-center mb-2 text-muted small">
+                                <i class="bi bi-telephone me-2"></i> @item.Phone
+                            </div>
+                            <div class="d-flex align-items-center mb-2 text-muted small">
+                                <i class="bi bi-geo-alt me-2"></i> @item.Address, @item.City, @item.Country
+                            </div>
+             
+                        </div>
+
+                        <hr class="my-3 opacity-25">
+
+                        <div class="row text-center mb-3">
+                             <div class="col-4 border-end">
+                                <div class="small text-muted">Sales</div>
+                                <div class="fw-bold">$0</div> 
+                            </div>
+                            <div class="col-4 border-end">
+                                <div class="small text-muted">Tickets</div>
+                                <div class="fw-bold">0</div>
+                            </div>
+                             <div class="col-4">
+                                <div class="small text-muted">Campaigns</div>
+                                <div class="fw-bold">0</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-2">
+                             <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-link text-decoration-none px-0">
+                                <i class="bi bi-eye me-1"></i> View Details
+                            </a>
+                            <div class="d-flex gap-2">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-light btn-sm text-muted" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-light btn-sm text-muted" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
     </div>
 </div>

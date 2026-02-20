@@ -16,9 +16,20 @@ namespace ClientSphere.Controllers
         }
 
         // GET: Customers
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            var customers = await _customerService.GetAllCustomersAsync();
+            ViewData["CurrentFilter"] = searchString;
+            
+            IEnumerable<Customer> customers;
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                customers = await _customerService.SearchCustomersAsync(searchString);
+            }
+            else
+            {
+                customers = await _customerService.GetAllCustomersAsync();
+            }
+
             return View(customers);
         }
 
