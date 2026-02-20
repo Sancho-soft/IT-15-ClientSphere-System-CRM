@@ -1,0 +1,131 @@
+@model ClientSphere.Models.Customer
+
+@{
+    ViewData["Title"] = "Customer Details";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h4 class="fw-bold mb-0">@Model.CompanyName</h4>
+                    <span class="text-muted small">CUST-@Model.Id.ToString("D3")</span>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    @if (Model.IsActive)
+                    {
+                        <span class="badge bg-success-subtle text-success rounded-pill px-3">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3">Inactive</span>
+                    }
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-pencil me-1"></i>Edit
+                    </a>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Back
+                    </a>
+                </div>
+            </div>
+
+            <!-- Contact Info Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 d-flex align-items-center">
+                    <i class="bi bi-person-lines-fill text-primary me-2"></i>
+                    <h6 class="mb-0 fw-bold">Contact Information</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="text-muted small mb-1">Contact Name</div>
+                            <div class="fw-semibold">@Model.ContactName</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-muted small mb-1">Email Address</div>
+                            <div class="fw-semibold"><a href="mailto:@Model.Email">@Model.Email</a></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="text-muted small mb-1">Phone</div>
+                            <div class="fw-semibold">@(string.IsNullOrEmpty(Model.Phone) ? "—" : Model.Phone)</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="text-muted small mb-1">Customer Since</div>
+                            <div class="fw-semibold">@Model.CreatedAt.ToString("MMMM dd, yyyy")</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 d-flex align-items-center">
+                    <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+                    <h6 class="mb-0 fw-bold">Address</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="text-muted small mb-1">Street Address</div>
+                            <div class="fw-semibold">@(string.IsNullOrEmpty(Model.Address) ? "—" : Model.Address)</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-muted small mb-1">City</div>
+                            <div class="fw-semibold">@(string.IsNullOrEmpty(Model.City) ? "—" : Model.City)</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-muted small mb-1">Region</div>
+                            <div class="fw-semibold">@(string.IsNullOrEmpty(Model.Region) ? "—" : Model.Region)</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-muted small mb-1">Postal Code</div>
+                            <div class="fw-semibold">@(string.IsNullOrEmpty(Model.PostalCode) ? "—" : Model.PostalCode)</div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="text-muted small mb-1">Country</div>
+                            <div class="fw-semibold">@(string.IsNullOrEmpty(Model.Country) ? "—" : Model.Country)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status Management -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 d-flex align-items-center">
+                    <i class="bi bi-toggle-on text-primary me-2"></i>
+                    <h6 class="mb-0 fw-bold">Account Status</h6>
+                </div>
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-0">Current status: 
+                            <strong class="@(Model.IsActive ? "text-success" : "text-secondary")">
+                                @(Model.IsActive ? "Active" : "Inactive")
+                            </strong>
+                        </p>
+                        <p class="text-muted small mb-0">
+                            @(Model.IsActive 
+                                ? "This customer is visible and accessible to all users." 
+                                : "This customer is hidden from standard views.")
+                        </p>
+                    </div>
+                    <form asp-action="ToggleActive" asp-route-id="@Model.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn @(Model.IsActive ? "btn-outline-warning" : "btn-outline-success")">
+                            <i class="bi @(Model.IsActive ? "bi-pause-circle" : "bi-play-circle") me-1"></i>
+                            @(Model.IsActive ? "Set Inactive" : "Set Active")
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
