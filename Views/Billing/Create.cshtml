@@ -1,0 +1,95 @@
+@model ClientSphere.Models.Invoice
+
+@{
+    ViewData["Title"] = "Create Invoice";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0 text-gray-800">Create Invoice</h1>
+            <p class="text-muted small">Generate a new invoice for a customer.</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="InvoiceNumber" class="form-label fw-bold">Invoice Number</label>
+                        <input asp-for="InvoiceNumber" class="form-control" readonly />
+                        <span asp-validation-for="InvoiceNumber" class="text-danger small"></span>
+                    </div>
+                     <div class="col-md-6">
+                        <label asp-for="CustomerId" class="form-label fw-bold">Customer ID</label>
+                        <input asp-for="CustomerId" class="form-control" placeholder="Enter Customer ID" type="number" />
+                        <span asp-validation-for="CustomerId" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label asp-for="Amount" class="form-label fw-bold"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input asp-for="Amount" class="form-control" type="number" step="0.01" />
+                        </div>
+                        <span asp-validation-for="Amount" class="text-danger small"></span>
+                    </div>
+                     <div class="col-md-4">
+                        <label asp-for="IssueDate" class="form-label fw-bold">Issue Date</label>
+                        <input asp-for="IssueDate" class="form-control" type="date" />
+                        <span asp-validation-for="IssueDate" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label asp-for="DueDate" class="form-label fw-bold">Due Date</label>
+                        <input asp-for="DueDate" class="form-control" type="date" />
+                        <span asp-validation-for="DueDate" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                         <label asp-for="Status" class="form-label fw-bold"></label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="Draft">Draft</option>
+                            <option value="Sent">Sent</option>
+                            <option value="Paid">Paid</option>
+                            <option value="Overdue">Overdue</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger small"></span>
+                    </div>
+                     <div class="col-md-4">
+                         <label asp-for="PaymentMethod" class="form-label fw-bold">Payment Method</label>
+                        <select asp-for="PaymentMethod" class="form-select">
+                            <option value="">Select Method</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Credit Card">Credit Card</option>
+                            <option value="PayPal">PayPal</option>
+                            <option value="Check">Check</option>
+                        </select>
+                        <span asp-validation-for="PaymentMethod" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-file-earmark-plus me-2"></i> Generate Invoice
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,174 @@
+@model ClientSphere.ViewModels.SalesDashboardViewModel
+
+@{
+    ViewData["Title"] = "Sales Management";
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "Sales";
+}
+
+<div class="container-fluid p-0">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Sales Management</h3>
+            <p class="text-muted mb-0">Track sales transactions and pipeline</p>
+        </div>
+        <a asp-controller="Orders" asp-action="Create" class="btn btn-primary px-4">
+            <i class="bi bi-plus-lg me-2"></i>Create New Sale
+        </a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-currency-dollar h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Revenue</div>
+                        <h3 class="fw-bold mb-0 text-success">$@Model.TotalRevenue.ToString("N0")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-clock-history h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Pending</div>
+                        <h3 class="fw-bold mb-0 text-warning">$@Model.PendingRevenue.ToString("N0")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+             <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-graph-up-arrow h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Sales</div>
+                        <h3 class="fw-bold mb-0 text-primary">@Model.TotalSalesCount</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+             <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-box-seam h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Avg Deal Size</div>
+                        <h3 class="fw-bold mb-0 text-info">$@Model.AvgDealSize.ToString("N0")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-2">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control border-0" placeholder="Search sales by ID, customer, product, or sales person...">
+                <button class="btn btn-light border-start rounded-0 px-4" type="button"><i class="bi bi-funnel me-2"></i> All Status</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr class="text-uppercase text-muted small">
+                            <th class="ps-4 border-0">Sale ID</th>
+                            <th class="border-0">Customer</th>
+                            <th class="border-0">Product</th>
+                            <th class="border-0">Quantity</th>
+                            <th class="border-0">Amount</th>
+                            <th class="border-0">Status</th>
+                            <th class="border-0">Sales Person</th>
+                            <th class="pe-4 border-0 text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.RecentSales)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold">SALE-@item.Id.ToString("D3")<div class="small fw-normal text-muted">@item.OrderDate.ToString("yyyy-MM-dd")</div></td>
+                                <td class="fw-bold">
+                                    @(item.Customer?.CompanyName ?? "Unknown")
+                                    <div class="small fw-normal text-muted">CUST-@(item.CustomerId.ToString("D3"))</div>
+                                </td>
+                                <td>
+                                    @if(item.OrderItems != null && item.OrderItems.Any())
+                                    {
+                                         @item.OrderItems.First().Product?.Name 
+                                         if(item.OrderItems.Count > 1)
+                                         {
+                                             <span class="badge bg-light text-dark ms-1">+@(item.OrderItems.Count - 1) more</span>
+                                         }
+                                    }
+                                    else 
+                                    {
+                                        <span class="text-muted">No items</span>
+                                    }
+                                </td>
+                                <td>@item.OrderItems?.Sum(i => i.Quantity)</td>
+                                <td class="fw-bold">$@item.TotalAmount.ToString("N2")</td>
+                                <td>
+                                    @if(item.Status == ClientSphere.Models.OrderStatus.Completed)
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3"><i class="bi bi-check-circle me-1"></i> Completed</span>
+                                    }
+                                    else if(item.Status == ClientSphere.Models.OrderStatus.Pending)
+                                    {
+                                        <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3"><i class="bi bi-clock me-1"></i> Pending</span>
+                                    }
+                                    else if(item.Status == ClientSphere.Models.OrderStatus.Cancelled)
+                                    {
+                                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3"><i class="bi bi-x-circle me-1"></i> Cancelled</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-dark border rounded-pill px-3">@item.Status</span>
+                                    }
+                                </td>
+                                <td>
+                                    <!-- Mocked sales person for now -->
+                                    @(item.Id % 2 == 0 ? "Mike Wilson" : "Jennifer Martinez")
+                                </td>
+                                <td class="pe-4 text-end">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="#" class="btn btn-sm btn-link text-decoration-none px-0" title="View Details"><i class="bi bi-eye"></i></a>
+                                        <a asp-controller="Orders" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-link text-decoration-none px-0" title="Edit Order"><i class="bi bi-pencil-square"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        @if (!Model.RecentSales.Any())
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center py-5 text-muted">
+                                    <i class="bi bi-inbox display-4 d-block mb-3 opacity-50"></i>
+                                    No sales found yet.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

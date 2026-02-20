@@ -62,7 +62,7 @@ namespace ClientSphere.Areas.Identity.Pages.Account
 
             [Required]
             [Display(Name = "Role")]
-            public string Role { get; set; } = "User";
+            public string Role { get; set; } = "Customer";
         }
 
         public async Task OnGetAsync(string? returnUrl = null)
@@ -85,6 +85,7 @@ namespace ClientSphere.Areas.Identity.Pages.Account
                     FirstName = Input.FirstName,
                     LastName = Input.LastName,
                     CompanyName = Input.CompanyName,
+                    EmailConfirmed = true,
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -94,18 +95,14 @@ namespace ClientSphere.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    // Assign Role
-                    if (!string.IsNullOrEmpty(Input.Role))
-                    {
-                        await _userManager.AddToRoleAsync(user, Input.Role);
-                    }
-                    else
-                    {
-                        await _userManager.AddToRoleAsync(user, "User");
-                    }
+                    // All public registrations are assigned Customer role only
+                    // Staff accounts must be created by Super Admin via Admin panel
+                    await _userManager.AddToRoleAsync(user, "Customer");
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
-                    return LocalRedirect(returnUrl);
+                    
+                    // Redirect all new registrations to Customer Portal
+                    return LocalRedirect("/CustomerPortal/Dashboard");
                 }
                 foreach (var error in result.Errors)
                 {

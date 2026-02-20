@@ -9,6 +9,7 @@ namespace ClientSphere.Services
         Task CreateCustomerAsync(Customer customer);
         Task UpdateCustomerAsync(Customer customer);
         Task DeleteCustomerAsync(int id);
+        Task<IEnumerable<Customer>> SearchCustomersAsync(string query);
         Task<bool> CustomerExistsAsync(int id);
     }
 }

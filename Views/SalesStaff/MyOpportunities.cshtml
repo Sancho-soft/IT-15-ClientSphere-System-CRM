@@ -1,0 +1,57 @@
+@model IEnumerable<ClientSphere.Models.Opportunity>
+@{
+    ViewData["Title"] = "My Opportunities";
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "MyOpportunities";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">My Opportunities</h2>
+    <a href="#" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>New Opportunity</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Opportunity Name</th>
+                        <th>Stage</th>
+                        <th>Probability</th>
+                        <th class="text-end">Value</th>
+                        <th>Close Date</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var opp in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-bold">@opp.Name</td>
+                             <td>
+                                @if(opp.Stage == "Closed Won") { <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Closed Won</span> }
+                                else if(opp.Stage == "Negotiation") { <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3">Negotiation</span> }
+                                else if(opp.Stage == "Proposal") { <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3">Proposal</span> }
+                                else { <span class="badge bg-secondary text-light rounded-pill px-3">@opp.Stage</span> }
+                            </td>
+                             <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="progress flex-grow-1 me-2" style="height: 6px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: @opp.Probability%"></div>
+                                    </div>
+                                    <span class="small text-muted">@opp.Probability%</span>
+                                </div>
+                            </td>
+                            <td class="text-end fw-bold">$@opp.EstimatedValue.ToString("N0")</td>
+                            <td>@opp.ExpectedCloseDate.ToString("MMM dd, yyyy")</td>
+                            <td class="text-end pe-4">
+                                <a href="#" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

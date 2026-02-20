@@ -18,5 +18,7 @@ namespace ClientSphere.Services
         Task<IEnumerable<Order>> GetOrdersByCustomerIdAsync(int customerId);
         Task CreateOrderAsync(Order order);
         Task UpdateOrderStatusAsync(int orderId, OrderStatus status);
+        Task UpdateOrderAsync(Order order);
+        Task<SalesManagerStats> GetSalesManagerStatsAsync();
     }
 }

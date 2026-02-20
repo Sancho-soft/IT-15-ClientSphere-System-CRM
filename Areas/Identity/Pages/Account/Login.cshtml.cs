@@ -73,6 +73,28 @@ namespace ClientSphere.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+                    
+                    var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
+                    if (user != null)
+                    {
+                        // Update LastLoginDate for activity tracking
+                        user.LastLoginDate = DateTime.UtcNow;
+                        user.IsActive = true;
+                        await _signInManager.UserManager.UpdateAsync(user);
+
+                        var roles = await _signInManager.UserManager.GetRolesAsync(user);
+                        
+                        // Super Admin has highest priority
+                        if (roles.Contains("Super Admin")) return LocalRedirect("/Admin/Dashboard");
+                        if (roles.Contains("Admin")) return LocalRedirect("/Admin/Dashboard");
+                        if (roles.Contains("Sales Manager")) return LocalRedirect("/SalesManager/Dashboard");
+                        if (roles.Contains("Sales Staff")) return LocalRedirect("/SalesStaff/Dashboard");
+                        if (roles.Contains("Support Staff")) return LocalRedirect("/SupportStaff/Dashboard");
+                        if (roles.Contains("Marketing Manager") || roles.Contains("Marketing Staff")) return LocalRedirect("/MarketingStaff/Dashboard"); // Assuming shared dashboard for now or separate?
+                        if (roles.Contains("Billing Staff")) return LocalRedirect("/Billing/Index"); // Billing leads to Index
+                        if (roles.Contains("Customer")) return LocalRedirect("/CustomerPortal/Dashboard");
+                    }
+
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)

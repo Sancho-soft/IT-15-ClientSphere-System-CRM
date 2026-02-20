@@ -1,0 +1,65 @@
+@model IEnumerable<ClientSphere.Models.AuditLog>
+
+@{
+    ViewData["Title"] = "System Audit Log";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["CurrentPage"] = "AuditLog";
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 py-3">
+        <h4 class="mb-0 fw-bold">System Audit Logs</h4>
+        <p class="text-muted small mb-0">Showing last 100 system events.</p>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Timestamp (UTC)</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Description</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                <i class="bi bi-info-circle me-2"></i> No audit logs found.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 text-muted small">@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                <td class="fw-bold">@log.UserName</td>
+                                <td>
+                                    @if(log.Action.Contains("Login"))
+                                    {
+                                        <span class="badge bg-success-subtle text-success">@log.Action</span>
+                                    }
+                                    else if(log.Action.Contains("Error"))
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger">@log.Action</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info-subtle text-info">@log.Action</span>
+                                    }
+                                </td>
+                                <td>@log.Description</td>
+                                <td class="text-muted small">@log.IpAddress</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

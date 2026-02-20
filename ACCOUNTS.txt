@@ -1,0 +1,38 @@
+CLIENTSPHERE DEFAULT ACCOUNTS
+===========================
+
+SUPER ADMINISTRATOR (Full System Access - User Management, System Settings)
+Username: superadmin@clientsphere.com
+Password: SuperAdmin123!
+
+ADMINISTRATOR (Limited Access - Cannot Manage Users or System Settings)
+Username: admin@clientsphere.com
+Password: Admin123!
+
+SALES MANAGER (Sales Dashboard, Customers, Sales)
+Username: sales.manager@clientsphere.com
+Password: Sales123!
+
+SALES STAFF (Personal Sales Dashboard)
+Username: sales.staff@clientsphere.com
+Password: Staff123!
+
+MARKETING MANAGER (Full Marketing Campaigns Access)
+Username: marketing.manager@clientsphere.com
+Password: Marketing123!
+
+MARKETING STAFF (Restricted Marketing Dashboard)
+Username: marketing.staff@clientsphere.com
+Password: Marketing123!
+
+SUPPORT STAFF (Support Tickets)
+Username: support.staff@clientsphere.com
+Password: Support123!
+
+BILLING STAFF (Full Invoices & Revenue Access)
+Username: billing.staff@clientsphere.com
+Password: Billing123!
+
+CUSTOMER (Customer Portal - Self Service)
+Username: customer@clientsphere.com
+Password: Customer123!

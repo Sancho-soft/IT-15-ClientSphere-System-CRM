@@ -1,0 +1,122 @@
+@model ClientSphere.ViewModels.SupportStaffViewModel
+
+@{
+    ViewData["Title"] = "My Support Dashboard";
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "Dashboard"; 
+}
+
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-end align-items-center mb-4">
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary"><i class="bi bi-list-task me-2"></i>All Tickets</button>
+            <button class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>New Ticket</button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-inbox h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">My Open Tickets</div>
+                        <h3 class="fw-bold mb-0">@Model.MyOpenTickets</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-check2-circle h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Resolved Today</div>
+                        <h3 class="fw-bold mb-0">@Model.MyResolvedToday</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-stopwatch h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Avg. Resolution Time</div>
+                        <h3 class="fw-bold mb-0">@Model.AvgResolutionTimeHours h</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Tickets Table -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0">My Active Tickets</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Ticket ID</th>
+                        <th>Subject</th>
+                        <th>Customer</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Last Updated</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.MyActiveTickets != null && Model.MyActiveTickets.Any())
+                    {
+                        @foreach (var ticket in Model.MyActiveTickets)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold">@ticket.TicketId</td>
+                                <td>@ticket.Subject</td>
+                                <td>@ticket.CustomerName</td>
+                                <td>
+                                    @if (ticket.Priority == "High" || ticket.Priority == "Critical")
+                                    {
+                                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2">@ticket.Priority</span>
+                                    }
+                                    else if (ticket.Priority == "Medium")
+                                    {
+                                        <span class="badge bg-warning bg-opacity-10 text-dark rounded-pill px-2">@ticket.Priority</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2">@ticket.Priority</span>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2">@ticket.Status</span>
+                                </td>
+                                <td class="small text-muted">@ticket.LastUpdated.ToString("h:mm tt")</td>
+                                <td class="text-end pe-4">
+                                    <form asp-action="ResolveTicket" asp-route-id="@ticket.Id" method="post">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary me-1"><i class="bi bi-pencil"></i></button>
+                                        <button type="submit" class="btn btn-sm btn-success text-white" title="Mark as Resolved">
+                                            <i class="bi bi-check2"></i> Resolve
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

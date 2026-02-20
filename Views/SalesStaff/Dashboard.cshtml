@@ -1,0 +1,122 @@
+@model ClientSphere.ViewModels.SalesStaffViewModel
+
+@{
+    ViewData["Title"] = "My Sales Dashboard";
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "Dashboard"; // Highlight Dashboard in sidebar
+}
+
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-end align-items-center mb-4">
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary"><i class="bi bi-download me-2"></i>Export Report</button>
+            <button class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>New Sale</button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-currency-dollar h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">My Revenue (Month)</div>
+                        <h3 class="fw-bold mb-0 text-success">$@Model.MyRevenueMonth.ToString("N0")</h3>
+                        <small class="text-success fw-bold"><i class="bi bi-arrow-up-short"></i> 12% vs last month</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-check-circle h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Deals Closed</div>
+                        <h3 class="fw-bold mb-0">@Model.MyDealsClosed</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-hourglass-split h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Pending Leads</div>
+                        <h3 class="fw-bold mb-0">@Model.MyPendingLeads</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+         <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-calendar-event h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Daily Revenue</div>
+                        <h3 class="fw-bold mb-0">$@Model.MyRevenueToday.ToString("N0")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Sales Table -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <h5 class="fw-bold mb-0">My Recent Sales</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Customer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.MyRecentSales)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold text-primary">@item.CustomerName</td>
+                                <td class="fw-bold">$@item.Amount.ToString("N0")</td>
+                                <td>
+                                    @if (item.Status == "Closed")
+                                    {
+                                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">@item.Status</span>
+                                    }
+                                    else if (item.Status == "Negotiation")
+                                    {
+                                        <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">@item.Status</span>
+                                    }
+                                    else
+                                    {
+                                         <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3">@item.Status</span>
+                                    }
+                                </td>
+                                <td class="text-muted">@item.Date.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    <button class="btn btn-sm btn-light"><i class="bi bi-three-dots-vertical"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

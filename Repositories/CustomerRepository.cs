@@ -49,5 +49,22 @@ namespace ClientSphere.Repositories
         {
             return await _context.Customers.AnyAsync(e => e.Id == id);
         }
+
+        public async Task<IEnumerable<Customer>> SearchAsync(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return await GetAllAsync();
+            }
+
+            var lowerQuery = query.ToLower();
+            return await _context.Customers
+                .Where(c => c.CompanyName.ToLower().Contains(lowerQuery) ||
+                            c.ContactName.ToLower().Contains(lowerQuery) ||
+                            c.Email.ToLower().Contains(lowerQuery) ||
+                            c.Phone.Contains(lowerQuery))
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
+        }
     }
 }

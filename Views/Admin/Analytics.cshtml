@@ -1,0 +1,260 @@
+@model ClientSphere.ViewModels.AnalyticsViewModel
+
+@{
+    ViewData["Title"] = "Analytics";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">Analytics Dashboard</h4>
+        <p class="text-muted mb-0">System-wide performance metrics and insights</p>
+    </div>
+    <div class="d-flex gap-2">
+        <select class="form-select form-select-sm" style="width: auto;">
+            <option>Last 7 Days</option>
+            <option>Last 30 Days</option>
+            <option>This Year</option>
+        </select>
+        <button class="btn btn-primary btn-sm"><i class="bi bi-download me-1"></i> Export Report</button>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Total Revenue -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="icon-shape bg-success-subtle text-success rounded-3 p-2 me-2">
+                        <i class="bi bi-currency-dollar h5 mb-0"></i>
+                    </div>
+                    <span class="text-success small fw-bold"><i class="bi bi-arrow-up"></i> +@Model.RevenueGrowth.ToString("F1")%</span>
+                </div>
+                <div class="text-muted small">Total Revenue</div>
+                <h3 class="fw-bold mb-0">$@Model.TotalRevenue.ToString("N0")</h3>
+            </div>
+        </div>
+    </div>
+     <!-- Active Users -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="icon-shape bg-primary-subtle text-primary rounded-3 p-2 me-2">
+                        <i class="bi bi-people h5 mb-0"></i>
+                    </div>
+                    <span class="text-success small fw-bold"><i class="bi bi-arrow-up"></i> +@Model.UserGrowth.ToString("F1")%</span>
+                </div>
+                <div class="text-muted small">Active Users</div>
+                <h3 class="fw-bold mb-0">@Model.ActiveUsers</h3>
+            </div>
+        </div>
+    </div>
+     <!-- Conversion Rate -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="icon-shape bg-info-subtle text-info rounded-3 p-2 me-2">
+                        <i class="bi bi-graph-up-arrow h5 mb-0"></i>
+                    </div>
+                    <span class="text-success small fw-bold"><i class="bi bi-arrow-up"></i> +@Model.ConversionGrowth.ToString("F1")%</span>
+                </div>
+                <div class="text-muted small">Conversion Rate</div>
+                <h3 class="fw-bold mb-0">@Model.ConversionRate.ToString("F1")%</h3>
+            </div>
+        </div>
+    </div>
+     <!-- Avg Response Time -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div class="icon-shape bg-warning-subtle text-warning rounded-3 p-2 me-2">
+                        <i class="bi bi-activity h5 mb-0"></i>
+                    </div>
+                    <span class="text-success small fw-bold"><i class="bi bi-arrow-down"></i> @Model.ResponseTimeImprovement.ToString("F1")%</span>
+                </div>
+                <div class="text-muted small">Avg Response Time</div>
+                <h3 class="fw-bold mb-0">@Model.AvgResponseTimeHours.ToString("F1")h</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <!-- Support Ticket Trends -->
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0 fw-bold">Support Ticket Trends</h5>
+            </div>
+            <div class="card-body d-flex align-items-end justify-content-center" style="height: 300px;">
+                <!-- Simulated Bar Chart using Flexbox and CSS -->
+                <div class="d-flex w-100 justify-content-between align-items-end h-100 px-2">
+                    <!-- Mon -->
+                    <div class="d-flex flex-column align-items-center flex-grow-1">
+                        <div class="d-flex align-items-end gap-1" style="height: 200px;">
+                            <div class="bg-primary rounded-top" style="width: 8px; height: 45%;"></div>
+                            <div class="bg-warning rounded-top" style="width: 8px; height: 60%;"></div>
+                            <div class="bg-danger rounded-top" style="width: 8px; height: 20%;"></div>
+                        </div>
+                        <span class="text-muted small mt-2">Mon</span>
+                    </div>
+                     <!-- Tue -->
+                    <div class="d-flex flex-column align-items-center flex-grow-1">
+                        <div class="d-flex align-items-end gap-1" style="height: 200px;">
+                            <div class="bg-primary rounded-top" style="width: 8px; height: 65%;"></div>
+                            <div class="bg-warning rounded-top" style="width: 8px; height: 40%;"></div>
+                            <div class="bg-danger rounded-top" style="width: 8px; height: 25%;"></div>
+                        </div>
+                        <span class="text-muted small mt-2">Tue</span>
+                    </div>
+                     <!-- Wed -->
+                    <div class="d-flex flex-column align-items-center flex-grow-1">
+                        <div class="d-flex align-items-end gap-1" style="height: 200px;">
+                            <div class="bg-primary rounded-top" style="width: 8px; height: 55%;"></div>
+                            <div class="bg-warning rounded-top" style="width: 8px; height: 50%;"></div>
+                            <div class="bg-danger rounded-top" style="width: 8px; height: 15%;"></div>
+                        </div>
+                        <span class="text-muted small mt-2">Wed</span>
+                    </div>
+                     <!-- Thu -->
+                    <div class="d-flex flex-column align-items-center flex-grow-1">
+                        <div class="d-flex align-items-end gap-1" style="height: 200px;">
+                            <div class="bg-primary rounded-top" style="width: 8px; height: 70%;"></div>
+                            <div class="bg-warning rounded-top" style="width: 8px; height: 65%;"></div>
+                            <div class="bg-danger rounded-top" style="width: 8px; height: 15%;"></div>
+                        </div>
+                        <span class="text-muted small mt-2">Thu</span>
+                    </div>
+                     <!-- Fri -->
+                    <div class="d-flex flex-column align-items-center flex-grow-1">
+                        <div class="d-flex align-items-end gap-1" style="height: 200px;">
+                            <div class="bg-primary rounded-top" style="width: 8px; height: 60%;"></div>
+                            <div class="bg-warning rounded-top" style="width: 8px; height: 80%;"></div>
+                            <div class="bg-danger rounded-top" style="width: 8px; height: 30%;"></div>
+                        </div>
+                        <span class="text-muted small mt-2">Fri</span>
+                    </div>
+                     <!-- Sat -->
+                    <div class="d-flex flex-column align-items-center flex-grow-1">
+                        <div class="d-flex align-items-end gap-1" style="height: 200px;">
+                            <div class="bg-primary rounded-top" style="width: 8px; height: 40%;"></div>
+                            <div class="bg-warning rounded-top" style="width: 8px; height: 45%;"></div>
+                            <div class="bg-danger rounded-top" style="width: 8px; height: 10%;"></div>
+                        </div>
+                        <span class="text-muted small mt-2">Sat</span>
+                    </div>
+                     <!-- Sun -->
+                    <div class="d-flex flex-column align-items-center flex-grow-1">
+                        <div class="d-flex align-items-end gap-1" style="height: 200px;">
+                            <div class="bg-primary rounded-top" style="width: 8px; height: 35%;"></div>
+                            <div class="bg-warning rounded-top" style="width: 8px; height: 30%;"></div>
+                            <div class="bg-danger rounded-top" style="width: 8px; height: 5%;"></div>
+                        </div>
+                        <span class="text-muted small mt-2">Sun</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer bg-white border-0 pb-3 text-center">
+                <span class="badge bg-primary bg-opacity-10 text-primary me-2"><i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i> Closed</span>
+                <span class="badge bg-warning bg-opacity-10 text-warning me-2"><i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i> Opened</span>
+                <span class="badge bg-danger bg-opacity-10 text-danger"><i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i> Pending</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lead Generation Trend -->
+    <div class="col-md-6">
+         <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 py-3">
+                <h5 class="mb-0 fw-bold">Lead Generation Trend</h5>
+            </div>
+            <div class="card-body d-flex align-items-end justify-content-center" style="height: 300px;">
+                <div class="d-flex w-100 justify-content-around align-items-end h-100 px-4">
+                     <!-- Jan -->
+                    <div class="d-flex flex-column align-items-center">
+                        <div class="bg-purple rounded-top" style="width: 40px; height: 60%; background-color: #6f42c1;"></div>
+                        <span class="text-muted small mt-2">Jan</span>
+                    </div>
+                     <!-- Feb -->
+                    <div class="d-flex flex-column align-items-center">
+                        <div class="bg-purple rounded-top" style="width: 40px; height: 75%; background-color: #6f42c1;"></div>
+                        <span class="text-muted small mt-2">Feb</span>
+                    </div>
+                     <!-- Mar -->
+                    <div class="d-flex flex-column align-items-center">
+                        <div class="bg-purple rounded-top" style="width: 40px; height: 65%; background-color: #6f42c1;"></div>
+                        <span class="text-muted small mt-2">Mar</span>
+                    </div>
+                     <!-- Apr -->
+                    <div class="d-flex flex-column align-items-center">
+                        <div class="bg-purple rounded-top" style="width: 40px; height: 85%; background-color: #6f42c1;"></div>
+                        <span class="text-muted small mt-2">Apr</span>
+                    </div>
+                     <!-- May -->
+                    <div class="d-flex flex-column align-items-center">
+                        <div class="bg-purple rounded-top" style="width: 40px; height: 70%; background-color: #6f42c1;"></div>
+                        <span class="text-muted small mt-2">May</span>
+                    </div>
+                     <!-- Jun -->
+                    <div class="d-flex flex-column align-items-center">
+                        <div class="bg-purple rounded-top" style="width: 40px; height: 90%; background-color: #6f42c1;"></div>
+                        <span class="text-muted small mt-2">Jun</span>
+                    </div>
+                </div>
+            </div>
+             <div class="card-footer bg-white border-0 pb-3 text-center">
+                <span class="badge bg-purple bg-opacity-10 text-purple" style="color: #6f42c1 !important; background-color: rgba(111, 66, 193, 0.1) !important;"><i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i> New Leads</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mt-4">
+    <div class="card-header bg-white border-0 py-3">
+        <h5 class="mb-0 fw-bold">Performance Summary</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 border-end">
+                <div class="d-flex align-items-center">
+                     <div class="bg-light text-secondary rounded p-3 me-3">
+                        <i class="bi bi-activity h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="small text-muted mb-1">Top Performing Module</div>
+                        <div class="fw-bold">Customer Master Data</div>
+                        <div class="small text-muted">234 active users</div>
+                    </div>
+                </div>
+            </div>
+             <div class="col-md-4 border-end">
+                <div class="d-flex align-items-center">
+                     <div class="bg-light text-secondary rounded p-3 me-3">
+                        <i class="bi bi-graph-up h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="small text-muted mb-1">Best Conversion Rate</div>
+                        <div class="fw-bold">Sales Management</div>
+                        <div class="small text-muted">32.4% conversion</div>
+                    </div>
+                </div>
+            </div>
+             <div class="col-md-4">
+                <div class="d-flex align-items-center">
+                     <div class="bg-light text-secondary rounded p-3 me-3">
+                        <i class="bi bi-lightning h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="small text-muted mb-1">Fastest Response</div>
+                        <div class="fw-bold">Customer Support</div>
+                        <div class="small text-muted">1.8h avg response</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

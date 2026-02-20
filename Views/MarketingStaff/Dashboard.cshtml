@@ -1,0 +1,151 @@
+@model ClientSphere.ViewModels.MarketingStaffDashboardViewModel
+
+@{
+    ViewData["Title"] = "My Marketing Dashboard";
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "Dashboard";
+}
+
+<div class="container-fluid p-0">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">My Marketing Dashboard</h3>
+            <p class="text-muted mb-0">Track your assigned campaigns and performance</p>
+        </div>
+        <a asp-action="Create" class="btn btn-primary px-4 shadow-sm">
+            <i class="bi bi-plus-lg me-2"></i>Create New Campaign
+        </a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-megaphone h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Campaigns</div>
+                        <h3 class="fw-bold mb-0 text-info">@Model.TotalCampaigns</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Budget Card Removed -->
+        <div class="col-md-4">
+             <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-people h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Recipients</div>
+                        <h3 class="fw-bold mb-0 text-primary">@Model.TotalRecipients.ToString("N0")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+             <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-graph-up h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Avg Response Rate</div>
+                        <h3 class="fw-bold mb-0 text-warning">@Model.AvgResponseRate%</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-2">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control border-0" placeholder="Search campaigns...">
+                <button class="btn btn-light border-start rounded-0 px-4" type="button"><i class="bi bi-funnel me-2"></i> All Status</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaigns List -->
+    <div class="row">
+        @foreach (var campaign in Model.Campaigns)
+        {
+             <div class="col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-purple bg-opacity-10 text-purple rounded p-3 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; color: #6f42c1; background-color: rgba(111, 66, 193, 0.1);">
+                                    <i class="bi bi-send h5 mb-0"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-0">@campaign.Name</h5>
+                                    <div class="text-muted small">@campaign.CampaignId</div>
+                                </div>
+                            </div>
+                            @if(campaign.Status == "Active") { <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Active</span> }
+                            else if(campaign.Status == "Completed") { <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3">Completed</span> }
+                            else { <span class="badge bg-light text-dark rounded-pill px-3">@campaign.Status</span> }
+                        </div>
+
+                        <div class="row mb-3">
+                             <div class="col-12">
+                                <div class="small text-muted">Type</div>
+                                <div class="fw-bold">@campaign.Type</div>
+                            </div>
+                            <!-- Budget Row Removed -->
+                        </div>
+
+                         <div class="row mb-3">
+                             <div class="col-6">
+                                <div class="small text-muted">Start Date</div>
+                                <div>@campaign.StartDate.ToString("yyyy-MM-dd")</div>
+                            </div>
+                            <div class="col-6 text-end">
+                                <div class="small text-muted">End Date</div>
+                                <div>@campaign.EndDate.ToString("yyyy-MM-dd")</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-3 opacity-25"> 
+
+                        <div class="row text-center mb-3">
+                             <div class="col-4 border-end">
+                                <div class="small text-muted">Recipients</div>
+                                <div class="fw-bold">@campaign.Recipients.ToString("N0")</div> 
+                            </div>
+                            <div class="col-4 border-end">
+                                <div class="small text-muted">Responses</div>
+                                <div class="fw-bold">@campaign.Responses</div>
+                            </div>
+                             <div class="col-4">
+                                <div class="small text-muted">Response Rate</div>
+                                <div class="fw-bold text-success">@campaign.ResponseRate%</div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-2">
+                             <div class="d-flex align-items-center">
+                                <div class="avatar-circle-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 25px; height: 25px; font-size: 0.7rem;">
+                                    @campaign.ManagedBy.Substring(0, 1)
+                                </div>
+                                <div class="small text-muted">Managed by <br> @campaign.ManagedBy</div>
+                             </div>
+                            
+                             <button class="btn btn-sm btn-link text-decoration-none px-0">
+                                <i class="bi bi-eye me-1"></i> View Tasks
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

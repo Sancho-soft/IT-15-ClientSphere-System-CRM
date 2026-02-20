@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ClientSphere Admin</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            background-color: #f5f4f0;
+        }
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            background-color: #fff;
+            border-right: 1px solid #dee2e6;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            padding-top: 1rem;
+            overflow: hidden; /* Prevent double scrollbars */
+        }
+        .main-content { margin-left: 250px; padding: 2rem; }
+        .nav-link { color: #555; font-weight: 500; padding: 0.8rem 1.5rem; display: flex; align-items: center; }
+        .nav-link:hover, .nav-link.active { color: #0d6efd; background-color: #f0f7ff; border-right: 3px solid #0d6efd; }
+        .nav-link i { font-size: 1.2rem; margin-right: 0.8rem; }
+        
+        @@media (max-width: 768px) {
+            .sidebar { left: -250px; transition: 0.3s; }
+            .sidebar.active { left: 0; }
+            .main-content { margin-left: 0; }
+            .sidebar-overlay { display: none; position: fixed; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 999; top: 0; left: 0; }
+            .sidebar-overlay.active { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar d-flex flex-column justify-content-between">
+        <div class="d-flex flex-column flex-grow-1 overflow-auto">
+            <div class="p-4 text-center mb-2">
+                <a href="/" class="d-block">
+                    <img src="~/images/logoadmin.png" alt="ClientSphere Admin" style="max-height: 150px; width: auto; max-width: 100%;" class="img-fluid">
+                </a>
+            </div>
+            
+            <div class="small text-uppercase text-muted fw-bold px-4 mb-2 mt-2" style="font-size: 0.75rem;">Administration</div>
+            <nav class="nav flex-column">
+                <a class="nav-link @(ViewData["CurrentPage"] as string == "Dashboard" ? "active" : "")" asp-controller="Admin" asp-action="Dashboard">
+                    <i class="bi bi-grid"></i> Dashboard
+                </a>
+                @if (User.IsInRole("Super Admin"))
+                {
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "User Management" ? "active" : "")" asp-controller="Admin" asp-action="UserManagement">
+                        <i class="bi bi-people"></i> User Management
+                    </a>
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Module Management" ? "active" : "")" asp-controller="Admin" asp-action="ModuleManagement">
+                        <i class="bi bi-hdd-stack"></i> Module Management
+                    </a>
+                }
+                <a class="nav-link @(ViewData["CurrentPage"] as string == "Analytics" ? "active" : "")" asp-controller="Admin" asp-action="Analytics">
+                    <i class="bi bi-bar-chart"></i> Analytics
+                </a>
+                <a class="nav-link @(ViewData["CurrentPage"] as string == "System Settings" ? "active" : "")" asp-controller="Admin" asp-action="SystemSettings">
+                    <i class="bi bi-gear"></i> System Settings
+                </a>
+                @if (User.IsInRole("Super Admin"))
+                {
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "ResetPassword" ? "active" : "")" asp-controller="Admin" asp-action="ResetPassword">
+                        <i class="bi bi-key"></i> Reset Password
+                    </a>
+                }
+                <a class="nav-link @(ViewData["CurrentPage"] as string == "AuditLog" ? "active" : "")" asp-controller="Admin" asp-action="AuditLog">
+                    <i class="bi bi-list-check"></i> Audit Logs
+                </a>
+            </nav>
+
+            @if (User.IsInRole("Super Admin"))
+            {
+                <div class="small text-uppercase text-muted fw-bold px-4 mb-2 mt-4" style="font-size: 0.75rem;">CRM Modules</div>
+                <nav class="nav flex-column mb-3">
+                    <a class="nav-link" asp-controller="Customers" asp-action="Index">
+                        <i class="bi bi-file-person"></i> Customers
+                    </a>
+                    <a class="nav-link" asp-controller="Orders" asp-action="Index">
+                        <i class="bi bi-graph-up-arrow"></i> Sales
+                    </a>
+                    <a class="nav-link" asp-controller="Support" asp-action="Index">
+                        <i class="bi bi-headset"></i> Support
+                    </a>
+                    <a class="nav-link" asp-controller="Marketing" asp-action="Index">
+                        <i class="bi bi-megaphone"></i> Marketing
+                    </a>
+                    <a class="nav-link" asp-controller="Billing" asp-action="Index">
+                        <i class="bi bi-currency-dollar"></i> Billing
+                    </a>
+                </nav>
+            }
+        </div>
+
+        <div class="p-3 border-top bg-light">
+             <div class="d-flex align-items-center mb-3 px-2">
+                @{
+                    var userManager = Context.RequestServices.GetService(typeof(Microsoft.AspNetCore.Identity.UserManager<ClientSphere.Models.ApplicationUser>)) as Microsoft.AspNetCore.Identity.UserManager<ClientSphere.Models.ApplicationUser>;
+                    var appUser = userManager != null ? await userManager.GetUserAsync(User) : null;
+                    var fullName = appUser != null && !string.IsNullOrWhiteSpace(appUser.FirstName) ? $"{appUser.FirstName} {appUser.LastName}" : User.Identity?.Name;
+                    var initials = appUser != null && !string.IsNullOrWhiteSpace(appUser.FirstName) 
+                        ? $"{appUser.FirstName.Substring(0, 1).ToUpper()}{(string.IsNullOrWhiteSpace(appUser.LastName) ? "" : appUser.LastName.Substring(0, 1).ToUpper())}" 
+                        : (User.Identity?.Name?.Substring(0, 1).ToUpper() ?? "U");
+                    var email = appUser?.Email ?? User.Identity?.Name;
+                    var roles = userManager != null && appUser != null ? await userManager.GetRolesAsync(appUser) : new List<string>();
+                    var primaryRole = roles.FirstOrDefault() ?? "Admin";
+                }
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm" style="width: 40px; height: 40px; font-weight: bold; flex-shrink: 0;">
+                    @initials
+                </div>
+                <div class="lh-1 overflow-hidden">
+                    <div class="fw-bold text-truncate" style="font-size: 0.9rem;">@fullName</div>
+                    <div class="text-muted text-truncate mt-1" style="font-size: 0.75rem;">@email</div>
+                </div>
+            </div>
+            <form class="mb-0 px-2" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button type="submit" class="btn btn-outline-danger w-100 btn-sm fw-bold shadow-sm">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <header class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <div class="d-flex align-items-center">
+                <button id="sidebarToggle" class="btn btn-outline-secondary d-md-none me-3">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h4 class="mb-0 fw-bold">@ViewData["Title"]</h4>
+            </div>
+            @{
+                var isDbConnected = true;
+                try
+                {
+                    var dbContext = Context.RequestServices.GetService(typeof(ClientSphere.Data.ApplicationDbContext)) as ClientSphere.Data.ApplicationDbContext;
+                    isDbConnected = dbContext?.Database.CanConnect() ?? false;
+                }
+                catch
+                {
+                    isDbConnected = false;
+                }
+            }
+            <span class="badge @(isDbConnected ? "bg-success bg-opacity-10 text-success" : "bg-danger bg-opacity-10 text-danger") px-3 py-2 rounded-pill">
+                <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i> @(isDbConnected ? "System Online" : "System Offline")
+            </span>
+        </header>
+
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+        $(document).ready(function () {
+            $('#sidebarToggle, #sidebarOverlay').on('click', function () {
+                $('#sidebar').toggleClass('active');
+                $('#sidebarOverlay').toggleClass('active');
+            });
+        });
+    </script>
+</body>
+</html>

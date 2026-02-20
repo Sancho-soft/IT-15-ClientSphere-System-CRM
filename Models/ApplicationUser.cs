@@ -8,5 +8,7 @@ namespace ClientSphere.Models
         public string LastName { get; set; } = string.Empty;
         public string CompanyName { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? LastLoginDate { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 }

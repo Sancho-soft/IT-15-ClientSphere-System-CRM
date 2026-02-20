@@ -1,0 +1,80 @@
+@model IEnumerable<ClientSphere.Models.SupportTicket>
+@{
+    ViewData["Title"] = "My Support Tickets";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom py-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-ticket-perforated me-2"></i>My Support Tickets</h5>
+            <a asp-action="CreateTicket" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-lg me-1"></i>New Ticket
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0 ps-4">Ticket ID</th>
+                            <th class="border-0">Subject</th>
+                            <th class="border-0">Priority</th>
+                            <th class="border-0">Status</th>
+                            <th class="border-0 text-end pe-4">Last Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ticket in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold">TKT-@ticket.Id.ToString("D5")</td>
+                                <td>@ticket.Subject</td>
+                                <td>
+                                    @switch (ticket.Priority)
+                                    {
+                                        case "High":
+                                            <span class="badge bg-danger rounded-pill px-3">High</span>
+                                            break;
+                                        case "Medium":
+                                            <span class="badge bg-warning rounded-pill px-3">Medium</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary rounded-pill px-3">@ticket.Priority</span>
+                                            break;
+                                    }
+                                </td>
+                                <td>
+                                    @switch (ticket.Status)
+                                    {
+                                        case "Resolved":
+                                            <span class="badge bg-success rounded-pill px-3">Resolved</span>
+                                            break;
+                                        case "In Progress":
+                                            <span class="badge bg-primary rounded-pill px-3">In Progress</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-info rounded-pill px-3">@ticket.Status</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-end text-muted pe-4">@((ticket.LastUpdated ?? ticket.CreatedAt).ToString("MMM dd, yyyy"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-ticket-perforated text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3">No support tickets found</p>
+                <a asp-action="CreateTicket" class="btn btn-primary mt-2">Create Your First Ticket</a>
+            </div>
+        }
+    </div>
+</div>

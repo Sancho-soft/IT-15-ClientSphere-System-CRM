@@ -1,0 +1,54 @@
+@model IEnumerable<ClientSphere.Models.Lead>
+@{
+    ViewData["Title"] = "My Leads";
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "MyLeads";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">My Leads</h2>
+    <a href="#" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>New Lead</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Name</th>
+                        <th>Company</th>
+                        <th>Status</th>
+                        <th>Source</th>
+                        <th>Date Added</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var lead in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold">@lead.FirstName @lead.LastName</div>
+                                <div class="text-muted small">@lead.Email</div>
+                            </td>
+                            <td>@lead.Company</td>
+                             <td>
+                                @if(lead.Status == "New") { <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3">New</span> }
+                                else if(lead.Status == "Contacted") { <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Contacted</span> }
+                                else if(lead.Status == "Qualified") { <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Qualified</span> }
+                                else { <span class="badge bg-secondary text-light rounded-pill px-3">@lead.Status</span> }
+                            </td>
+                            <td>@lead.Source</td>
+                            <td>@lead.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td class="text-end pe-4">
+                                <a href="#" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                                <a href="#" class="btn btn-sm btn-outline-success"><i class="bi bi-check-lg"></i></a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

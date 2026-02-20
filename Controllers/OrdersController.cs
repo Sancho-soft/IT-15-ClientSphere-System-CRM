@@ -107,5 +107,61 @@ namespace ClientSphere.Controllers
 
             return View(viewModel);
         }
+
+        // GET: Orders/Edit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var order = await _orderService.GetOrderByIdAsync(id.Value);
+            if (order == null)
+            {
+                return NotFound();
+            }
+            return View(order);
+        }
+
+        // POST: Orders/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Order order)
+        {
+             if (id != order.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    // For now, we only update status and date, not items
+                     var existingOrder = await _orderService.GetOrderByIdAsync(id);
+                     if (existingOrder != null)
+                     {
+                         existingOrder.Status = order.Status;
+                         existingOrder.OrderDate = order.OrderDate;
+                         // existingOrder.TotalAmount = order.TotalAmount; // Should be calculated
+                         await _orderService.UpdateOrderAsync(existingOrder);
+                     }
+                }
+                catch (Exception)
+                {
+                     if (await _orderService.GetOrderByIdAsync(id) == null)
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            return View(order);
+        }
     }
 }

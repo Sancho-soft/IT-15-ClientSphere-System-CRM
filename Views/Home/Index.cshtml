@@ -10,19 +10,83 @@
                 A comprehensive CRM platform designed for sales and service-oriented businesses. Manage customer interactions, track sales, handle support tickets, run marketing campaigns, and integrate billing—all in one centralized system.
             </p>
             <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-                <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold">Get Started</a>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    @if (User.IsInRole("Super Admin"))
+                    {
+                        <a asp-action="Dashboard" asp-controller="Admin" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold">Go to Dashboard</a>
+                    }
+                    else if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Dashboard" asp-controller="Admin" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold">Go to Dashboard</a>
+                    }
+                    else if (User.IsInRole("Sales Manager"))
+                    {
+                        <a asp-action="Dashboard" asp-controller="SalesManager" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold">Go to Dashboard</a>
+                    }
+                    else if (User.IsInRole("Sales Staff"))
+                    {
+                        <a asp-action="Dashboard" asp-controller="SalesStaff" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold">Go to Dashboard</a>
+                    }
+                    else if (User.IsInRole("Support Staff"))
+                    {
+                        <a asp-action="Dashboard" asp-controller="SupportStaff" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold">Go to Dashboard</a>
+                    }
+                    else if (User.IsInRole("Marketing Staff") || User.IsInRole("Marketing Manager"))
+                    {
+                         <a asp-action="Dashboard" asp-controller="MarketingStaff" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold">Go to Dashboard</a>
+                    }
+                    else if (User.IsInRole("Billing Staff"))
+                    {
+                         <a asp-action="Index" asp-controller="Billing" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold">Go to Dashboard</a>
+                    }
+                     else if (User.IsInRole("Customer"))
+                    {
+                         <a asp-action="Dashboard" asp-controller="CustomerPortal" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold">Go to Portal</a>
+                    }
+                    else
+                    {
+                         <a asp-area="Identity" asp-page="/Account/Manage/Index" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold">My Account</a>
+                    }
+                }
+                else
+                {
+                    <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary btn-lg px-4 me-md-2 fw-bold">Get Started</a>
+                }
                 <a asp-controller="Home" asp-action="Privacy" class="btn btn-outline-secondary btn-lg px-4">About Clientsphere</a>
             </div>
         </div>
         <div class="col-lg-6">
-            <div class="p-5 bg-light rounded-3 border shadow-sm text-center">
-                 <!-- Placeholder for the industrial image -->
-                 <img src="https://via.placeholder.com/600x400/e9ecef/adb5bd?text=Industrial+Machinery" class="img-fluid rounded-3 shadow" alt="ClientSphere Dashboard" />
+            <div id="heroCarousel" class="carousel slide shadow rounded-3 overflow-hidden" data-bs-ride="carousel" data-bs-interval="3000">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                </div>
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="~/images/hero-1.jpg" class="d-block w-100" alt="Professional Team" style="height: 400px; object-fit: cover;">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="~/images/hero-2.jpg" class="d-block w-100" alt="Business Growth" style="height: 400px; object-fit: cover;">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="~/images/hero-3.jpg" class="d-block w-100" alt="Client Success" style="height: 400px; object-fit: cover;">
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
             </div>
         </div>
     </div>
 
-    <div class="row text-center mt-5">
+    <div class="row text-center mt-5" id="features-crm">
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
@@ -34,7 +98,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg-4" id="features-sales">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
                     <div class="feature-icon bg-primary bg-gradient text-white rounded-3 mb-3 d-inline-block p-3">
@@ -45,7 +109,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
+        <div class="col-lg-4" id="features-marketing">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
                     <div class="feature-icon bg-primary bg-gradient text-white rounded-3 mb-3 d-inline-block p-3">
@@ -58,3 +122,59 @@
         </div>
     </div>
 </div>
+
+<!-- Solutions Section -->
+<section id="solutions-smb" class="py-5 bg-white">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-3">Built for Small Business</h2>
+                <p class="text-muted">ClientSphere gives small teams the same powerful CRM tools used by enterprise companies — without the complexity or cost. Manage customers, track sales, and send invoices all from one place.</p>
+                <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary mt-2">Start Free →</a>
+            </div>
+            <div class="col-lg-6 text-center">
+                <i class="bi bi-shop text-primary" style="font-size: 6rem;"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="solutions-enterprise" class="py-5" style="background-color: #f5f4f0;">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 text-center order-lg-1">
+                <i class="bi bi-building text-primary" style="font-size: 6rem;"></i>
+            </div>
+            <div class="col-lg-6 order-lg-2">
+                <h2 class="fw-bold mb-3">Enterprise-Grade Control</h2>
+                <p class="text-muted">Advanced role-based access control, full audit logging, and multi-team module management give enterprise organizations the visibility and governance they need.</p>
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-primary mt-2">Request a Demo →</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="py-5 bg-white">
+    <div class="container text-center" style="max-width: 700px;">
+        <h2 class="fw-bold mb-3">Our Story</h2>
+        <p class="text-muted lead">ClientSphere was built to solve a simple problem: growing businesses drowning in spreadsheets. Our team of developers and business consultants created a unified CRM that's powerful yet easy to use — giving every team member the right tools for their role.</p>
+        <div class="row mt-4 text-center">
+            <div class="col-4"><h3 class="fw-bold text-primary">9+</h3><small class="text-muted">User Roles</small></div>
+            <div class="col-4"><h3 class="fw-bold text-primary">5+</h3><small class="text-muted">Core Modules</small></div>
+            <div class="col-4"><h3 class="fw-bold text-primary">100%</h3><small class="text-muted">Role-Based Access</small></div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="py-5" style="background-color: #f5f4f0;">
+    <div class="container text-center" style="max-width: 600px;">
+        <h2 class="fw-bold mb-3">Get In Touch</h2>
+        <p class="text-muted">Have questions about ClientSphere? Reach out to our team and we'll get back to you within 24 hours.</p>
+        <a href="mailto:support@clientsphere.com" class="btn btn-primary btn-lg mt-2">
+            <i class="bi bi-envelope me-2"></i>Contact Us
+        </a>
+        <p class="mt-4 text-muted small">Or email us directly at <a href="mailto:support@clientsphere.com">support@clientsphere.com</a></p>
+    </div>
+</section>

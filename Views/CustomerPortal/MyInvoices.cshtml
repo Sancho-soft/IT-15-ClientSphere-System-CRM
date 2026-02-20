@@ -1,0 +1,64 @@
+@model IEnumerable<ClientSphere.Models.Invoice>
+@{
+    ViewData["Title"] = "My Invoices";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+}
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-bottom py-3">
+        <h5 class="mb-0 fw-bold"><i class="bi bi-receipt me-2"></i>My Invoices</h5>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="border-0 ps-4">Invoice #</th>
+                            <th class="border-0">Issue Date</th>
+                            <th class="border-0">Due Date</th>
+                            <th class="border-0">Status</th>
+                            <th class="border-0 text-end pe-4">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var invoice in Model)
+                        {
+                            <tr>
+                                <td class="ps-4 fw-bold">INV-@invoice.Id.ToString("D5")</td>
+                                <td class="text-muted">@invoice.IssueDate.ToString("MMM dd, yyyy")</td>
+                                <td class="text-muted">@invoice.DueDate.ToString("MMM dd, yyyy")</td>
+                                <td>
+                                    @switch (invoice.Status)
+                                    {
+                                        case "Paid":
+                                            <span class="badge bg-success rounded-pill px-3">Paid</span>
+                                            break;
+                                        case "Pending":
+                                            <span class="badge bg-warning rounded-pill px-3">Pending</span>
+                                            break;
+                                        case "Overdue":
+                                            <span class="badge bg-danger rounded-pill px-3">Overdue</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-secondary rounded-pill px-3">@invoice.Status</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-end fw-bold pe-4">$@invoice.Amount.ToString("N2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3">No invoices found</p>
+            </div>
+        }
+    </div>
+</div>
