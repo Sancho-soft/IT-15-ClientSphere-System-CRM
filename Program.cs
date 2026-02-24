@@ -51,6 +51,15 @@ builder.Services.AddControllersWithViews(options => {
 
 var app = builder.Build();
 
+var defaultCulture = new System.Globalization.CultureInfo("en-PH");
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(defaultCulture),
+    SupportedCultures = new[] { defaultCulture },
+    SupportedUICultures = new[] { defaultCulture }
+};
+app.UseRequestLocalization(localizationOptions);
+
 // Seed Database
 using (var scope = app.Services.CreateScope())
 {

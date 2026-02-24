@@ -1,4 +1,4 @@
-@model IEnumerable<ClientSphere.Models.Order>
+﻿@model IEnumerable<ClientSphere.Models.Order>
 
 @{
     ViewData["Title"] = "Sales Orders";
@@ -49,7 +49,7 @@
                                         <span class="text-muted">Unknown</span>
                                     }
                                 </td>
-                                <td>@item.TotalAmount.ToString("C")</td>
+                                <td>&#8369;@item.TotalAmount.ToString("N2")</td>
                                 <td>
                                     @if(item.Status == ClientSphere.Models.OrderStatus.Completed)
                                     {

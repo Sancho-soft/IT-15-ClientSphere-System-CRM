@@ -43,11 +43,11 @@
             <div class="card border-0 shadow-sm p-3">
                 <div class="d-flex align-items-center">
                     <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
-                        <i class="bi bi-currency-dollar h4 mb-0"></i>
+                        <i class="h4 mb-0 fw-bold">&#8369;</i>
                     </div>
                     <div>
                         <div class="text-muted small">Total Revenue</div>
-                        <h3 class="fw-bold mb-0 text-success">₱@Model.TotalRevenue.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0 text-success">&#8369;@Model.TotalRevenue.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -60,7 +60,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Pending</div>
-                        <h3 class="fw-bold mb-0 text-warning">₱@Model.PendingRevenue.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0 text-warning">&#8369;@Model.PendingRevenue.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -86,7 +86,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Avg Deal Size</div>
-                        <h3 class="fw-bold mb-0 text-info">₱@Model.AvgDealSize.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0 text-info">&#8369;@Model.AvgDealSize.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -145,7 +145,7 @@
                                     }
                                 </td>
                                 <td>@item.OrderItems?.Sum(i => i.Quantity)</td>
-                                <td class="fw-bold">₱@item.TotalAmount.ToString("N2")</td>
+                                <td class="fw-bold">&#8369;@item.TotalAmount.ToString("N2")</td>
                                 <td>
                                     @if(item.Status == ClientSphere.Models.OrderStatus.Completed)
                                     {
