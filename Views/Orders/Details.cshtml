@@ -1,4 +1,4 @@
-@model ClientSphere.Models.Order
+﻿@model ClientSphere.Models.Order
 
 @{
     ViewData["Title"] = "Order Details";
@@ -63,8 +63,8 @@
                                             }
                                         </td>
                                         <td class="text-center">@item.Quantity</td>
-                                        <td class="text-end">@item.UnitPrice.ToString("C")</td>
-                                        <td class="text-end">@((item.Quantity * item.UnitPrice).ToString("C"))</td>
+                                        <td class="text-end">@item.UnitPrice.ToString("N2")</td>
+                                        <td class="text-end">@((item.Quantity * item.UnitPrice).ToString("N2"))</td>
                                     </tr>
                                 }
                             </tbody>
@@ -80,7 +80,7 @@
                             </p>
                         </div>
                         <div class="col-md-6 text-end">
-                            <h4 class="mb-0">Total: @Model.TotalAmount.ToString("C")</h4>
+                            <h4 class="mb-0">Total: @Model.TotalAmount.ToString("N2")</h4>
                         </div>
                     </div>
                 </div>

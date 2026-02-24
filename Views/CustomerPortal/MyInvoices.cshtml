@@ -1,4 +1,4 @@
-@model IEnumerable<ClientSphere.Models.Invoice>
+﻿@model IEnumerable<ClientSphere.Models.Invoice>
 @{
     ViewData["Title"] = "My Invoices";
     ViewData["HideTopNavTitle"] = true;
@@ -69,7 +69,7 @@
                                                     break;
                                             }
                                         </td>
-                                        <td class="text-end pe-4 fw-bold">₱@invoice.Amount.ToString("N2")</td>
+                                        <td class="text-end pe-4 fw-bold">&#8369;@invoice.Amount.ToString("N2")</td>
                                     </tr>
                                 }
                             </tbody>
@@ -112,7 +112,7 @@
                                         <td>
                                             <span class="badge bg-secondary rounded-pill px-3">@invoice.Status</span>
                                         </td>
-                                        <td class="text-end fw-bold text-muted pe-4">₱@invoice.Amount.ToString("N2")</td>
+                                        <td class="text-end fw-bold text-muted pe-4">&#8369;@invoice.Amount.ToString("N2")</td>
                                     </tr>
                                 }
                             </tbody>

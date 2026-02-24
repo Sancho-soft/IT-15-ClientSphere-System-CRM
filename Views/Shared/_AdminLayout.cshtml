@@ -52,23 +52,23 @@
             {
                 <div class="small text-uppercase text-muted fw-bold px-4 mb-2 mt-2" style="font-size: 0.75rem;">CRM Modules</div>
                 <nav class="nav flex-column mb-3">
-                    <a class="nav-link" asp-controller="Customers" asp-action="Index">
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Customers" ? "active" : "")" asp-controller="Customers" asp-action="Index">
                         <i class="bi bi-file-person"></i> Customers
                     </a>
-                    <a class="nav-link" asp-controller="Products" asp-action="Index">
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Products" ? "active" : "")" asp-controller="Products" asp-action="Index">
                         <i class="bi bi-box"></i> Products
                     </a>
-                    <a class="nav-link" asp-controller="Orders" asp-action="Index">
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Sales" ? "active" : "")" asp-controller="Sales" asp-action="Index">
                         <i class="bi bi-graph-up-arrow"></i> Sales
                     </a>
-                    <a class="nav-link" asp-controller="Support" asp-action="Index">
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Support" ? "active" : "")" asp-controller="Support" asp-action="Index">
                         <i class="bi bi-headset"></i> Support
                     </a>
-                    <a class="nav-link" asp-controller="Marketing" asp-action="Index">
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Marketing" ? "active" : "")" asp-controller="Marketing" asp-action="Index">
                         <i class="bi bi-megaphone"></i> Marketing
                     </a>
-                    <a class="nav-link" asp-controller="Billing" asp-action="Index">
-                        <i class="bi bi-currency-dollar"></i> Billing
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Billing" ? "active" : "")" asp-controller="Billing" asp-action="Index">
+                        <i class="bi bi-cash-stack"></i> Billing
                     </a>
                 </nav>
             }
@@ -186,3 +186,4 @@
     </script>
 </body>
 </html>
+

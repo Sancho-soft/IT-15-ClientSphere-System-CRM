@@ -1,4 +1,4 @@
-@model ClientSphere.Models.Invoice
+﻿@model ClientSphere.Models.Invoice
 
 @{
     ViewData["Title"] = "Edit Invoice";
@@ -42,7 +42,7 @@
                     <div class="col-md-4">
                         <label asp-for="Amount" class="form-label fw-bold"></label>
                         <div class="input-group">
-                             <span class="input-group-text">?</span>
+                             <span class="input-group-text">&#8369;</span>
                             <input asp-for="Amount" class="form-control" type="number" step="0.01" />
                         </div>
                         <span asp-validation-for="Amount" class="text-danger small"></span>
