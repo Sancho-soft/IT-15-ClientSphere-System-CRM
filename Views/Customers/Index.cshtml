@@ -1,14 +1,19 @@
-@model IEnumerable<ClientSphere.Models.Customer>
+﻿@model IEnumerable<ClientSphere.Models.Customer>
 
 @{
     ViewData["Title"] = "Customer Master Data";
     Layout = "~/Views/Shared/_CrmLayout.cshtml";
     ViewData["CurrentPage"] = "Customers";
+    ViewData["HideTopNavTitle"] = true;
+}
+
+@{
+    var isArchived = Context.Request.Query["archived"].ToString() == "1";
 }
 
 <div class="container-fluid p-0">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <p class="text-muted mb-0">Centralized repository for all customer information</p>
         </div>
@@ -16,6 +21,20 @@
             <i class="bi bi-plus-lg me-2"></i>Add New Customer
         </a>
     </div>
+
+    <!-- Archive Tab Nav -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link @(!isArchived ? "active fw-bold" : "")" href="?archived=0">
+                <i class="bi bi-person-check me-1"></i> Active Customers
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(isArchived ? "active fw-bold" : "")" href="?archived=1">
+                <i class="bi bi-person-slash me-1"></i> Inactive
+            </a>
+        </li>
+    </ul>
 
     <!-- Stats Cards -->
     <div class="row mb-4">
@@ -92,7 +111,21 @@
 
     <!-- Customer Cards Grid -->
     <div class="row">
-        @foreach (var item in Model)
+        @{
+            var displayedCustomers = isArchived
+                ? Model.Where(c => !c.IsActive).ToList()
+                : Model.Where(c => c.IsActive).ToList();
+        }
+        @if (!displayedCustomers.Any())
+        {
+            <div class="col-12">
+                <div class="card border-0 shadow-sm p-5 text-center">
+                    <i class="bi bi-@(isArchived ? "archive" : "people") display-4 text-muted mb-3"></i>
+                    <h5 class="text-muted">@(isArchived ? "No archived customers." : "No active customers yet.")</h5>
+                </div>
+            </div>
+        }
+        @foreach (var item in displayedCustomers)
         {
             <div class="col-md-6 mb-4">
                 <div class="card border-0 shadow-sm h-100">
@@ -135,7 +168,7 @@
                         <div class="row text-center mb-3">
                              <div class="col-4 border-end">
                                 <div class="small text-muted">Sales</div>
-                                <div class="fw-bold">$0</div> 
+                                <div class="fw-bold">₱0</div> 
                             </div>
                             <div class="col-4 border-end">
                                 <div class="small text-muted">Tickets</div>

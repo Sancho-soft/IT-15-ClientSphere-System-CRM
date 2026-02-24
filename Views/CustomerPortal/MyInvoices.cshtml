@@ -1,64 +1,132 @@
 @model IEnumerable<ClientSphere.Models.Invoice>
 @{
     ViewData["Title"] = "My Invoices";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+
+    var pendingInvoices = Model.Where(i => i.Status != "Paid" && i.Status != "Cancelled").ToList();
+    var archivedInvoices = Model.Where(i => i.Status == "Paid" || i.Status == "Cancelled").ToList();
 }
 
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white border-bottom py-3">
-        <h5 class="mb-0 fw-bold"><i class="bi bi-receipt me-2"></i>My Invoices</h5>
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link active fw-bold" id="pending-tab" data-bs-toggle="tab" href="#pendingInvoices" role="tab">
+            <i class="bi bi-receipt me-1"></i> Pending Invoices
+            @if (pendingInvoices.Any())
+            {
+                <span class="badge bg-warning text-dark ms-1">@pendingInvoices.Count</span>
+            }
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="archived-inv-tab" data-bs-toggle="tab" href="#archivedInvoices" role="tab">
+            <i class="bi bi-archive me-1"></i> Archived
+            @if (archivedInvoices.Any())
+            {
+                <span class="badge bg-secondary ms-1">@archivedInvoices.Count</span>
+            }
+        </a>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <!-- Pending Invoices Tab -->
+    <div class="tab-pane fade show active" id="pendingInvoices" role="tabpanel">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                @if (pendingInvoices.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0 ps-4">Invoice #</th>
+                                    <th class="border-0">Issue Date</th>
+                                    <th class="border-0">Due Date</th>
+                                    <th class="border-0">Status</th>
+                                    <th class="border-0 text-end pe-4">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var invoice in pendingInvoices)
+                                {
+                                    <tr>
+                                        <td class="ps-4 fw-bold">INV-@invoice.Id.ToString("D5")</td>
+                                        <td class="text-muted">@invoice.IssueDate.ToString("MMM dd, yyyy")</td>
+                                        <td class="text-muted">@invoice.DueDate.ToString("MMM dd, yyyy")</td>
+                                        <td>
+                                            @switch (invoice.Status)
+                                            {
+                                                case "Pending":
+                                                    <span class="badge bg-warning rounded-pill px-3">Pending</span>
+                                                    break;
+                                                case "Overdue":
+                                                    <span class="badge bg-danger rounded-pill px-3">Overdue</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-secondary rounded-pill px-3">@invoice.Status</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td class="text-end pe-4 fw-bold">₱@invoice.Amount.ToString("N2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-receipt display-4 text-muted mb-3 d-block"></i>
+                        <p class="text-muted mb-0">No pending invoices found.</p>
+                    </div>
+                }
+            </div>
+        </div>
     </div>
-    <div class="card-body p-0">
-        @if (Model.Any())
-        {
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
-                        <tr>
-                            <th class="border-0 ps-4">Invoice #</th>
-                            <th class="border-0">Issue Date</th>
-                            <th class="border-0">Due Date</th>
-                            <th class="border-0">Status</th>
-                            <th class="border-0 text-end pe-4">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var invoice in Model)
-                        {
-                            <tr>
-                                <td class="ps-4 fw-bold">INV-@invoice.Id.ToString("D5")</td>
-                                <td class="text-muted">@invoice.IssueDate.ToString("MMM dd, yyyy")</td>
-                                <td class="text-muted">@invoice.DueDate.ToString("MMM dd, yyyy")</td>
-                                <td>
-                                    @switch (invoice.Status)
-                                    {
-                                        case "Paid":
-                                            <span class="badge bg-success rounded-pill px-3">Paid</span>
-                                            break;
-                                        case "Pending":
-                                            <span class="badge bg-warning rounded-pill px-3">Pending</span>
-                                            break;
-                                        case "Overdue":
-                                            <span class="badge bg-danger rounded-pill px-3">Overdue</span>
-                                            break;
-                                        default:
+
+    <!-- Archived Invoices Tab -->
+    <div class="tab-pane fade" id="archivedInvoices" role="tabpanel">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                @if (archivedInvoices.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0 ps-4">Invoice #</th>
+                                    <th class="border-0">Date Issued</th>
+                                    <th class="border-0">Status</th>
+                                    <th class="border-0 text-end pe-4">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var invoice in archivedInvoices)
+                                {
+                                    <tr>
+                                        <td class="ps-4 fw-bold text-muted">INV-@invoice.Id.ToString("D5")</td>
+                                        <td class="text-muted">@invoice.IssueDate.ToString("MMM dd, yyyy")</td>
+                                        <td>
                                             <span class="badge bg-secondary rounded-pill px-3">@invoice.Status</span>
-                                            break;
-                                    }
-                                </td>
-                                <td class="text-end fw-bold pe-4">$@invoice.Amount.ToString("N2")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+                                        </td>
+                                        <td class="text-end fw-bold text-muted pe-4">₱@invoice.Amount.ToString("N2")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-archive display-4 text-muted mb-3 d-block"></i>
+                        <p class="text-muted mb-0">No archived invoices yet.</p>
+                    </div>
+                }
             </div>
-        }
-        else
-        {
-            <div class="text-center py-5">
-                <i class="bi bi-receipt text-muted" style="font-size: 3rem;"></i>
-                <p class="text-muted mt-3">No invoices found</p>
-            </div>
-        }
+        </div>
     </div>
 </div>

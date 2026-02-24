@@ -82,16 +82,23 @@ namespace ClientSphere.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateTicket(SupportTicket ticket)
         {
+            // Clear validation errors for fields we set manually
+            ModelState.Remove("CustomerId");
+            ModelState.Remove("Status");
+            ModelState.Remove("Priority");
+
             if (ModelState.IsValid)
             {
                 var userId = _userManager.GetUserId(User);
                 ticket.CustomerId = userId;
                 ticket.Status = "Open";
+                ticket.Priority = "Medium"; // Default priority for customer submitted tickets
                 ticket.CreatedAt = DateTime.UtcNow;
                 ticket.LastUpdated = DateTime.UtcNow;
 
                 await _supportService.CreateTicketAsync(ticket);
 
+                TempData["SuccessMessage"] = "Your support ticket has been submitted successfully.";
                 return RedirectToAction(nameof(Dashboard));
             }
             return View(ticket);
@@ -152,6 +159,43 @@ namespace ClientSphere.Controllers
 
             ViewData["CurrentPage"] = "Invoices";
             return View(invoices);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ArchiveTicket(int id)
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId)) return NotFound();
+
+            var ticket = await _supportService.GetTicketByIdAsync(id);
+            if (ticket != null && ticket.CustomerId == userId)
+            {
+                ticket.Status = "Closed";
+                ticket.LastUpdated = DateTime.UtcNow;
+                await _supportService.UpdateTicketAsync(ticket);
+                TempData["SuccessMessage"] = "Ticket successfully archived (Closed).";
+            }
+            return RedirectToAction(nameof(MyTickets));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ArchiveInvoice(int id)
+        {
+            var userName = User.Identity?.Name;
+            var customer = !string.IsNullOrEmpty(userName) ? _context.Customers.FirstOrDefault(c => c.Email == userName) : null;
+            if (customer == null) return NotFound();
+
+            var invoice = await _context.Invoices.FindAsync(id);
+            // Simulate archiving an invoice by marking it as Paid/Cancelled in this demo
+            if (invoice != null && invoice.CustomerId == customer.Id)
+            {
+                invoice.Status = "Paid"; 
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Invoice successfully archived (Paid).";
+            }
+            return RedirectToAction(nameof(MyInvoices));
         }
 
         // GET: CustomerPortal/MyProfile

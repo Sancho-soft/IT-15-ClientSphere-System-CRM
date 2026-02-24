@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Delete Campaign";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CrmLayout.cshtml";
     ViewData["CurrentPage"] = "Marketing";
 }
@@ -30,7 +31,7 @@
                 </dd>
 
                 <dt class="col-sm-3 text-muted">Budget</dt>
-                <dd class="col-sm-9">$@Model.Budget.ToString("N0")</dd>
+                <dd class="col-sm-9">?@Model.Budget.ToString("N0")</dd>
             </dl>
 
             <hr class="my-4">
@@ -47,3 +48,4 @@
         </div>
     </div>
 </div>
+

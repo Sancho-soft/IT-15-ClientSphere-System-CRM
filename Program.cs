@@ -44,7 +44,10 @@ builder.Services.AddScoped<ClientSphere.Services.IPaymentService, ClientSphere.S
 builder.Services.AddScoped<ClientSphere.Services.IEmailService, ClientSphere.Services.SendGridEmailService>();
 builder.Services.AddScoped<ClientSphere.Services.ICalendarService, ClientSphere.Services.GraphCalendarService>();
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<ClientSphere.Filters.AuditLogFilter>();
+builder.Services.AddControllersWithViews(options => {
+    options.Filters.Add<ClientSphere.Filters.AuditLogFilter>();
+});
 
 var app = builder.Build();
 

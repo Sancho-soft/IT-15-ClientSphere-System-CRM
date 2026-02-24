@@ -1,80 +1,144 @@
 @model IEnumerable<ClientSphere.Models.SupportTicket>
 @{
     ViewData["Title"] = "My Support Tickets";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+
+    var activeTickets = Model.Where(t => t.Status != "Resolved" && t.Status != "Closed").ToList();
+    var archivedTickets = Model.Where(t => t.Status == "Resolved" || t.Status == "Closed").ToList();
 }
 
-<div class="card border-0 shadow-sm">
-    <div class="card-header bg-white border-bottom py-3">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 fw-bold"><i class="bi bi-ticket-perforated me-2"></i>My Support Tickets</h5>
-            <a asp-action="CreateTicket" class="btn btn-primary btn-sm">
-                <i class="bi bi-plus-lg me-1"></i>New Ticket
-            </a>
+<!-- Tab Navigation -->
+<ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+        <a class="nav-link active fw-bold" id="active-tab" data-bs-toggle="tab" href="#activeTickets" role="tab">
+            <i class="bi bi-chat-square-text me-1"></i> Active Tickets
+            @if (activeTickets.Any())
+            {
+                <span class="badge bg-primary ms-1">@activeTickets.Count</span>
+            }
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="archived-tab" data-bs-toggle="tab" href="#archivedTickets" role="tab">
+            <i class="bi bi-archive me-1"></i> Archived
+            @if (archivedTickets.Any())
+            {
+                <span class="badge bg-secondary ms-1">@archivedTickets.Count</span>
+            }
+        </a>
+    </li>
+</ul>
+
+<div class="tab-content">
+    <!-- Active Tickets Tab -->
+    <div class="tab-pane fade show active" id="activeTickets" role="tabpanel">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                @if (activeTickets.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0 ps-4">Ticket ID</th>
+                                    <th class="border-0">Subject</th>
+                                    <th class="border-0">Priority</th>
+                                    <th class="border-0">Status</th>
+                                    <th class="border-0 text-end pe-4">Last Updated</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ticket in activeTickets)
+                                {
+                                    <tr>
+                                        <td class="ps-4 fw-bold">TKT-@ticket.Id.ToString("D5")</td>
+                                        <td>@ticket.Subject</td>
+                                        <td>
+                                            @switch (ticket.Priority)
+                                            {
+                                                case "High":
+                                                    <span class="badge bg-danger rounded-pill px-3">High</span>
+                                                    break;
+                                                case "Medium":
+                                                    <span class="badge bg-warning rounded-pill px-3">Medium</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-secondary rounded-pill px-3">@ticket.Priority</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td>
+                                            @switch (ticket.Status)
+                                            {
+                                                case "In Progress":
+                                                    <span class="badge bg-primary rounded-pill px-3">In Progress</span>
+                                                    break;
+                                                default:
+                                                    <span class="badge bg-info rounded-pill px-3">@ticket.Status</span>
+                                                    break;
+                                            }
+                                        </td>
+                                        <td class="text-end text-muted pe-4">
+                                            @((ticket.LastUpdated ?? ticket.CreatedAt).ToString("MMM dd, yyyy"))
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-chat-square-text display-4 text-muted mb-3 d-block"></i>
+                        <p class="text-muted mb-0">No active support tickets found.</p>
+                    </div>
+                }
+            </div>
         </div>
     </div>
-    <div class="card-body p-0">
-        @if (Model.Any())
-        {
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light">
-                        <tr>
-                            <th class="border-0 ps-4">Ticket ID</th>
-                            <th class="border-0">Subject</th>
-                            <th class="border-0">Priority</th>
-                            <th class="border-0">Status</th>
-                            <th class="border-0 text-end pe-4">Last Updated</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var ticket in Model)
-                        {
-                            <tr>
-                                <td class="ps-4 fw-bold">TKT-@ticket.Id.ToString("D5")</td>
-                                <td>@ticket.Subject</td>
-                                <td>
-                                    @switch (ticket.Priority)
-                                    {
-                                        case "High":
-                                            <span class="badge bg-danger rounded-pill px-3">High</span>
-                                            break;
-                                        case "Medium":
-                                            <span class="badge bg-warning rounded-pill px-3">Medium</span>
-                                            break;
-                                        default:
-                                            <span class="badge bg-secondary rounded-pill px-3">@ticket.Priority</span>
-                                            break;
-                                    }
-                                </td>
-                                <td>
-                                    @switch (ticket.Status)
-                                    {
-                                        case "Resolved":
-                                            <span class="badge bg-success rounded-pill px-3">Resolved</span>
-                                            break;
-                                        case "In Progress":
-                                            <span class="badge bg-primary rounded-pill px-3">In Progress</span>
-                                            break;
-                                        default:
-                                            <span class="badge bg-info rounded-pill px-3">@ticket.Status</span>
-                                            break;
-                                    }
-                                </td>
-                                <td class="text-end text-muted pe-4">@((ticket.LastUpdated ?? ticket.CreatedAt).ToString("MMM dd, yyyy"))</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+
+    <!-- Archived Tickets Tab -->
+    <div class="tab-pane fade" id="archivedTickets" role="tabpanel">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                @if (archivedTickets.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0 ps-4">Ticket ID</th>
+                                    <th class="border-0">Subject</th>
+                                    <th class="border-0">Status</th>
+                                    <th class="border-0 text-end pe-4">Date Resolved</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ticket in archivedTickets)
+                                {
+                                    <tr>
+                                        <td class="ps-4 fw-bold text-muted">TKT-@ticket.Id.ToString("D5")</td>
+                                        <td class="text-muted">@ticket.Subject</td>
+                                        <td>
+                                            <span class="badge bg-secondary rounded-pill px-3">@ticket.Status</span>
+                                        </td>
+                                        <td class="text-end text-muted pe-4">@((ticket.LastUpdated ?? ticket.CreatedAt).ToString("MMM dd, yyyy"))</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-archive display-4 text-muted mb-3 d-block"></i>
+                        <p class="text-muted mb-0">No archived support tickets yet.</p>
+                    </div>
+                }
             </div>
-        }
-        else
-        {
-            <div class="text-center py-5">
-                <i class="bi bi-ticket-perforated text-muted" style="font-size: 3rem;"></i>
-                <p class="text-muted mt-3">No support tickets found</p>
-                <a asp-action="CreateTicket" class="btn btn-primary mt-2">Create Your First Ticket</a>
-            </div>
-        }
+        </div>
     </div>
 </div>

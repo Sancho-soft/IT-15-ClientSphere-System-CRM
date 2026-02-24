@@ -11,12 +11,12 @@ namespace ClientSphere.Models
         [Required]
         public string Name { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Required]
         public string Type { get; set; } // Email, SMS, Social Media, etc.
 
-        public string Status { get; set; } // Draft, Active, Completed, Cancelled
+        public string? Status { get; set; } // Draft, Active, Completed, Cancelled
 
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
@@ -32,7 +32,7 @@ namespace ClientSphere.Models
         public int Clicks { get; set; }
         public int Conversions { get; set; }
 
-        public string ManagedByUserId { get; set; }
+        public string? ManagedByUserId { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

@@ -2,6 +2,7 @@ using ClientSphere.Models;
 using ClientSphere.Services;
 using ClientSphere.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -13,18 +14,22 @@ namespace ClientSphere.Controllers
         private readonly IOrderService _orderService;
         private readonly ICustomerService _customerService;
         private readonly IProductService _productService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public OrdersController(IOrderService orderService, ICustomerService customerService, IProductService productService)
+        public OrdersController(IOrderService orderService, ICustomerService customerService, IProductService productService, UserManager<ApplicationUser> userManager)
         {
             _orderService = orderService;
             _customerService = customerService;
             _productService = productService;
+            _userManager = userManager;
         }
 
         // GET: Orders
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool archived = false)
         {
-            var orders = await _orderService.GetAllOrdersAsync();
+            var allOrders = await _orderService.GetAllOrdersAsync();
+            var orders = archived ? allOrders.Where(o => o.Status == Models.OrderStatus.Completed || o.Status == Models.OrderStatus.Cancelled) : allOrders.Where(o => o.Status != Models.OrderStatus.Completed && o.Status != Models.OrderStatus.Cancelled);
+            ViewData["IsArchived"] = archived;
             return View(orders);
         }
 
@@ -48,6 +53,24 @@ namespace ClientSphere.Controllers
         // GET: Orders/Create
         public async Task<IActionResult> Create()
         {
+            // Auto-sync Customer role users into Customers table
+            var customerUsers = await _userManager.GetUsersInRoleAsync("Customer");
+            var existingCustomers = await _customerService.GetAllCustomersAsync();
+            foreach (var user in customerUsers)
+            {
+                if (!existingCustomers.Any(c => c.Email == user.Email))
+                {
+                    await _customerService.CreateCustomerAsync(new Customer
+                    {
+                        CompanyName = $"{user.FirstName} {user.LastName}",
+                        ContactName = $"{user.FirstName} {user.LastName}",
+                        Email = user.Email ?? "",
+                        Phone = user.PhoneNumber ?? "",
+                        IsActive = true
+                    });
+                }
+            }
+
             var customers = await _customerService.GetAllCustomersAsync();
             var products = await _productService.GetAllProductsAsync();
 
@@ -61,9 +84,9 @@ namespace ClientSphere.Controllers
                 ProductList = products.Select(p => new SelectListItem
                 {
                     Value = p.Id.ToString(),
-                    Text = $"{p.Name} - ${p.Price}"
+                    Text = $"{p.Name} - ₱{p.Price}"
                 }),
-                Items = new List<OrderItemViewModel> { new OrderItemViewModel() } // Start with one empty row
+                Items = new List<OrderItemViewModel> { new OrderItemViewModel() }
             };
 
             return View(viewModel);
