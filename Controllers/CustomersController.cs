@@ -1,6 +1,7 @@
 using ClientSphere.Models;
 using ClientSphere.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClientSphere.Controllers
@@ -9,25 +10,48 @@ namespace ClientSphere.Controllers
     public class CustomersController : Controller
     {
         private readonly ICustomerService _customerService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public CustomersController(ICustomerService customerService)
+        public CustomersController(ICustomerService customerService, UserManager<ApplicationUser> userManager)
         {
             _customerService = customerService;
+            _userManager = userManager;
         }
 
         // GET: Customers
-        public async Task<IActionResult> Index(string searchString)
+        public async Task<IActionResult> Index(string searchString, bool archived = false)
         {
             ViewData["CurrentFilter"] = searchString;
-            
+
+            // Auto-sync Customer role users into the Customers table
+            var customerUsers = await _userManager.GetUsersInRoleAsync("Customer");
+            var existingCustomers = await _customerService.GetAllCustomersAsync();
+            foreach (var user in customerUsers)
+            {
+                // Check if this user already has a Customer record (by email)
+                if (!existingCustomers.Any(c => c.Email == user.Email))
+                {
+                    await _customerService.CreateCustomerAsync(new Customer
+                    {
+                        CompanyName = $"{user.FirstName} {user.LastName}",
+                        ContactName = $"{user.FirstName} {user.LastName}",
+                        Email = user.Email ?? "",
+                        Phone = user.PhoneNumber ?? "",
+                        IsActive = true
+                    });
+                }
+            }
+
             IEnumerable<Customer> customers;
             if (!string.IsNullOrEmpty(searchString))
             {
                 customers = await _customerService.SearchCustomersAsync(searchString);
+                customers = customers.Where(c => archived ? !c.IsActive : c.IsActive);
             }
             else
             {
                 customers = await _customerService.GetAllCustomersAsync();
+                customers = customers.Where(c => archived ? !c.IsActive : c.IsActive);
             }
 
             return View(customers);

@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Create Invoice";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -27,10 +28,19 @@
                         <input asp-for="InvoiceNumber" class="form-control" readonly />
                         <span asp-validation-for="InvoiceNumber" class="text-danger small"></span>
                     </div>
-                     <div class="col-md-6">
-                        <label asp-for="CustomerId" class="form-label fw-bold">Customer ID</label>
-                        <input asp-for="CustomerId" class="form-control" placeholder="Enter Customer ID" type="number" />
+                     <div class="col-md-3">
+                        <label asp-for="CustomerId" class="form-label fw-bold">Select Customer</label>
+                        <select asp-for="CustomerId" class="form-select" asp-items="ViewBag.Customers">
+                            <option value="">-- Choose Customer --</option>
+                        </select>
                         <span asp-validation-for="CustomerId" class="text-danger small"></span>
+                    </div>
+                     <div class="col-md-3">
+                        <label asp-for="OrderId" class="form-label fw-bold">Link to Order (Optional)</label>
+                        <select asp-for="OrderId" class="form-select" asp-items="ViewBag.Orders">
+                            <option value="0">-- None --</option>
+                        </select>
+                        <span asp-validation-for="OrderId" class="text-danger small"></span>
                     </div>
                 </div>
 
@@ -38,7 +48,7 @@
                     <div class="col-md-4">
                         <label asp-for="Amount" class="form-label fw-bold"></label>
                         <div class="input-group">
-                            <span class="input-group-text">$</span>
+                            <span class="input-group-text">₱</span>
                             <input asp-for="Amount" class="form-control" type="number" step="0.01" />
                         </div>
                         <span asp-validation-for="Amount" class="text-danger small"></span>
@@ -70,11 +80,9 @@
                      <div class="col-md-4">
                          <label asp-for="PaymentMethod" class="form-label fw-bold">Payment Method</label>
                         <select asp-for="PaymentMethod" class="form-select">
-                            <option value="">Select Method</option>
-                            <option value="Bank Transfer">Bank Transfer</option>
-                            <option value="Credit Card">Credit Card</option>
-                            <option value="PayPal">PayPal</option>
-                            <option value="Check">Check</option>
+                            <option value="">-- Select Method --</option>
+                            <option value="GCash">GCash</option>
+                            <option value="PayMaya">PayMaya</option>
                         </select>
                         <span asp-validation-for="PaymentMethod" class="text-danger small"></span>
                     </div>
@@ -93,3 +101,4 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+

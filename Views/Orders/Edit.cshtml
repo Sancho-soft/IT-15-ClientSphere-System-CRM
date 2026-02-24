@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Edit Order";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CrmLayout.cshtml";
     ViewData["CurrentPage"] = "Sales";
 }
@@ -72,3 +73,4 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+

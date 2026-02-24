@@ -1,188 +1,65 @@
-
---- Processing IT15_PROJECT_TITLE_PROPOSAL-V4_1.pdf ---
-Pages: 6
  
-NAME ALDREN LOUIE L. REYES 
-PROJECT TITLE  ClientSphere: Customer Relationship Management 
-System 
+NAME ROCKY BANTILAN ADAYA 
+PROJECT TITLE  Adaya IT Solution: Corporate Project Lifecycle & Workflow 
+Management System 
+ 
 SUBJECT: 
 CODE: 
 TIME: 
 IT15/L Integrative Programming and Technologies 
 8441 
-10:00 am - 12:00 nn 
+10:00 AM – 12:00 PM 
+ 
 TOPIC (Type of 
-Business Process) 
-#5 Customer Relationship Management (CRM) 
-Products/Services Sales and Service-Oriented Business 
-Tools Needed:  Visual Studio 2022– IDE, SSMS, Domain, Hosting 
+Business 
+Process) 
+#37 Collaborative and Workflow Transactions System 
  
+Products/Servics Corporate Enterprises, Project-Based Organizations, and HR/Project Management 
+Services 
  
-Technology:  C#, ASP.NET Core, HTML5, CSS3, SQL Server Management Studio, Microsoft 
-Graph API, Stripe API, SendGrid API 
+Deployed Link / 
+Website link 
  
+http://adaya-101.runasp.net  
+Role Based-
+Access 
+Super Admin Acct. (if done) 
+Username: superadmin@gmail.com  
+Password: @Admin123 
  
-Security Features Role-Based Access Control (RBAC), User Authentication, Authorization and 
-Permission Management, Data Encryption, Audit Logs and Activity Monitoring, 
-Secure Session Management, Input Validation and Protection Against Common 
-Attacks 
-Target user/s: Customers/Clients, Sales Manager, Sales Staff, Marketing Manager, Customer 
-Support Staff, Billing Staff, System Administrator 
+Admin Acct. (Department Head) 
+Username: dh@gmail.com  
+Password: @Depthead123 
  
-Subs System / 
-Management 
-Transaction/Modules 
-1.Customer Master Data 
-2.Sales Management 
-3.Customer Support / Ticketing 
-4. Marketing Campaign Management 
-5.Billing and insurance integration 
-LOGO 
+Admin Acct. (Project Manager) 
+Username: pm@gmail.com   
+Password: @Projman123 
  
-Project Objectives: 1. To develop a centralized Customer Master Data module that securely stores 
-and manages complete customer information, including contact details, 
-interaction history, and transaction records, to ensure accurate and 
-consistent customer data shared across all system modules. 
-2. To implement a Sales Management module that allows users to record sales 
-transactions, manage client meeting schedules, and analyze performance, 
-enabling the organization to identify trends and improve revenue 
-management. 
-3. To design a Customer Support and Service Module that centralizes client 
-inquiries, complaints, and warranty claims. This module converts incoming 
-requests into tracked "cases" or "tickets," enabling support staff to view the 
-customer’s purchase history and resolve issues efficiently 
-4. To integrate a Marketing Campaign Management module that supports the 
-creation, monitoring, and evaluation of marketing campaigns, promotions, 
-and customer engagement activities to help businesses improve customer 
-retention and brand awareness. 
-5. To develop a Billing and Invoice Integration module that automatically 
-generates invoices from sales data, tracks customer payments, and 
-maintains accurate billing records to reduce manual errors and improve 
-financial transparency. 
-
-Project Description: 
-ClientSphere is a web -based Customer Relationship Management (CRM) system 
-designed for businesses focused on sales and customer service. It provides an all-
-in-one platform to manage customer interactions and streamline business 
-processes. Built with an Ent erprise Resource Planning (ERP) approach, 
-ClientSphere integrates multiple business functions into a single centralized 
-system using a shared database. The system includes five main modules: 
-Customer Master Data, Sales Management, Customer Support and Tick eting, 
-Marketing Campaign Management, and Billing and Invoice Management. 
-The system is designed for different types of users, including administrators, sales 
-teams, customer support staff, marketing teams, and billing personnel. Each user 
-is granted access based on their role, ensuring data security and proper usage 
-across departments. 
-ClientSphere helps businesses overcome common challenges such as customer 
-information being stored in multiple, disconnected locations, which can lead to 
-duplicate records, errors, and delays. It also addresses inefficient sales tracking, 
-slow support resp onses, unorganized marketing campaigns, and manual billing 
-processes. By centralizing these functions, the system improves operational 
-efficiency, ensures accurate data, enhances collaboration between departments, 
-and increases overall customer satisfaction. 
-To enhance functionality, the system integrates three key APIs. The Microsoft 
-Graph API syncs sales schedules and meetings directly with staff Outlook 
-calendars. An Email Notification API automates communication by sending 
-updates for support tickets, billing reminders, and marketing campaigns. A 
-Payment API helps confirm payment statuses and automatically updates billing 
-and invoice records, ensuring accurate financial tracking. 
-ClientSphere is built using modern web technologies, including ASP.NET Core for 
-backend logic, SQL Server for database management, and responsive web 
-technologies for the interface. These technologies were chosen for their 
-reliability, security, and ability to support scalable, enterprise-level applications. 
-Overall, ClientSphere  provides businesses with a powerful, ERP -based CRM 
-solution that improves decision-making, strengthens customer relationships, and 
-enhances overall business performance. 
-Use Case Diagram 
- (Role-Based Access) 
+Employee Acct. 
+Username: emp@gmail.com 
+Password: @Emp123 
+ 
+3rd Deliverables-Deployed Transactions (CRUD) 
+Log in-Page 
+(Screenshot) 
  
  
  
-
-Role-Based Access for Customer Relationship Management (CRM) 
-Admin 
-• Manage Users & Permissions 
-• System Configuration 
-• Full System Access & Audit Logs 
-Sales Manager 
-• View Sales Reports & Analytics  
-• Monitor Sales Team Performance 
-• Approve High-Value Orders 
-Sales Staff 
-• View/Add Customers 
-• Create & Update Sales Records 
-• Manage Client Meeting Schedules  
-Customer Support Staff 
-• View Customer Profiles 
-• Create & Update Support Tickets 
-• Trigger Email Notifications  
-• Resolve Issues 
-Marketing Manager  
-• Track Campaign Performance & ROI  
-• Analyze Customer Engagement Reports 
-Marketing Staff 
-• Create Marketing Campaigns 
-• Manage Promotions & Email Blasts 
-Billing Staff 
-• Generate Invoices 
-• Process Online Payments  
-• Update Billing Records 
+     The Login Page enables internal corporate personnel to securely access the system using 
+their assigned account credentials. Employee accounts are pre-registered and managed by 
+the Super Administrator or HR/Admin, ensuring that only authorized users can log in to the 
+platform. Upon entering a valid username and password, the system authenticates the 
+user’s identity and grants access based on their designated role within the organization, 
+such as Employee, Project Manager, Department Head, HR/Admin, Executive , or Super 
+Admin. This role-based authentication ensures that users are directed to the appropriate 
+dashboard and are only able to access features and data relevant to their responsibilities. 
+In cases of invalid login credentials, the system displays an error message prom pting the 
+user to provide correct login information. 
  
-Date Submitted: January 29 2026 
-Teacher’s Feedback  
-_________________________________________________________________ 
-_________________________________________________________________ 
-_________________________________________________________________ 
-_________________________________________________________________ 
-_________________________________________________________________ 
-_________________________________________________________________ 
- 
-________________________________            __________________________    
-Student’s Signature (after feedbacking)                       Teacher’s Signature 
- 
-  
- 
-
-==================================================
-
---- Processing IT15_ERD_DATADICTIONARY-V3.pdf ---
-Pages: 8
- 
-NAME ALDREN LOUIE REYES 
-PROJECT TITLE  ClientSphere: Customer Relationship Management System 
-SUBJECT: 
-CODE: 
-TIME: 
-IT15/L Integrative Programming and Technologies 
-8441 
-10:00 am - 12:00 nn 
-TOPIC (Type of 
-Business Process) 
-#5 - Customer Relationship Management (CRM) 
-Products/Service
-s 
-Sales and Customer Service 
-Agile Model - 
-SDLC 
-The ClientSphere Customer Relationship Management System follows the Agile Software 
-Development Life Cycle (SDLC) to ensure flexibility, continuous improvement, and 
-effective collaboration among stakeholders. During the Requirements and Planning phase, 
-the development team identifies the core needs of the system based on the roles involved, 
-such as Admin, Sales Staff, Support Staff, Marketing Staff, and Customers. The primary goal 
-of the system is to provide an organized platform for managing customer data, tracking 
-sales, handling support tickets, running marketing campaigns, and generating invoices, all 
-with proper role-based access. 
- 
-In this phase, the major functional requirements were gathered through system analysis 
-and use-case identification. These include customer management (add/edit/delete/view), 
-sales tracking, support ticket creation and resolution, marketing campaign managem ent, 
-invoice generation, and reporting. The planning process also defines the project scope, 
-prioritizes features into Agile iterations or sprints, and ensures that each role has the 
-correct permissions within the system. 
-By applying Agile planning, the system is developed incrementally, allowing feedback and 
-improvements after every sprint to ensure the final software meets the needs of both 
-management and operational users, while enhancing efficiency in customer relations hip 
-processes. 
+Log in-Page  - 
+Source Code 
+(Screenshot) 
  
  
  
@@ -193,17 +70,6 @@ processes.
  
  
  
- 
- 
- 
- 
-Use Case 
-Diagram 
-(Diagram Only) 
-  
-
-Entity Relational 
-Diagram  
  
  
  
@@ -219,105 +85,77 @@ Diagram
  
  
  
+
  
-Data Dictionary  
+ 
+Dashboard 
+(Client/End-
+User) 
+(Screenshot) 
  
  
-ClientSphere: Customer Relationship Management System 
  
-Customers Table 
-Field Names Datatype Length  Description 
-CustomerID-PK Int-AI 9 Customer unique ID 
-number 
-FirstName Text 50 Customer first name 
-LastName Text 50 Customer last name 
-Email Text 100 Customer email 
-address 
-Phone Text 20 Customer phone 
-number 
-Address Text 255 Street address 
-City Text 50 City 
-Country Text 50 Country 
-DateCreated Datetime - Date account created 
-Status Enum - Active / Inactive 
  
-Sales Table 
-Field Names Datatype Length  Description 
-SaleID-PK Int-AI 9 Unique sale ID 
-CustomerID-FK  Int 9 Product/service sold 
-Product Text 100 Employees ’s  Company 
-Number 
-Quantity Int - Number of units sold 
-UnitPrice Decimal 10,2 Price per unit 
-TotalAmount Decimal 10,2 Total sale amount 
-SaleDate Datetime - Sale date 
-Status Enum - Pending / Completed / 
-Cancelled 
  
-SupportTicket Table 
-Field Names Datatype Length  Description 
-TicketID-PK Int-AI 9 Unique ticket ID 
-CustomerID-FK 
+     The Employee Dashboard serves as the primary interface for employees to access and 
+manage their assigned tasks and project -related responsibilities within the system. It 
+provides an overview of ongoing projects, assigned tasks, deadlines, and project updates 
+relevant to the employee’s role. Through this dashboard, employees can track the progress 
+of their tasks, view project details, and stay informed about notifications such as new 
+assignments, task updates, or project announcements. Additionally, it allows employees to 
+collaborate within project workflows by participating in assigned activities and monitoring 
+their individual contributions to the overall project lifecycle. This feature ensures that 
+employees remain updated and actively engaged in project e xecution and organizational 
+workflow processes. 
  
-Int 9 Linked customer ID 
-Subject Text 100 Ticket subject 
-Description Text - Ticket details 
-Priority Enum - Low / Medium / High 
-Status Enum - Open / In Progress / 
-Closed 
-CreatedDate Datetime - Ticket creation date 
-ClosedDate Datetime - Ticket closed date 
-AssignedTo-FK Int 9 Staff ID assigned 
+Dashboard - 
+Source Code 
  
-MarketingCampaign Table 
-Field Names Datatype Length  Description 
-CampaignID-PK Int-AI 9 Unique campaign ID 
-Name 
+(Client/End-
+User) 
+(Screenshot) 
  
-Int 9 Campaign name 
-Type Enum 
-  
  
-25 Email / SMS / Call / 
-Other 
+
  
-StartDate Datetime 20 Start date 
-EndDate Datetime 30 End date 
-Status Enum 20 Active / Inactive 
-Budget Decimal 10,2 Campaign budget 
  
-CampaignRecipients Table 
-Field Names Datatype Length  Description 
-CampaignID-FK Int-AI 9 Linked campaign ID 
  
-CustomerID-FK  Int 9 Linked customer ID 
-ResponseStatus Enum - Clicked / Opened / 
-Responded / No 
-Response 
  
-Billing Table 
-Field Names Datatype Length  Description 
-InvoiceID-PK Int-AI 9 Unique invoice ID 
-SaleID-FK  Int 9 Linked sale ID 
-CustomerID-FK Int 9 Linked customer ID 
-InvoiceDate Datetime - Invoice creation date 
-DueDate Datetime - Payment due date 
-Amount Decimal 10,2 Invoice total amount 
-Status Enum - Paid / Unpaid / 
-Overdue 
-PaymentMethod Text 50 Payment method 
+Update/Edit 
+Page 
+(Screenshot) 
  
-Staff Table 
-Field Names Datatype Length  Description 
-UserID-PK Int-AI 9 Unique staff ID 
-FirstName  Text 50 Staff first name 
-LastName Text 50 Staff last name 
-Email Text 100 Staff email 
-Role Enum - Admin / Sales / Support / 
-Marketing 
-PasswordHash Text 255 Password hash 
-DateCreated Datetime - Account creation 
-Status Enum - Active / Inactive 
+ 
+ 
+ 
+     The Edit Proposal  page provides a dedicated interface for employees to modify and 
+refine their submitted project proposals. This page allows users to update the project title 
+and use a rich text editor to expand upon the project's description, objectives, and 
+workflows—such as the "Digital Employee Onboarding Automation System" shown in the 
+interface. 
+ 
+     By offering tools for text formatting and file attachments (supporting images, PDFs, and 
+documents up to 10 MB), the page ensures that proposals can be presented with 
+professional clarity and supporting documentation. The inclusion of a "Versions" feature 
+allows employees to track historical changes, while the "Save Changes" functionality 
+ensures that updates are synchronized with the system’s central database. This interface is 
+critical for maintaining the accuracy of project documentation and allowing for  iterative 
+improvements to proposals before they move through the organizational approval 
+lifecycle. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+ 
+ 
+Update/Edit 
+Page - Source 
+Code 
+(Screenshot) 
  
  
  
@@ -330,6 +168,63 @@ Status Enum - Active / Inactive
  
  
  
+
+ 
+Archive 
+(Screenshot) 
+ 
+ 
+ 
+ 
+     The Archive functionality within the Proposals module serves as a critical organizational 
+tool, allowing employees to manage the visibility and lifecycle of their submissions. By 
+utilizing the archive filter and the dedicated archive action icon located in the propos al 
+table, users can transition inactive, completed, or outdated proposals out of their primary 
+workspace. 
+ 
+     This feature provides a structured way to declutter the "My Proposals" list without 
+permanently deleting records, ensuring that historical data—such as submission dates, past 
+statuses (e.g., Approved or Rejected), and associated documents—remains accessible for 
+future reference or audits. Through the archive toggle and status filters, employees can 
+seamlessly switch between viewing active projects and archived entries, maintaining an 
+efficient and focused environment for current project execution. 
+ 
+ 
+Archive – Source 
+Code 
+(Screenshot) 
+ 
+ 
+
+ 
+ 
+Display Records  
+(Screenshot) 
+ 
+ 
+ 
+ 
+     The My Proposals page features a structured Display Records interface that provides a 
+comprehensive overview of all project proposals authored by the employee. This 
+centralized table is designed for high scannability, allowing users to monitor their 
+submission history and current progress at a glance. Each record i n the display includes 
+several critical fields, such as the full Project Title, an Input Preview that highlights snippets 
+of the proposal’s core content or attached filenames, the specific Date Submitted, and a 
+color-coded Status badge indicating whether the item is Pending, Approved, Rejected, or 
+Requires Revision. 
+ 
+     To maintain an organized workspace, the interface is supported by dynamic 
+management tools, including a global search bar and dropdown menus that allow users to 
+filter records by their active or archived state. Furthermore, a dedicated Action column 
+provides immediate access to view, edit, or archive individual entries, while pagination 
+controls ensure that large sets of data remain easy to navigate. This systematic display of 
+records ensures that employees can efficiently manage their professional contributions and 
+stay informed about the lifecycle of their organizational proposals. 
+ 
+
+Display Records - 
+Source Code  
+(Screenshot) 
  
  
  
@@ -339,15 +234,63 @@ Status Enum - Active / Inactive
  
  
  
+Database – SQL 
+Server (Local) 
+Screenshot 
+ 
+ 
+ 
+     The Database module for the proposal system is powered by SQL Server (Local) , 
+providing a robust and structured relational storage environment for all project -related 
+data. Utilizing Microsoft SQL Server Management Studio (SSMS), administrators and 
+developers can manage the project_lifecycle_db database, which serves as the central 
+
+repository for critical system information. The core of this storage is the ProjectProposals 
+table, which systematically records essential attributes for every submission, including 
+unique identifiers like the EmployeeId, the project Title, and the detailed Input content. 
+ 
+     Furthermore, the database handles lifecycle and organizational metadata by storing the 
+DateCreated, the current Status (such as Pending, Approved, or Rejected), and 
+departmental links through the DepartmentHeadId field. It also features built -in logic for 
+content management, such as a Note field for feedback and a bit-based IsArchived column, 
+which directly controls whether a record appears in the active or archived view on the 
+employee dashboard. By maintaining this detailed schema, the SQL Server backend ensures 
+data integrity, supports complex filtering across different proposal versions, and facilitates 
+seamless synchronization between the user interface and the persistent storage layer. 
+ 
+ 
+Database – 
+Deployed/Onlin
+e 
+ 
+Screenshot 
  
  
  
  
+
  
  
+     The Database infrastructure is hosted in a Deployed/Online environment through 
+MonsterASP.net, providing a high -availability cloud solution for the project lifecycle 
+system. This online implementation utilizes a remote MSSQL instance, identified as 
+db41083.databaseasp.net, which mirrors the local schema to ensure seamless data 
+transitions between development and production. Through the MonsterASP.net 
+management interface, administrators can monitor real-time database statistics, including 
+row counts, storage sizes, and precise timestamps for the last modification of table data. 
  
+     The cloud database maintains the integrity of the organizational hierarchy and project 
+workflows by hosting several critical tables, including User and Role Management  tables 
+such as AspNetUsers and AspNetRoles for secure access, as well as Organizational Structure 
+tables like Departments and Employees to facilitate proposal routing. The Project and 
+Proposal Lifecycle  is meticulously tracked through the ProjectProposals and 
+ProjectProposalVersions tables, while specific execution data is managed via Projects, 
+ProjectTasks, and ProjectMilestones. Additionally, Administrative Tracking  is handled 
+through tables like ProposalNoteVersions and ProjectManagers. This cloud -based 
+deployment ensures that all project data remains synchronized and accessible to remote 
+users, providing a scalable backbone for the organization’s digital transformation efforts. 
  
-Date Submitted: February 4 2026 
+Date Submitted: February 20, 2026 
 Teacher’s 
 Feedback 
  
@@ -355,6 +298,7 @@ _________________________________________________________________
 _________________________________________________________________ 
 _________________________________________________________________ 
 _________________________________________________________________ 
+
 _________________________________________________________________ 
 _________________________________________________________________ 
  
@@ -364,7 +308,3 @@ Student’s Signature (after feedbacking)                       Teacher’s Sign
   
  
  
-  
- 
-
-==================================================

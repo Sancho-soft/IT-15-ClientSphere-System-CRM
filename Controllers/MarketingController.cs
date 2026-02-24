@@ -17,15 +17,19 @@ namespace ClientSphere.Controllers
             _campaignService = campaignService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool archived = false)
         {
-            var campaigns = await _campaignService.GetAllCampaignsAsync();
+            var allCampaigns = await _campaignService.GetAllCampaignsAsync();
+            var campaigns = archived ? allCampaigns.Where(c => c.Status == "Completed" || c.Status == "Cancelled") : allCampaigns.Where(c => c.Status != "Completed" && c.Status != "Cancelled");
+            // Also need to fix the sum logic to not break if list is empty, but we convert to List first
+            campaigns = campaigns.ToList();
+            ViewData["IsArchived"] = archived;
             
             var viewModel = new MarketingDashboardViewModel
             {
-                TotalCampaigns = campaigns.Count,
-                ActiveBudget = campaigns.Where(c => c.Status == "Active").Sum(c => c.Budget),
-                TotalRecipients = campaigns.Sum(c => c.TargetAudienceSize),
+                TotalCampaigns = campaigns.Count(),
+                ActiveBudget = campaigns.Any(c => c.Status == "Active") ? campaigns.Where(c => c.Status == "Active").Sum(c => c.Budget) : 0,
+                TotalRecipients = campaigns.Any() ? campaigns.Sum(c => c.TargetAudienceSize) : 0,
                 AvgResponseRate = campaigns.Any() ? campaigns.Average(c => ((double)c.ExpectedRevenue / (double)c.Budget) * 100) : 0,
                 Campaigns = campaigns.Select(c => new CampaignViewModel
                 {

@@ -173,10 +173,13 @@ namespace ClientSphere.Controllers
             var convertedLeads = _context.Leads.Count(l => l.Status == "Converted");
             var conversionRate = totalLeads > 0 ? (double)convertedLeads / totalLeads * 100 : 0;
             
-            var avgResponseTime = _context.SupportTickets.Any() 
-                ? _context.SupportTickets
-                    .Where(t => t.LastUpdated.HasValue)
-                    .Average(t => (t.LastUpdated.Value - t.CreatedAt).TotalHours)
+            var ticketDates = await _context.SupportTickets
+                .Where(t => t.LastUpdated.HasValue)
+                .Select(t => new { t.LastUpdated, t.CreatedAt })
+                .ToListAsync();
+
+            var avgResponseTime = ticketDates.Any() 
+                ? ticketDates.Average(t => (t.LastUpdated.Value - t.CreatedAt).TotalHours)
                 : 0;
 
             var viewModel = new ViewModels.AnalyticsViewModel
@@ -410,8 +413,8 @@ namespace ClientSphere.Controllers
             return View(user);
         }
 
-        // System Settings - Super Admin Only
-        [Authorize(Roles = "Super Admin")]
+        // System Settings - Super Admin and Admin
+        [Authorize(Roles = "Super Admin,Admin")]
         public IActionResult SystemSettings()
         {
             ViewData["CurrentPage"] = "System Settings";

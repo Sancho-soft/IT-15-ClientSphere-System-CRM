@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Edit Support Ticket";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -82,3 +83,4 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+

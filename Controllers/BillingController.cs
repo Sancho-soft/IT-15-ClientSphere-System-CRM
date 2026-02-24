@@ -2,6 +2,7 @@ using ClientSphere.ViewModels;
 using ClientSphere.Services;
 using ClientSphere.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ClientSphere.Controllers
@@ -12,17 +13,24 @@ namespace ClientSphere.Controllers
         private readonly IInvoiceService _invoiceService;
         private readonly IPaymentService _paymentService;
         private readonly IEmailService _emailService;
+        private readonly ICustomerService _customerService;
+        private readonly IOrderService _orderService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public BillingController(IInvoiceService invoiceService, IPaymentService paymentService, IEmailService emailService)
+        public BillingController(IInvoiceService invoiceService, IPaymentService paymentService, IEmailService emailService, ICustomerService customerService, IOrderService orderService, UserManager<ApplicationUser> userManager)
         {
             _invoiceService = invoiceService;
             _paymentService = paymentService;
             _emailService = emailService;
+            _customerService = customerService;
+            _orderService = orderService;
+            _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool archived = false)
         {
-            var invoices = await _invoiceService.GetAllInvoicesAsync();
+            var allInvoices = await _invoiceService.GetAllInvoicesAsync();
+            var filteredInvoices = allInvoices.Where(i => i.IsArchived == archived).ToList();
             var stats = await _invoiceService.GetFinancialStatsAsync();
 
             decimal totalPaid = 0;
@@ -38,8 +46,8 @@ namespace ClientSphere.Controllers
                 TotalRevenue = totalPaid,
                 PendingRevenue = pending,
                 OverdueRevenue = overdue,
-                TotalInvoices = invoices.Count,
-                Invoices = invoices.Select(i => new InvoiceViewModel
+                TotalInvoices = filteredInvoices.Count,
+                Invoices = filteredInvoices.Select(i => new InvoiceViewModel
                 {
                     Id = i.Id,
                     InvoiceId = i.InvoiceNumber,
@@ -57,8 +65,61 @@ namespace ClientSphere.Controllers
             return View(viewModel);
         }
 
-        public IActionResult Create()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Super Admin,Admin,Billing Staff")]
+        public async Task<IActionResult> ArchiveInvoice(int id)
         {
+            var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
+            if (invoice != null)
+            {
+                invoice.IsArchived = true;
+                await _invoiceService.UpdateInvoiceAsync(invoice);
+                TempData["Success"] = "Invoice archived successfully.";
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Super Admin,Admin,Billing Staff")]
+        public async Task<IActionResult> UnarchiveInvoice(int id)
+        {
+            var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
+            if (invoice != null)
+            {
+                invoice.IsArchived = false;
+                await _invoiceService.UpdateInvoiceAsync(invoice);
+                TempData["Success"] = "Invoice restored successfully.";
+            }
+            return RedirectToAction(nameof(Index), new { archived = true });
+        }
+
+        public async Task<IActionResult> Create()
+        {
+            // Auto-sync Customer role users into Customers table
+            var customerUsers = await _userManager.GetUsersInRoleAsync("Customer");
+            var existingCustomers = await _customerService.GetAllCustomersAsync();
+            foreach (var user in customerUsers)
+            {
+                if (!existingCustomers.Any(c => c.Email == user.Email))
+                {
+                    await _customerService.CreateCustomerAsync(new Customer
+                    {
+                        CompanyName = $"{user.FirstName} {user.LastName}",
+                        ContactName = $"{user.FirstName} {user.LastName}",
+                        Email = user.Email ?? "",
+                        Phone = user.PhoneNumber ?? "",
+                        IsActive = true
+                    });
+                }
+            }
+
+            var customers = await _customerService.GetAllCustomersAsync();
+            var orders = await _orderService.GetAllOrdersAsync();
+            ViewBag.Customers = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(customers, "Id", "CompanyName");
+            ViewBag.Orders = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(orders.Select(o => new { o.Id, DisplayText = $"ORD-{o.Id:D3} - ₱{o.TotalAmount:N0}"}), "Id", "DisplayText");
+            
             // Generate a default invoice number
             var model = new Invoice
             {
@@ -74,17 +135,25 @@ namespace ClientSphere.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Invoice invoice)
         {
+            // Remove navigation property from validation (it's not posted from form)
+            ModelState.Remove("Customer");
+            ModelState.Remove("customer");
+
             if (ModelState.IsValid)
             {
-                // Ensure CreatedAt is set
                 if (invoice.CreatedAt == default)
-                {
                     invoice.CreatedAt = DateTime.UtcNow;
-                }
-                
+
                 await _invoiceService.CreateInvoiceAsync(invoice);
+                TempData["Success"] = "Invoice created successfully.";
                 return RedirectToAction(nameof(Index));
             }
+
+            var customers = await _customerService.GetAllCustomersAsync();
+            var orders = await _orderService.GetAllOrdersAsync();
+            ViewBag.Customers = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(customers, "Id", "CompanyName");
+            ViewBag.Orders = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(orders.Select(o => new { o.Id, DisplayText = $"ORD-{o.Id:D3} - ₱{o.TotalAmount:N0}"}), "Id", "DisplayText");
+
             return View(invoice);
         }
 
