@@ -44,9 +44,21 @@ builder.Services.AddScoped<ClientSphere.Services.IPaymentService, ClientSphere.S
 builder.Services.AddScoped<ClientSphere.Services.IEmailService, ClientSphere.Services.SendGridEmailService>();
 builder.Services.AddScoped<ClientSphere.Services.ICalendarService, ClientSphere.Services.GraphCalendarService>();
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<ClientSphere.Filters.AuditLogFilter>();
+builder.Services.AddControllersWithViews(options => {
+    options.Filters.Add<ClientSphere.Filters.AuditLogFilter>();
+});
 
 var app = builder.Build();
+
+var defaultCulture = new System.Globalization.CultureInfo("en-PH");
+var localizationOptions = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(defaultCulture),
+    SupportedCultures = new[] { defaultCulture },
+    SupportedUICultures = new[] { defaultCulture }
+};
+app.UseRequestLocalization(localizationOptions);
 
 // Seed Database
 using (var scope = app.Services.CreateScope())

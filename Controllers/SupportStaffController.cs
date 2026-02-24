@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ClientSphere.Controllers
 {
-    [Authorize(Roles = "Support Staff,Admin")]
+    [Authorize(Roles = "Support Staff,Admin,Super Admin")]
     public class SupportStaffController : Controller
     {
         private readonly Data.ApplicationDbContext _context;
@@ -84,7 +84,45 @@ namespace ClientSphere.Controllers
             }
             return RedirectToAction(nameof(Dashboard));
         }
-        
-        // Add Create capability if needed, or link to Support/Create
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CloseTicket(int id)
+        {
+            var ticket = await _context.SupportTickets.FindAsync(id);
+            if (ticket != null)
+            {
+                ticket.Status = "Closed";
+                ticket.LastUpdated = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = $"Ticket #{id} has been marked as Closed.";
+            }
+            return RedirectToAction(nameof(Dashboard));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(int ticketId, string comment)
+        {
+            if (string.IsNullOrWhiteSpace(comment))
+            {
+                TempData["ErrorMessage"] = "Comment cannot be empty.";
+                return RedirectToAction(nameof(Dashboard));
+            }
+
+            var ticket = await _context.SupportTickets.FindAsync(ticketId);
+            if (ticket != null)
+            {
+                var user = await _userManager.GetUserAsync(User);
+                var userName = user != null ? $"{user.FirstName} {user.LastName}".Trim() : User.Identity?.Name ?? "Staff";
+                var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+                var newNote = $"\n\n--- Comment by {userName} at {timestamp} ---\n{comment}";
+                ticket.Description = (ticket.Description ?? "") + newNote;
+                ticket.LastUpdated = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Comment added successfully.";
+            }
+            return RedirectToAction(nameof(Dashboard));
+        }
     }
 }

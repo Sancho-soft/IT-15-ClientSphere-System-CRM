@@ -1,7 +1,8 @@
-@model IEnumerable<ClientSphere.Models.Product>
+﻿@model IEnumerable<ClientSphere.Models.Product>
 
 @{
     ViewData["Title"] = "Products";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["CurrentPage"] = "Products";
 }
@@ -68,3 +69,4 @@
         </div>
     </div>
 </div>
+

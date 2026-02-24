@@ -1,7 +1,8 @@
-@model ClientSphere.Models.Customer
+﻿@model ClientSphere.Models.Customer
 
 @{
     ViewData["Title"] = "Edit Customer";
+    ViewData["HideTopNavTitle"] = true;
 }
 
 <div class="container py-4">
@@ -91,3 +92,4 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -48,7 +48,32 @@
                 </a>
             </div>
             
-            <div class="small text-uppercase text-muted fw-bold px-4 mb-2 mt-2" style="font-size: 0.75rem;">Administration</div>
+            @if (User.IsInRole("Super Admin"))
+            {
+                <div class="small text-uppercase text-muted fw-bold px-4 mb-2 mt-2" style="font-size: 0.75rem;">CRM Modules</div>
+                <nav class="nav flex-column mb-3">
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Customers" ? "active" : "")" asp-controller="Customers" asp-action="Index">
+                        <i class="bi bi-file-person"></i> Customers
+                    </a>
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Products" ? "active" : "")" asp-controller="Products" asp-action="Index">
+                        <i class="bi bi-box"></i> Products
+                    </a>
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Sales" ? "active" : "")" asp-controller="Sales" asp-action="Index">
+                        <i class="bi bi-graph-up-arrow"></i> Sales
+                    </a>
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Support" ? "active" : "")" asp-controller="Support" asp-action="Index">
+                        <i class="bi bi-headset"></i> Support
+                    </a>
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Marketing" ? "active" : "")" asp-controller="Marketing" asp-action="Index">
+                        <i class="bi bi-megaphone"></i> Marketing
+                    </a>
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Billing" ? "active" : "")" asp-controller="Billing" asp-action="Index">
+                        <i class="bi bi-cash-stack"></i> Billing
+                    </a>
+                </nav>
+            }
+
+            <div class="small text-uppercase text-muted fw-bold px-4 mb-2 mt-4" style="font-size: 0.75rem;">Administration</div>
             <nav class="nav flex-column">
                 <a class="nav-link @(ViewData["CurrentPage"] as string == "Dashboard" ? "active" : "")" asp-controller="Admin" asp-action="Dashboard">
                     <i class="bi bi-grid"></i> Dashboard
@@ -78,28 +103,6 @@
                     <i class="bi bi-list-check"></i> Audit Logs
                 </a>
             </nav>
-
-            @if (User.IsInRole("Super Admin"))
-            {
-                <div class="small text-uppercase text-muted fw-bold px-4 mb-2 mt-4" style="font-size: 0.75rem;">CRM Modules</div>
-                <nav class="nav flex-column mb-3">
-                    <a class="nav-link" asp-controller="Customers" asp-action="Index">
-                        <i class="bi bi-file-person"></i> Customers
-                    </a>
-                    <a class="nav-link" asp-controller="Orders" asp-action="Index">
-                        <i class="bi bi-graph-up-arrow"></i> Sales
-                    </a>
-                    <a class="nav-link" asp-controller="Support" asp-action="Index">
-                        <i class="bi bi-headset"></i> Support
-                    </a>
-                    <a class="nav-link" asp-controller="Marketing" asp-action="Index">
-                        <i class="bi bi-megaphone"></i> Marketing
-                    </a>
-                    <a class="nav-link" asp-controller="Billing" asp-action="Index">
-                        <i class="bi bi-currency-dollar"></i> Billing
-                    </a>
-                </nav>
-            }
         </div>
 
         <div class="p-3 border-top bg-light">
@@ -120,7 +123,7 @@
                 </div>
                 <div class="lh-1 overflow-hidden">
                     <div class="fw-bold text-truncate" style="font-size: 0.9rem;">@fullName</div>
-                    <div class="text-muted text-truncate mt-1" style="font-size: 0.75rem;">@email</div>
+                    <div class="text-muted text-truncate mt-1" style="font-size: 0.75rem;">@(email == fullName ? "Administrator" : email)</div>
                 </div>
             </div>
             <form class="mb-0 px-2" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
@@ -142,7 +145,10 @@
                 <button id="sidebarToggle" class="btn btn-outline-secondary d-md-none me-3">
                     <i class="bi bi-list"></i>
                 </button>
-                <h4 class="mb-0 fw-bold">@ViewData["Title"]</h4>
+                @if (ViewData["HideTopNavTitle"] as bool? != true)
+                {
+                    <h4 class="mb-0 fw-bold">@ViewData["Title"]</h4>
+                }
             </div>
             @{
                 var isDbConnected = true;
@@ -180,3 +186,4 @@
     </script>
 </body>
 </html>
+

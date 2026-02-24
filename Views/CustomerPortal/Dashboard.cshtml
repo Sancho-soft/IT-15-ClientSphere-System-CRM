@@ -1,7 +1,8 @@
-@model ClientSphere.ViewModels.CustomerDashboardViewModel
+﻿@model ClientSphere.ViewModels.CustomerDashboardViewModel
 
 @{
     ViewData["Title"] = "My Account Overview";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CustomerLayout.cshtml";
     ViewData["CurrentPage"] = "Dashboard";
 }
@@ -41,7 +42,7 @@
                 </div>
                 <div>
                     <div class="text-muted small">Total Spent</div>
-                    <h3 class="fw-bold mb-0 text-dark">$@Model.TotalSpent.ToString("N2")</h3>
+                    <h3 class="fw-bold mb-0 text-dark">&#8369;@Model.TotalSpent.ToString("N2")</h3>
                 </div>
             </div>
         </div>
@@ -135,7 +136,7 @@
                                     else if(order.Status == "Processing") { <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3">Processing</span> }
                                     else { <span class="badge bg-secondary text-light rounded-pill px-3">@order.Status</span> }
                                 </td>
-                                <td class="text-end fw-bold pe-4">$@order.TotalAmount.ToString("N2")</td>
+                                <td class="text-end fw-bold pe-4">&#8369;@order.TotalAmount.ToString("N2")</td>
                             </tr>
                         }
                     </tbody>
@@ -179,3 +180,4 @@
         </div>
     </div>
 </div>
+

@@ -1,7 +1,8 @@
-@model ClientSphere.ViewModels.SalesManagerDashboardViewModel
+﻿@model ClientSphere.ViewModels.SalesManagerDashboardViewModel
 
 @{
     ViewData["Title"] = "Sales Manager Dashboard";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CrmLayout.cshtml";
     ViewData["CurrentPage"] = "Dashboard";
 }
@@ -14,13 +15,13 @@
         <div class="card border-0 shadow-sm p-3 h-100">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
-                    <i class="bi bi-currency-dollar h4 mb-0"></i>
+                    <i class="h4 mb-0 fw-bold">&#8369;</i>
                 </div>
                 <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2">
                     <i class="bi bi-arrow-up-short"></i> @Model.RevenueGrowth%
                 </span>
             </div>
-            <h3 class="fw-bold mb-0 text-dark">$@Model.TotalRevenueMTD.ToString("N0")K</h3>
+            <h3 class="fw-bold mb-0 text-dark">?@Model.TotalRevenueMTD.ToString("N0")K</h3>
             <div class="text-muted small">Total Revenue (MTD)</div>
         </div>
     </div>
@@ -32,7 +33,7 @@
                 </div>
                 <span class="text-primary fw-bold small">85%</span>
             </div>
-            <h3 class="fw-bold mb-0 text-dark">$253K</h3>
+            <h3 class="fw-bold mb-0 text-dark">?253K</h3>
             <div class="text-muted small">Quota Achievement</div>
         </div>
     </div>
@@ -58,7 +59,7 @@
                 </div>
                 <span class="text-muted small">3 members</span>
             </div>
-            <h3 class="fw-bold mb-0 text-dark">$@((Model.AvgDealSize/1000).ToString("N0"))K</h3>
+            <h3 class="fw-bold mb-0 text-dark">?@((Model.AvgDealSize/1000).ToString("N0"))K</h3>
             <div class="text-muted small">Avg Deal Size</div>
         </div>
     </div>
@@ -83,7 +84,7 @@
                         <div class="small text-muted">@person.Role</div>
                     </div>
                     <div class="text-end me-4">
-                        <div class="fw-bold text-dark">$@((person.TotalSales/1000).ToString("N0"))K</div>
+                        <div class="fw-bold text-dark">?@((person.TotalSales/1000).ToString("N0"))K</div>
                         <div class="small text-muted">@person.DealsCount deals</div>
                     </div>
                     <div class="text-end" style="width: 80px;">
@@ -135,7 +136,7 @@
                                     <!-- Simple check if Customer is loaded, otherwise just ID -->
                                     @(order.Customer != null ? order.Customer.CompanyName : "Client #" + order.CustomerId)
                                 </td>
-                                <td class="fw-bold">$@order.TotalAmount.ToString("N2")</td>
+                                <td class="fw-bold">?@order.TotalAmount.ToString("N2")</td>
                                 <td>@order.OrderDate.ToString("MMM dd")</td>
                                 <td><span class="badge bg-warning text-dark">@order.Status</span></td>
                                 <td class="text-end pe-4">
@@ -207,3 +208,4 @@
         transition: transform 0.2s ease;
     }
 </style>
+

@@ -1,9 +1,14 @@
-@model ClientSphere.ViewModels.BillingDashboardViewModel
+﻿@model ClientSphere.ViewModels.BillingDashboardViewModel
 
 @{
     ViewData["Title"] = "Billing & Invoices";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CrmLayout.cshtml";
     ViewData["CurrentPage"] = "Billing";
+}
+
+@{
+    var isBillingArchived = Context.Request.Query["archived"].ToString() == "1";
 }
 
 <div class="container-fluid p-0">
@@ -23,17 +28,34 @@
         </div>
     </div>
 
+    <!-- Status Tabs (Staff/Admin only) -->
+    @if (User.IsInRole("Admin") || User.IsInRole("Super Admin") || User.IsInRole("Billing Staff"))
+    {
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <a class="nav-link @(!isBillingArchived ? "active fw-bold" : "")" href="?archived=0">
+                    <i class="bi bi-receipt me-1"></i> Active Invoices
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @(isBillingArchived ? "active fw-bold" : "")" href="?archived=1">
+                    <i class="bi bi-archive me-1"></i> Archived
+                </a>
+            </li>
+        </ul>
+    }
+
     <!-- Stats Cards -->
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card border-0 shadow-sm p-3">
                 <div class="d-flex align-items-center">
                     <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
-                        <i class="bi bi-currency-dollar h4 mb-0"></i>
+                        <i class="h4 mb-0 fw-bold">&#8369;</i>
                     </div>
                     <div>
                         <div class="text-muted small">Total Revenue</div>
-                        <h3 class="fw-bold mb-0 text-success">$@Model.TotalRevenue.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0 text-success">&#8369;@Model.TotalRevenue.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -46,7 +68,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Pending</div>
-                        <h3 class="fw-bold mb-0 text-warning">$@Model.PendingRevenue.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0 text-warning">&#8369;@Model.PendingRevenue.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -59,7 +81,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Overdue</div>
-                        <h3 class="fw-bold mb-0 text-danger">$@Model.OverdueRevenue.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0 text-danger">&#8369;@Model.OverdueRevenue.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -117,7 +139,7 @@
                                     <div class="small fw-normal text-muted">@invoice.CustomerId</div>
                                 </td>
                                 <td>@invoice.SaleId</td>
-                                <td class="fw-bold">$@invoice.Amount.ToString("N0")</td>
+                                <td class="fw-bold">&#8369;@invoice.Amount.ToString("N0")</td>
                                 <td><i class="bi bi-calendar me-1 text-muted"></i> @invoice.DueDate.ToString("yyyy-MM-dd")</td>
                                 <td>
                                     @if(invoice.Status == "Paid")
@@ -163,6 +185,27 @@
                                                 <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 py-0 d-flex align-items-center" style="font-size: 0.75rem;">Mark Paid</button>
                                             </form>
                                         }
+                                        @if (User.IsInRole("Admin") || User.IsInRole("Super Admin") || User.IsInRole("Billing Staff"))
+                                        {
+                                            @if (!isBillingArchived)
+                                            {
+                                                <form asp-action="ArchiveInvoice" asp-route-id="@invoice.Id" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" style="font-size:0.75rem;" title="Archive">
+                                                        <i class="bi bi-archive"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                <form asp-action="UnarchiveInvoice" asp-route-id="@invoice.Id" method="post" class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2 py-0" style="font-size:0.75rem;" title="Restore">
+                                                        <i class="bi bi-arrow-counterclockwise"></i> Restore
+                                                    </button>
+                                                </form>
+                                            }
+                                        }
                                     </div>
                                 </td>
                             </tr>
@@ -173,3 +216,4 @@
         </div>
     </div>
 </div>
+

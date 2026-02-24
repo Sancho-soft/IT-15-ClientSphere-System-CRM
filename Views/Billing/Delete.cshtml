@@ -1,7 +1,8 @@
-@model ClientSphere.Models.Invoice
+﻿@model ClientSphere.Models.Invoice
 
 @{
     ViewData["Title"] = "Delete Invoice";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CrmLayout.cshtml";
     ViewData["CurrentPage"] = "Billing";
 }
@@ -20,7 +21,7 @@
                 <dd class="col-sm-9 fw-bold">@Model.InvoiceNumber</dd>
                 
                 <dt class="col-sm-3 text-muted">Amount</dt>
-                <dd class="col-sm-9">$@Model.Amount.ToString("N2")</dd>
+                <dd class="col-sm-9">&#8369;@Model.Amount.ToString("N2")</dd>
                 
                 <dt class="col-sm-3 text-muted">Status</dt>
                 <dd class="col-sm-9">
@@ -48,3 +49,4 @@
         </div>
     </div>
 </div>
+

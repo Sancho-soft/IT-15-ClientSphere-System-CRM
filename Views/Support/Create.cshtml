@@ -1,7 +1,8 @@
-@model ClientSphere.Models.SupportTicket
+﻿@model ClientSphere.Models.SupportTicket
 
 @{
     ViewData["Title"] = "Create Support Ticket";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -77,3 +78,4 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+

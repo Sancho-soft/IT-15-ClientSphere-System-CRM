@@ -1,8 +1,9 @@
-@model ClientSphere.ViewModels.AnalyticsViewModel
+﻿@model ClientSphere.ViewModels.AnalyticsViewModel
 
 @{
     ViewData["Title"] = "Analytics";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewData["HideTopNavTitle"] = true;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -27,12 +28,12 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-start mb-2">
                     <div class="icon-shape bg-success-subtle text-success rounded-3 p-2 me-2">
-                        <i class="bi bi-currency-dollar h5 mb-0"></i>
+                        <i class="h5 mb-0 fw-bold">&#8369;</i>
                     </div>
                     <span class="text-success small fw-bold"><i class="bi bi-arrow-up"></i> +@Model.RevenueGrowth.ToString("F1")%</span>
                 </div>
                 <div class="text-muted small">Total Revenue</div>
-                <h3 class="fw-bold mb-0">$@Model.TotalRevenue.ToString("N0")</h3>
+                <h3 class="fw-bold mb-0">&#8369;@Model.TotalRevenue.ToString("N0")</h3>
             </div>
         </div>
     </div>
@@ -226,8 +227,8 @@
                     </div>
                     <div>
                         <div class="small text-muted mb-1">Top Performing Module</div>
-                        <div class="fw-bold">Customer Master Data</div>
-                        <div class="small text-muted">234 active users</div>
+                        <div class="fw-bold">@Model.TopPerformingModule</div>
+                        <div class="small text-muted">@Model.TopModuleUsers active users</div>
                     </div>
                 </div>
             </div>
@@ -238,8 +239,8 @@
                     </div>
                     <div>
                         <div class="small text-muted mb-1">Best Conversion Rate</div>
-                        <div class="fw-bold">Sales Management</div>
-                        <div class="small text-muted">32.4% conversion</div>
+                        <div class="fw-bold">@Model.BestConversionModule</div>
+                        <div class="small text-muted">@Model.BestConversionRate.ToString("F1")% conversion</div>
                     </div>
                 </div>
             </div>
@@ -250,8 +251,8 @@
                     </div>
                     <div>
                         <div class="small text-muted mb-1">Fastest Response</div>
-                        <div class="fw-bold">Customer Support</div>
-                        <div class="small text-muted">1.8h avg response</div>
+                        <div class="fw-bold">@Model.FastestResponseModule</div>
+                        <div class="small text-muted">@Model.FastestResponseTime.ToString("F1")h avg response</div>
                     </div>
                 </div>
             </div>

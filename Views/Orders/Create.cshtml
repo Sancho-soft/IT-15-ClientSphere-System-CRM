@@ -1,7 +1,8 @@
-@model ClientSphere.ViewModels.OrderCreateViewModel
+﻿@model ClientSphere.ViewModels.OrderCreateViewModel
 
 @{
     ViewData["Title"] = "Create New Sale";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CrmLayout.cshtml";
     ViewData["CurrentPage"] = "Sales";
 }
@@ -115,3 +116,4 @@
         });
     </script>
 }
+

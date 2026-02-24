@@ -1,6 +1,7 @@
-@model IEnumerable<ClientSphere.Models.Opportunity>
+﻿@model IEnumerable<ClientSphere.Models.Opportunity>
 @{
     ViewData["Title"] = "My Opportunities";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CrmLayout.cshtml";
     ViewData["CurrentPage"] = "MyOpportunities";
 }
@@ -43,7 +44,7 @@
                                     <span class="small text-muted">@opp.Probability%</span>
                                 </div>
                             </td>
-                            <td class="text-end fw-bold">$@opp.EstimatedValue.ToString("N0")</td>
+                            <td class="text-end fw-bold">?@opp.EstimatedValue.ToString("N0")</td>
                             <td>@opp.ExpectedCloseDate.ToString("MMM dd, yyyy")</td>
                             <td class="text-end pe-4">
                                 <a href="#" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
@@ -55,3 +56,4 @@
         </div>
     </div>
 </div>
+

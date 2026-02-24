@@ -1,6 +1,7 @@
-@model IEnumerable<ClientSphere.Models.Order>
+﻿@model IEnumerable<ClientSphere.Models.Order>
 @{
     ViewData["Title"] = "My Orders";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CustomerLayout.cshtml";
 }
 
@@ -46,7 +47,7 @@
                                     }
                                 </td>
                                 <td>@order.OrderItems.Count items</td>
-                                <td class="text-end fw-bold pe-4">$@order.TotalAmount.ToString("N2")</td>
+                                <td class="text-end fw-bold pe-4">&#8369;@order.TotalAmount.ToString("N2")</td>
                             </tr>
                         }
                     </tbody>
@@ -62,3 +63,4 @@
         }
     </div>
 </div>
+

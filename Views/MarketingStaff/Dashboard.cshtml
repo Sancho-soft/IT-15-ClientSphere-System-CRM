@@ -1,7 +1,8 @@
-@model ClientSphere.ViewModels.MarketingStaffDashboardViewModel
+﻿@model ClientSphere.ViewModels.MarketingStaffDashboardViewModel
 
 @{
     ViewData["Title"] = "My Marketing Dashboard";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CrmLayout.cshtml";
     ViewData["CurrentPage"] = "Dashboard";
 }
@@ -149,3 +150,4 @@
         }
     </div>
 </div>
+

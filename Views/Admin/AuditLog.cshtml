@@ -1,9 +1,10 @@
-@model IEnumerable<ClientSphere.Models.AuditLog>
+﻿@model IEnumerable<ClientSphere.Models.AuditLog>
 
 @{
     ViewData["Title"] = "System Audit Log";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["CurrentPage"] = "AuditLog";
+    ViewData["HideTopNavTitle"] = true;
 }
 
 <div class="card border-0 shadow-sm">
@@ -40,17 +41,29 @@
                                 <td class="ps-4 text-muted small">@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
                                 <td class="fw-bold">@log.UserName</td>
                                 <td>
-                                    @if(log.Action.Contains("Login"))
+                                    @if(log.Action.Contains("Login") || log.Action.Contains("Logout"))
                                     {
-                                        <span class="badge bg-success-subtle text-success">@log.Action</span>
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">@log.Action</span>
+                                    }
+                                    else if(log.Action.Contains("POST"))
+                                    {
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">@log.Action</span>
+                                    }
+                                    else if(log.Action.Contains("PUT") || log.Action.Contains("PATCH"))
+                                    {
+                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1">@log.Action</span>
+                                    }
+                                    else if(log.Action.Contains("DELETE") || log.Action.Contains("Delete"))
+                                    {
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1">@log.Action</span>
                                     }
                                     else if(log.Action.Contains("Error"))
                                     {
-                                        <span class="badge bg-danger-subtle text-danger">@log.Action</span>
+                                        <span class="badge bg-danger text-white px-2 py-1">@log.Action</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-info-subtle text-info">@log.Action</span>
+                                        <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1">@log.Action</span>
                                     }
                                 </td>
                                 <td>@log.Description</td>

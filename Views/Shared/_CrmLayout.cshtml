@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -71,42 +71,8 @@
                 </a>
             </div>
             
-            @if (User.IsInRole("Admin") || User.IsInRole("Super Admin"))
-            {
-                <div class="small text-uppercase text-muted fw-bold px-4 mb-2 mt-2" style="font-size: 0.75rem;">Administration</div>
-                <nav class="nav flex-column mb-4">
-                    <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Dashboard">
-                        <i class="bi bi-grid"></i> Dashboard
-                    </a>
-                    @if (User.IsInRole("Super Admin"))
-                    {
-                        <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="UserManagement">
-                            <i class="bi bi-people"></i> User Management
-                        </a>
-                        <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="ModuleManagement">
-                            <i class="bi bi-hdd-stack"></i> Module Management
-                        </a>
-                    }
-                    <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Analytics">
-                        <i class="bi bi-bar-chart"></i> Analytics
-                    </a>
-                    @if (User.IsInRole("Super Admin"))
-                    {
-                        <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="SystemSettings">
-                            <i class="bi bi-gear"></i> System Settings
-                        </a>
-                        <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="ResetPassword">
-                            <i class="bi bi-key"></i> Reset Password
-                        </a>
-                    }
-                    <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="AuditLog">
-                        <i class="bi bi-list-check"></i> Audit Logs
-                    </a>
-                </nav>
-            }
-            
             <div class="small text-uppercase text-muted fw-bold px-4 mb-2 mt-2" style="font-size: 0.75rem;">CRM Modules</div>
-            <nav class="nav flex-column mb-3">
+            <nav class="nav flex-column">
                 
                 @* --- SALES MANAGER --- *@
                 @if (User.IsInRole("Sales Manager"))
@@ -168,7 +134,7 @@
                 @if (User.IsInRole("Billing Staff"))
                 {
                      <a class="nav-link @(ViewData["CurrentPage"] as string == "Dashboard" ? "active" : "")" asp-area="" asp-controller="Billing" asp-action="Index">
-                        <i class="bi bi-currency-dollar"></i> Dashboard
+                        <i class="bi bi-cash-stack"></i> Dashboard
                     </a>
                 }
 
@@ -177,6 +143,9 @@
                 {
                     <a class="nav-link @(ViewData["CurrentPage"] as string == "Customers" ? "active" : "")" asp-area="" asp-controller="Customers" asp-action="Index">
                         <i class="bi bi-person-badge"></i> Customers
+                    </a>
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Products" ? "active" : "")" asp-area="" asp-controller="Products" asp-action="Index">
+                        <i class="bi bi-box"></i> Products
                     </a>
                     <a class="nav-link @(ViewData["CurrentPage"] as string == "Sales" ? "active" : "")" asp-area="" asp-controller="Sales" asp-action="Index">
                         <i class="bi bi-graph-up"></i> Sales
@@ -188,10 +157,43 @@
                         <i class="bi bi-megaphone"></i> Marketing
                     </a>
                     <a class="nav-link @(ViewData["CurrentPage"] as string == "Billing" ? "active" : "")" asp-area="" asp-controller="Billing" asp-action="Index">
-                        <i class="bi bi-currency-dollar"></i> Billing
+                        <i class="bi bi-cash-stack"></i> Billing
                     </a>
                 }
             </nav>
+            @if (User.IsInRole("Admin") || User.IsInRole("Super Admin"))
+            {
+                <div class="small text-uppercase text-muted fw-bold px-4 mb-2 mt-4" style="font-size: 0.75rem;">Administration</div>
+                <nav class="nav flex-column">
+                    <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Dashboard">
+                        <i class="bi bi-grid"></i> Dashboard
+                    </a>
+                    @if (User.IsInRole("Super Admin"))
+                    {
+                        <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="UserManagement">
+                            <i class="bi bi-people"></i> User Management
+                        </a>
+                        <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="ModuleManagement">
+                            <i class="bi bi-hdd-stack"></i> Module Management
+                        </a>
+                    }
+                    <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Analytics">
+                        <i class="bi bi-bar-chart"></i> Analytics
+                    </a>
+                    @if (User.IsInRole("Super Admin"))
+                    {
+                        <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="SystemSettings">
+                            <i class="bi bi-gear"></i> System Settings
+                        </a>
+                        <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="ResetPassword">
+                            <i class="bi bi-key"></i> Reset Password
+                        </a>
+                    }
+                    <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="AuditLog">
+                        <i class="bi bi-list-check"></i> Audit Logs
+                    </a>
+                </nav>
+            }
         </div>
 
         <div class="p-3 border-top bg-light">
@@ -210,7 +212,7 @@
                 </div>
                 <div class="lh-1 overflow-hidden">
                     <div class="fw-bold text-truncate" style="font-size: 0.9rem;">@fullName</div>
-                    <div class="text-muted text-truncate mt-1" style="font-size: 0.75rem;">@email</div>
+                    <div class="text-muted text-truncate mt-1" style="font-size: 0.75rem;">@(email == fullName ? "Administrator" : email)</div>
                 </div>
             </div>
             <form class="mb-0 px-2" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
@@ -232,7 +234,10 @@
                 <button id="sidebarToggle" class="btn btn-outline-secondary d-md-none me-3">
                     <i class="bi bi-list"></i>
                 </button>
-                <h4 class="mb-0 fw-bold">@ViewData["Title"]</h4>
+                @if (ViewData["HideTopNavTitle"] as bool? != true)
+                {
+                    <h4 class="mb-0 fw-bold">@ViewData["Title"]</h4>
+                }
             </div>
             <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
                 <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i> System Online
@@ -258,3 +263,4 @@
     </script>
 </body>
 </html>
+

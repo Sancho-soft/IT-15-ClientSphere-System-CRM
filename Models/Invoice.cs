@@ -24,9 +24,11 @@ namespace ClientSphere.Models
         public DateTime DueDate { get; set; }
         public DateTime? PaidDate { get; set; }
 
-        public string Status { get; set; } // Draft, Sent, Paid, Overdue, Cancelled
+        public string? Status { get; set; } // Draft, Sent, Paid, Overdue, Cancelled
         
-        public string PaymentMethod { get; set; } // Credit Card, Bank Transfer, PayPal
+        public string? PaymentMethod { get; set; } // GCash, PayMaya
+
+        public bool IsArchived { get; set; } = false;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

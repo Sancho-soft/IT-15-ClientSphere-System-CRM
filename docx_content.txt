@@ -1,0 +1,233 @@
+
+NAME
+ALDREN LOUIE REYES
+PROJECT TITLE 
+ClientSphere: Customer Relationship Management System
+SUBJECT:
+CODE:
+TIME:
+IT15/L Integrative Programming and Technologies
+8441
+10:00 am - 12:00 nn
+TOPIC (Type of Business Process)
+#5 - Customer Relationship Management (CRM)
+Products/Services
+Sales and Customer Service
+Deployed Link / Website link
+
+http://clientsphereph.runasp.net
+Role Based-Access
+Super Admin Acct. (if done)
+Username: superadmin@clientsphere.com
+Password: SuperAdmin123!
+
+Admin Acct.
+Username: admin@clientsphere.com
+Password: Admin123!
+
+Client Acct.
+Username: customer@clientsphere.com
+Password: Customer123!
+
+3rd Deliverables-Deployed Transactions (CRUD)
+Log in-Page
+(Screenshot)
+ 
+
+
+
+Image and Description Function (Whole Browser Page)
+
+
+
+
+
+
+
+Log in-Page  - Source Code
+(Screenshot)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Source Code from C#_ASP. NET Core
+
+
+
+
+
+
+
+
+
+
+
+Dashboard (Client/End-User)
+(Screenshot)
+
+
+
+
+
+
+
+Image and Description Function (Whole Browser Page)
+
+
+
+
+
+
+
+
+Dashboard - Source Code
+
+(Client/End-User)
+(Screenshot)
+
+
+
+
+
+
+Source Code from C#_ASP. NET Core
+
+
+
+
+
+
+
+Update/Edit Page
+(Screenshot)
+
+
+
+
+Image and Description Function (Whole Browser Page)
+
+
+
+
+
+
+
+
+
+
+Update/Edit Page - Source Code
+(Screenshot)
+
+
+
+
+Source Code from C#_ASP. NET Core
+
+
+
+
+
+Archive
+(Screenshot)
+
+
+
+Image and Description Function (Whole Browser Page)
+
+
+
+
+Archive – Source Code
+(Screenshot)
+
+
+
+Source Code from C#_ASP. NET Core
+
+
+
+
+
+
+Display Records 
+(Screenshot)
+
+
+Image and Description Function (Whole Browser Page)
+
+
+
+
+
+
+
+
+
+Display Records - Source Code 
+(Screenshot)
+
+
+Source Code from C#_ASP. NET Core
+
+
+
+
+
+
+
+
+
+
+
+Database – SQL Server (Local)
+Screenshot
+
+
+
+
+Image and Description Function
+
+
+
+
+Database – Deployed/Online
+
+Screenshot
+Image and Description Function
+
+
+Date Submitted:
+
+Teacher’s Feedback
+
+_________________________________________________________________
+_________________________________________________________________
+_________________________________________________________________
+_________________________________________________________________
+_________________________________________________________________
+_________________________________________________________________
+
+________________________________            __________________________   
+Student’s Signature (after feedbacking)                       Teacher’s Signature
+
+
+
+
+-Submit on time. -Feb 20, 2026 SOFTCOPY-UPLOAD using BBL
+-Use this template. (A4 Size) save as PDF FILE
+
+

@@ -17,9 +17,11 @@ namespace ClientSphere.Controllers
             _supportService = supportService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(bool archived = false)
         {
-            var tickets = await _supportService.GetAllTicketsAsync();
+            var allTickets = await _supportService.GetAllTicketsAsync();
+            var tickets = archived ? allTickets.Where(t => t.Status == "Closed" || t.Status == "Resolved") : allTickets.Where(t => t.Status != "Closed" && t.Status != "Resolved");
+            ViewData["IsArchived"] = archived;
             
             var viewModel = new SupportDashboardViewModel
             {
@@ -128,6 +130,38 @@ namespace ClientSphere.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _supportService.DeleteTicketAsync(id);
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddComment(int ticketId, string comment)
+        {
+            var ticket = await _supportService.GetTicketByIdAsync(ticketId);
+            if (ticket != null && !string.IsNullOrWhiteSpace(comment))
+            {
+                var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+                var newNote = $"\n\n[Comment by Staff – {timestamp}]: {comment}";
+                ticket.Description = (ticket.Description ?? "") + newNote;
+                ticket.LastUpdated = DateTime.UtcNow;
+                await _supportService.UpdateTicketAsync(ticket);
+                TempData["Success"] = "Comment added successfully.";
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CloseTicket(int id)
+        {
+            var ticket = await _supportService.GetTicketByIdAsync(id);
+            if (ticket != null)
+            {
+                ticket.Status = "Closed";
+                ticket.LastUpdated = DateTime.UtcNow;
+                await _supportService.UpdateTicketAsync(ticket);
+                TempData["Success"] = "Ticket marked as Closed.";
+            }
             return RedirectToAction(nameof(Index));
         }
     }

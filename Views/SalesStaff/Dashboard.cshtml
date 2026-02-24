@@ -1,7 +1,8 @@
-@model ClientSphere.ViewModels.SalesStaffViewModel
+﻿@model ClientSphere.ViewModels.SalesStaffViewModel
 
 @{
     ViewData["Title"] = "My Sales Dashboard";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CrmLayout.cshtml";
     ViewData["CurrentPage"] = "Dashboard"; // Highlight Dashboard in sidebar
 }
@@ -20,11 +21,11 @@
             <div class="card border-0 shadow-sm p-3">
                 <div class="d-flex align-items-center">
                     <div class="icon-shape bg-secondary-subtle text-secondary rounded-3 p-3 me-3">
-                        <i class="bi bi-currency-dollar h4 mb-0"></i>
+                        <i class="h4 mb-0 fw-bold">&#8369;</i>
                     </div>
                     <div>
                         <div class="text-muted small">My Revenue (Month)</div>
-                        <h3 class="fw-bold mb-0 text-success">$@Model.MyRevenueMonth.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0 text-success">?@Model.MyRevenueMonth.ToString("N0")</h3>
                         <small class="text-success fw-bold"><i class="bi bi-arrow-up-short"></i> 12% vs last month</small>
                     </div>
                 </div>
@@ -64,7 +65,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Daily Revenue</div>
-                        <h3 class="fw-bold mb-0">$@Model.MyRevenueToday.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0">?@Model.MyRevenueToday.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -93,7 +94,7 @@
                         {
                             <tr>
                                 <td class="ps-4 fw-bold text-primary">@item.CustomerName</td>
-                                <td class="fw-bold">$@item.Amount.ToString("N0")</td>
+                                <td class="fw-bold">?@item.Amount.ToString("N0")</td>
                                 <td>
                                     @if (item.Status == "Closed")
                                     {
@@ -120,3 +121,4 @@
         </div>
     </div>
 </div>
+

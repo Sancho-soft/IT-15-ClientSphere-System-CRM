@@ -1,7 +1,8 @@
-@model ClientSphere.Models.SupportTicket
+﻿@model ClientSphere.Models.SupportTicket
 
 @{
     ViewData["Title"] = "Create New Ticket";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CustomerLayout.cshtml";
     ViewData["CurrentPage"] = "Support";
 }
@@ -43,3 +44,4 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+

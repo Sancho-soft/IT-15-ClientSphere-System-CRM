@@ -1,7 +1,8 @@
-@model ClientSphere.Models.Campaign
+﻿@model ClientSphere.Models.Campaign
 
 @{
     ViewData["Title"] = "Create Campaign";
+    ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_CrmLayout.cshtml";
     ViewData["CurrentPage"] = "Dashboard";
 }
@@ -80,3 +81,4 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
