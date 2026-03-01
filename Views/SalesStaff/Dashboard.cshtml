@@ -10,8 +10,8 @@
 <div class="container-fluid p-0">
     <div class="d-flex justify-content-end align-items-center mb-4">
         <div class="d-flex gap-2">
-            <button class="btn btn-outline-secondary"><i class="bi bi-download me-2"></i>Export Report</button>
-            <button class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>New Sale</button>
+            <button class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-download me-2"></i>Export Report</button>
+            <a asp-controller="Orders" asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>New Sale</a>
         </div>
     </div>
 
@@ -25,7 +25,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">My Revenue (Month)</div>
-                        <h3 class="fw-bold mb-0 text-success">?@Model.MyRevenueMonth.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0 text-success">&#8369;@Model.MyRevenueMonth.ToString("N0")</h3>
                         <small class="text-success fw-bold"><i class="bi bi-arrow-up-short"></i> 12% vs last month</small>
                     </div>
                 </div>
@@ -65,7 +65,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Daily Revenue</div>
-                        <h3 class="fw-bold mb-0">?@Model.MyRevenueToday.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0">&#8369;@Model.MyRevenueToday.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -94,7 +94,7 @@
                         {
                             <tr>
                                 <td class="ps-4 fw-bold text-primary">@item.CustomerName</td>
-                                <td class="fw-bold">?@item.Amount.ToString("N0")</td>
+                                <td class="fw-bold">&#8369;@item.Amount.ToString("N0")</td>
                                 <td>
                                     @if (item.Status == "Closed")
                                     {

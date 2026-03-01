@@ -94,6 +94,140 @@ namespace ClientSphere.Controllers
             return View(appointments);
         }
 
+        // LEADS
+        public IActionResult CreateLead()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateLead([Bind("FirstName,LastName,Email,Phone,Company,Source,Status")] Lead lead)
+        {
+            if (ModelState.IsValid)
+            {
+                lead.AssignedToUserId = _userManager.GetUserId(User);
+                await _leadService.AddLeadAsync(lead);
+                TempData["Success"] = "Lead created successfully!";
+                return RedirectToAction(nameof(MyLeads));
+            }
+            return View(lead);
+        }
+
+        public async Task<IActionResult> EditLead(int? id)
+        {
+            if (id == null) return NotFound();
+            var lead = await _leadService.GetLeadByIdAsync(id.Value);
+            if (lead == null || lead.AssignedToUserId != _userManager.GetUserId(User)) return NotFound();
+            return View(lead);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditLead(int id, [Bind("Id,FirstName,LastName,Email,Phone,Company,Source,Status,CreatedAt")] Lead lead)
+        {
+            if (id != lead.Id) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                lead.AssignedToUserId = _userManager.GetUserId(User);
+                await _leadService.UpdateLeadAsync(lead);
+                TempData["Success"] = "Lead updated successfully!";
+                return RedirectToAction(nameof(MyLeads));
+            }
+            return View(lead);
+        }
+
+        // OPPORTUNITIES
+        public IActionResult CreateOpportunity()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateOpportunity([Bind("Name,EstimatedValue,Stage,Probability,ExpectedCloseDate")] Opportunity opportunity)
+        {
+            if (ModelState.IsValid)
+            {
+                opportunity.AssignedToUserId = _userManager.GetUserId(User);
+                await _opportunityService.AddOpportunityAsync(opportunity);
+                TempData["Success"] = "Opportunity created successfully!";
+                return RedirectToAction(nameof(MyOpportunities));
+            }
+            return View(opportunity);
+        }
+
+        public async Task<IActionResult> EditOpportunity(int? id)
+        {
+            if (id == null) return NotFound();
+            var opportunity = await _opportunityService.GetOpportunityByIdAsync(id.Value);
+            if (opportunity == null || opportunity.AssignedToUserId != _userManager.GetUserId(User)) return NotFound();
+            return View(opportunity);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditOpportunity(int id, [Bind("Id,Name,EstimatedValue,Stage,Probability,ExpectedCloseDate,CreatedAt")] Opportunity opportunity)
+        {
+            if (id != opportunity.Id) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                opportunity.AssignedToUserId = _userManager.GetUserId(User);
+                await _opportunityService.UpdateOpportunityAsync(opportunity);
+                TempData["Success"] = "Opportunity updated successfully!";
+                return RedirectToAction(nameof(MyOpportunities));
+            }
+            return View(opportunity);
+        }
+
+        // APPOINTMENTS
+        public IActionResult CreateAppointment()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateAppointment([Bind("Title,Description,StartTime,EndTime,Location,Status")] Appointment appointment)
+        {
+            if (ModelState.IsValid)
+            {
+                appointment.OrganizerUserId = _userManager.GetUserId(User);
+                _context.Appointments.Add(appointment);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Appointment scheduled successfully!";
+                return RedirectToAction(nameof(MyAppointments));
+            }
+            return View(appointment);
+        }
+
+        public async Task<IActionResult> EditAppointment(int? id)
+        {
+            if (id == null) return NotFound();
+            var appointment = await _context.Appointments.FindAsync(id.Value);
+            if (appointment == null || appointment.OrganizerUserId != _userManager.GetUserId(User)) return NotFound();
+            return View(appointment);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditAppointment(int id, [Bind("Id,Title,Description,StartTime,EndTime,Location,Status,CreatedAt,ExternalCalendarId,CustomerId")] Appointment appointment)
+        {
+            if (id != appointment.Id) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                appointment.OrganizerUserId = _userManager.GetUserId(User);
+                _context.Appointments.Update(appointment);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Appointment updated successfully!";
+                return RedirectToAction(nameof(MyAppointments));
+            }
+            return View(appointment);
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SyncToOutlook(int appointmentId)

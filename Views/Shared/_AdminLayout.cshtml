@@ -24,11 +24,12 @@
             overflow: hidden; /* Prevent double scrollbars */
         }
         .main-content { margin-left: 250px; padding: 2rem; }
+        @@media (max-width: 991.98px) { .main-content { padding: 1rem; } }
         .nav-link { color: #555; font-weight: 500; padding: 0.8rem 1.5rem; display: flex; align-items: center; }
         .nav-link:hover, .nav-link.active { color: #0d6efd; background-color: #f0f7ff; border-right: 3px solid #0d6efd; }
         .nav-link i { font-size: 1.2rem; margin-right: 0.8rem; }
         
-        @@media (max-width: 768px) {
+        @@media (max-width: 991.98px) {
             .sidebar { left: -250px; transition: 0.3s; }
             .sidebar.active { left: 0; }
             .main-content { margin-left: 0; }
@@ -142,7 +143,7 @@
         <!-- Topbar -->
         <header class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
             <div class="d-flex align-items-center">
-                <button id="sidebarToggle" class="btn btn-outline-secondary d-md-none me-3">
+                <button id="sidebarToggle" class="btn btn-outline-secondary d-lg-none me-3">
                     <i class="bi bi-list"></i>
                 </button>
                 @if (ViewData["HideTopNavTitle"] as bool? != true)

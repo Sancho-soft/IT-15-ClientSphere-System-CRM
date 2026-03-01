@@ -170,7 +170,7 @@
                                 </td>
                                 <td class="pe-4 text-end">
                                     <div class="d-flex justify-content-end gap-2">
-                                        <a href="#" class="btn btn-sm btn-link text-decoration-none px-0" title="View Details"><i class="bi bi-eye"></i></a>
+                                        <a asp-controller="Orders" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-link text-decoration-none px-0" title="View Details"><i class="bi bi-eye"></i></a>
                                         <a asp-controller="Orders" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-link text-decoration-none px-0" title="Edit Order"><i class="bi bi-pencil-square"></i></a>
                                     </div>
                                 </td>

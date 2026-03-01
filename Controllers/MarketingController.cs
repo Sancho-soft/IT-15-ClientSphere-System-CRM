@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ClientSphere.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Marketing Manager,Admin")]
     public class MarketingController : Controller
     {
         private readonly ICampaignService _campaignService;

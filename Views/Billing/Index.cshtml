@@ -22,7 +22,7 @@
             <a asp-action="Create" class="btn btn-primary px-4 shadow-sm">
                 <i class="bi bi-plus-lg me-2"></i>Generate Invoice
             </a>
-            <button class="btn btn-white border shadow-sm ms-2">
+            <button class="btn btn-white border shadow-sm ms-2" onclick="window.print()">
                 <i class="bi bi-download me-2"></i>Export
             </button>
         </div>
@@ -175,10 +175,10 @@
                                 </td>
                                 <td class="pe-4 text-end">
                                     <div class="d-flex justify-content-end gap-2">
-                                        <a href="#" class="btn btn-sm btn-link text-decoration-none px-0" title="View Details"><i class="bi bi-eye"></i></a>
+                                        <a asp-action="Details" asp-route-id="@invoice.Id" class="btn btn-sm btn-link text-decoration-none px-0" title="View Details"><i class="bi bi-eye"></i></a>
                                         <a asp-action="Edit" asp-route-id="@invoice.Id" class="btn btn-sm btn-link text-decoration-none px-0" title="Edit Invoice"><i class="bi bi-pencil-square"></i></a>
                                         <a asp-action="Delete" asp-route-id="@invoice.Id" class="btn btn-sm btn-link text-decoration-none px-0 text-danger" title="Delete Invoice"><i class="bi bi-trash"></i></a>
-                                        <a href="#" class="btn btn-sm btn-link text-decoration-none px-0" title="Download PDF"><i class="bi bi-download"></i></a>
+                                        <a href="javascript:window.print()" class="btn btn-sm btn-link text-decoration-none px-0" title="Download PDF"><i class="bi bi-download"></i></a>
                                          @if(invoice.Status == "Unpaid" || invoice.Status == "Overdue")
                                         {
                                             <form asp-action="MarkAsPaid" asp-route-id="@invoice.Id" method="post" style="display:inline;">

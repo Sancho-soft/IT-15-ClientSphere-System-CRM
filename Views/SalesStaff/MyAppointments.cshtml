@@ -12,7 +12,7 @@
         <p class="text-muted mb-0">Manage your client meetings and schedule.</p>
     </div>
     <div class="col-md-6 text-md-end">
-        <a href="#" class="btn btn-primary shadow-sm" data-bs-toggle="modal" data-bs-target="#createAppointmentModal">
+        <a asp-controller="SalesStaff" asp-action="CreateAppointment" class="btn btn-primary shadow-sm">
             <i class="bi bi-plus-lg me-2"></i>Schedule Meeting
         </a>
     </div>
@@ -72,7 +72,7 @@
                                     }
                                 </td>
                                 <td class="text-end pe-4">
-                                     <button class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></button>
+                                     <a asp-controller="SalesStaff" asp-action="EditAppointment" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
                                 </td>
                             </tr>
                         }
@@ -83,22 +83,4 @@
     </div>
 </div>
 
-<!-- Modal Placeholder for Create Appointment -->
-<div class="modal fade" id="createAppointmentModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Schedule New Meeting</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p class="text-muted">Scheduling functionality coming soon.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="alert('Feature coming soon!')">Save</button>
-            </div>
-        </div>
-    </div>
-</div>
 
