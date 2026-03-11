@@ -26,7 +26,7 @@
             <form method="get" asp-action="PaymentHistory" class="row g-2 align-items-end">
                 <div class="col-md-4">
                     <label class="form-label small fw-semibold">Search</label>
-                    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Invoice #, customer, or transaction ID" />
+                    <input type="text" id="liveSearchInput" name="search" value="@ViewBag.Search" class="form-control" placeholder="Invoice #, customer, or transaction ID" />
                 </div>
                 <div class="col-md-2">
                     <label class="form-label small fw-semibold">Payment Method</label>
@@ -72,7 +72,7 @@
                                 <th class="pe-4 border-0">Paid At</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="paymentHistoryTableBody">
                             @foreach (var record in Model)
                             {
                                 <tr>
@@ -106,7 +106,7 @@
                         <tfoot class="bg-light">
                             <tr>
                                 <td colspan="4" class="ps-4 fw-bold text-end">Total</td>
-                                <td class="fw-bold text-end">&#8369;@((decimal)(ViewBag.TotalPaid ?? 0m)).ToString("N2")</td>
+                                <td class="fw-bold text-end">&#8369;@(((decimal)(ViewBag.TotalPaid ?? 0m)).ToString("N2"))</td>
                                 <td class="pe-4"></td>
                             </tr>
                         </tfoot>
@@ -123,3 +123,30 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('liveSearchInput');
+            const tableBody = document.getElementById('paymentHistoryTableBody');
+            
+            if (searchInput && tableBody) {
+                searchInput.addEventListener('keyup', function () {
+                    const searchTerm = this.value.toLowerCase();
+                    const rows = tableBody.getElementsByTagName('tr');
+                    
+                    for (let row of rows) {
+                        // Customer name is usually in the second column (index 1)
+                        // But we will search the whole row text for robustness like the original backend search
+                        const textContent = row.textContent.toLowerCase();
+                        if (textContent.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

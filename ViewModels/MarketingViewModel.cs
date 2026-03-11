@@ -26,5 +26,6 @@ namespace ClientSphere.ViewModels
         public int Responses { get; set; }
         public double ResponseRate { get; set; }
         public string ManagedBy { get; set; } = string.Empty;
+        public string? ImageUrl { get; set; }
     }
 }

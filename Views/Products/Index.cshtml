@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ClientSphere.Models.Product>
+@model IEnumerable<ClientSphere.Models.Product>
 
 @{
     ViewData["Title"] = "Products";
@@ -60,7 +60,21 @@
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td>@item.Name</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                        {
+                                            <img src="@item.ImageUrl" alt="@item.Name" class="rounded me-3 shadow-sm" style="width: 40px; height: 40px; object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center border shadow-sm" style="width: 40px; height: 40px;">
+                                                <i class="bi bi-image text-muted"></i>
+                                            </div>
+                                        }
+                                        <div class="fw-bold text-dark">@item.Name</div>
+                                    </div>
+                                </td>
                                 <td>@item.Description</td>
                                 <td>&#8369;@item.Price.ToString("N2")</td>
                                 <td>

@@ -101,6 +101,20 @@
                 <button id="darkModeToggleBtn" class="btn btn-sm btn-outline-secondary rounded-pill px-3" title="Toggle Dark Mode" onclick="toggleCustomerDarkMode()">
                     <i id="darkModeIcon" class="bi bi-moon-stars"></i>
                 </button>
+                <!-- Notification Bell -->
+                <div class="dropdown" id="notifDropdown">
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill position-relative px-3" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications" id="notifBellBtn">
+                        <i class="bi bi-bell"></i>
+                        <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:0.6rem;display:none;">0</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-1 p-0" style="min-width:320px;max-height:400px;overflow-y:auto;" id="notifList">
+                        <li class="d-flex justify-content-between align-items-center px-3 py-2 border-bottom">
+                            <span class="fw-semibold small">Notifications</span>
+                            <button class="btn btn-link btn-sm text-muted p-0 text-decoration-none" onclick="markAllRead()" style="font-size:0.78rem;">Mark all read</button>
+                        </li>
+                        <li id="notifEmpty" class="text-center text-muted py-4 small">No new notifications</li>
+                    </ul>
+                </div>
                 <a asp-controller="CustomerPortal" asp-action="CreateTicket" class="btn btn-primary rounded-pill d-none d-md-inline-block">
                     <i class="bi bi-plus-lg me-1"></i> New Ticket
                 </a>
@@ -190,14 +204,66 @@
             document.getElementById('darkModeIcon').className = isDark ? 'bi bi-moon-stars' : 'bi bi-sun';
         }
 
-        // Set initial icon
+        // Set initial icon and load notifications
         (function() {
             const saved = localStorage.getItem('clientsphere-theme');
             if (saved === 'dark') {
                 const icon = document.getElementById('darkModeIcon');
                 if (icon) icon.className = 'bi bi-sun';
             }
+            loadNotifications();
+            setInterval(loadNotifications, 60000);
         })();
+
+        // Notifications logic
+        function loadNotifications() {
+            fetch('/Notifications/GetUnread')
+                .then(r => r.json())
+                .then(data => {
+                    const badge = document.getElementById('notifBadge');
+                    const list = document.getElementById('notifList');
+                    const empty = document.getElementById('notifEmpty');
+                    if (!badge || !list) return;
+
+                    if (data.count > 0) {
+                        badge.textContent = data.count > 9 ? '9+' : data.count;
+                        badge.style.display = '';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+
+                    // Remove old items (keep header + empty)
+                    const oldItems = list.querySelectorAll('.notif-item');
+                    oldItems.forEach(el => el.remove());
+
+                    if (data.items && data.items.length > 0) {
+                        if (empty) empty.style.display = 'none';
+                        data.items.forEach(n => {
+                            const li = document.createElement('li');
+                            li.className = 'notif-item border-bottom';
+                            li.innerHTML = `<a href="${n.url || '#'}" class="dropdown-item py-2 text-wrap" onclick="markRead(${n.id}, this)">
+                                <div class="fw-semibold small">${n.title}</div>
+                                <div class="small text-muted">${n.message}</div>
+                                <div class="text-muted" style="font-size:0.72rem;">${n.timeAgo}</div>
+                            </a>`;
+                            list.appendChild(li);
+                        });
+                    } else {
+                        if (empty) empty.style.display = '';
+                    }
+                })
+                .catch(() => {});
+        }
+
+        function markRead(id, el) {
+            fetch(`/Notifications/MarkRead/${id}`, { method: 'POST', headers: { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || '' } })
+                .then(() => loadNotifications());
+        }
+
+        function markAllRead() {
+            fetch('/Notifications/MarkAllRead', { method: 'POST', headers: { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || '' } })
+                .then(() => loadNotifications());
+        }
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

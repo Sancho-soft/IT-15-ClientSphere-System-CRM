@@ -9,10 +9,12 @@ namespace ClientSphere.Controllers
     public class ProductsController : Controller
     {
         private readonly IProductService _productService;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public ProductsController(IProductService productService)
+        public ProductsController(IProductService productService, ICloudinaryService cloudinaryService)
         {
             _productService = productService;
+            _cloudinaryService = cloudinaryService;
         }
 
         // GET: Products — supports ?archived=true
@@ -44,10 +46,24 @@ namespace ClientSphere.Controllers
         // POST: Products/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Description,Price,StockQuantity")] Product product)
+        public async Task<IActionResult> Create([Bind("Name,Description,Price,StockQuantity")] Product product, IFormFile? productImage)
         {
             if (ModelState.IsValid)
             {
+                if (productImage != null && productImage.Length > 0)
+                {
+                    try
+                    {
+                        string? url = await _cloudinaryService.UploadImageAsync(productImage, "products");
+                        if (!string.IsNullOrEmpty(url)) product.ImageUrl = url;
+                    }
+                    catch (Exception ex)
+                    {
+                        ModelState.AddModelError("", "Failed to upload product image: " + ex.Message);
+                        return View(product);
+                    }
+                }
+
                 await _productService.CreateProductAsync(product);
                 return RedirectToAction(nameof(Index));
             }
@@ -66,12 +82,27 @@ namespace ClientSphere.Controllers
         // POST: Products/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,StockQuantity,CreatedAt")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,StockQuantity,CreatedAt")] Product product, IFormFile? productImage)
         {
             if (id != product.Id) return NotFound();
             if (ModelState.IsValid)
             {
-                try { await _productService.UpdateProductAsync(product); }
+                try 
+                { 
+                    if (productImage != null && productImage.Length > 0)
+                    {
+                        string? url = await _cloudinaryService.UploadImageAsync(productImage, "products");
+                        if (!string.IsNullOrEmpty(url)) product.ImageUrl = url;
+                    }
+                    else
+                    {
+                        // Preserve existing image if not uploading a new one
+                        var existingProduct = await _productService.GetProductByIdAsync(id);
+                        if (existingProduct != null) product.ImageUrl = existingProduct.ImageUrl;
+                    }
+
+                    await _productService.UpdateProductAsync(product); 
+                }
                 catch (Exception)
                 {
                     if (await _productService.GetProductByIdAsync(id) == null) return NotFound();

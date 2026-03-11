@@ -1,4 +1,4 @@
-﻿@model ClientSphere.Models.Product
+@model ClientSphere.Models.Product
 
 @{
     ViewData["Title"] = "Create Product";
@@ -13,13 +13,19 @@
                     <h4 class="card-title mb-0">Add New Product</h4>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Create">
+                    <form asp-action="Create" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                         <div class="mb-3">
                             <label asp-for="Name" class="form-label"></label>
                             <input asp-for="Name" class="form-control" placeholder="Product Name" />
                             <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Product Image <i class="bi bi-cloud-upload ms-1 text-primary"></i></label>
+                            <input type="file" name="productImage" class="form-control" accept="image/*" />
+                            <div class="form-text small">Optional. Upload a picture of this product via Cloudinary.</div>
                         </div>
 
                         <div class="mb-3">

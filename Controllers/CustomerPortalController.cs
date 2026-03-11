@@ -17,13 +17,15 @@ namespace ClientSphere.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ISupportService _supportService;
         private readonly IPaymongoService _paymongoService;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public CustomerPortalController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ISupportService supportService, IPaymongoService paymongoService)
+        public CustomerPortalController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ISupportService supportService, IPaymongoService paymongoService, ICloudinaryService cloudinaryService)
         {
             _context = context;
             _userManager = userManager;
             _supportService = supportService;
             _paymongoService = paymongoService;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<IActionResult> Dashboard()
@@ -302,7 +304,7 @@ namespace ClientSphere.Controllers
         // POST: CustomerPortal/MyProfile
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> MyProfile(string firstName, string lastName, string email, string phoneNumber)
+        public async Task<IActionResult> MyProfile(string firstName, string lastName, string phoneNumber, IFormFile? profilePicture)
         {
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId))
@@ -318,8 +320,22 @@ namespace ClientSphere.Controllers
 
             user.FirstName = firstName;
             user.LastName = lastName;
-            user.Email = email;
             user.PhoneNumber = phoneNumber;
+
+            if (profilePicture != null && profilePicture.Length > 0)
+            {
+                try
+                {
+                    string? imageUrl = await _cloudinaryService.UploadImageAsync(profilePicture, "profile_pictures");
+                    if (!string.IsNullOrEmpty(imageUrl))
+                        user.ProfilePictureUrl = imageUrl;
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = "Failed to upload profile picture: " + ex.Message;
+                    return RedirectToAction(nameof(MyProfile));
+                }
+            }
 
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)

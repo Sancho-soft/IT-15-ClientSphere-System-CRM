@@ -1,4 +1,4 @@
-﻿@model ClientSphere.Models.Product
+@model ClientSphere.Models.Product
 
 @{
     ViewData["Title"] = "Edit Product";
@@ -13,7 +13,7 @@
                     <h4 class="card-title mb-0">Edit Product</h4>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Edit">
+                    <form asp-action="Edit" enctype="multipart/form-data">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         <input type="hidden" asp-for="Id" />
                         <input type="hidden" asp-for="CreatedAt" />
@@ -22,6 +22,18 @@
                             <label asp-for="Name" class="form-label"></label>
                             <input asp-for="Name" class="form-control" />
                             <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Product Image <i class="bi bi-cloud-upload ms-1 text-primary"></i></label>
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <div class="mb-2">
+                                    <img src="@Model.ImageUrl" alt="Current Image" class="img-thumbnail rounded" style="max-height: 150px;" />
+                                </div>
+                            }
+                            <input type="file" name="productImage" class="form-control" accept="image/*" />
+                            <div class="form-text small">Optional. Upload a new picture to replace the current one.</div>
                         </div>
 
                         <div class="mb-3">

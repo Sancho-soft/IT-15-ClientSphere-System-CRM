@@ -1,3 +1,7 @@
+:root {
+  --bs-body-bg: #f5f4f0;
+}
+
 html {
   font-size: 14px;
 }

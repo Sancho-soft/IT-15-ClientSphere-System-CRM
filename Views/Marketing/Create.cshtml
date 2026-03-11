@@ -1,4 +1,4 @@
-﻿@model ClientSphere.Models.Campaign
+@model ClientSphere.Models.Campaign
 
 @{
     ViewData["Title"] = "Create Campaign";
@@ -16,7 +16,7 @@
 
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <form asp-action="Create">
+            <form asp-action="Create" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <div class="row mb-3">
@@ -72,6 +72,12 @@
                         <input asp-for="EndDate" class="form-control" type="date" />
                         <span asp-validation-for="EndDate" class="text-danger small"></span>
                     </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Campaign Banner <i class="bi bi-cloud-upload ms-1 text-primary"></i></label>
+                    <input type="file" name="campaignBanner" class="form-control" accept="image/*" />
+                    <div class="form-text small">Optional. Upload a promotional graphic or banner for this campaign via Cloudinary.</div>
                 </div>
 
                 <div class="mb-4">

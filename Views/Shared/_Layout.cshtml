@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @using ClientSphere.Models
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
@@ -21,8 +21,8 @@
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-toggleable-lg navbar-light bg-white py-2 shadow-sm">
+    <header class="sticky-top shadow-sm" style="z-index: 1030;">
+        <nav class="navbar navbar-expand-lg navbar-toggleable-lg navbar-light py-2">
             <div class="container d-flex align-items-center">
                 <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index" style="margin-right: 2rem;">
                     <img src="~/images/logolanding.png" alt="ClientSphere" style="height: 120px; width: auto; margin: -40px 0; object-fit: contain;" class="d-inline-block align-middle">
@@ -34,6 +34,17 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between align-items-center">
                     <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
                         <!-- Public Menu -->
+                        <li class="nav-item dropdown me-2 d-flex align-items-center">
+                            <span class="position-absolute translate-middle p-1 bg-danger border border-light rounded-circle" style="left: 10px; top: 50%; z-index: 10;">
+                                <span class="visually-hidden">Live</span>
+                            </span>
+                            <a class="nav-link dropdown-toggle fw-bold text-danger position-relative ms-2" href="#" id="campaignsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
+                                Live Campaigns
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end shadow border-0 p-0" aria-labelledby="campaignsDropdown" style="width: 380px; max-height: 500px; overflow-y: auto;">
+                                @await Component.InvokeAsync("ActiveCampaigns")
+                            </div>
+                        </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-dark" href="#" id="featuresDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Features

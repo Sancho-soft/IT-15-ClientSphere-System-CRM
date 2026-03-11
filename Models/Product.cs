@@ -23,6 +23,8 @@ namespace ClientSphere.Models
         [Display(Name = "Stock Quantity")]
         public int StockQuantity { get; set; }
 
+        public string? ImageUrl { get; set; } // Cloudinary URL
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
         public bool IsArchived { get; set; } = false;

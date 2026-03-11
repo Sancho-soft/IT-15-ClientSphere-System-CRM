@@ -33,6 +33,7 @@
                         <th>Location</th>
                         <th>Status</th>
                         <th>Organized By</th>
+                        <th class="text-end pe-4">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -75,9 +76,18 @@
                                 }
                             </td>
                             <td>
+                                @{
+                                    var staffDict = ViewBag.StaffUsers as Dictionary<string, string>;
+                                    var staffName = (staffDict != null && !string.IsNullOrEmpty(item.OrganizerUserId) && staffDict.ContainsKey(item.OrganizerUserId)) 
+                                        ? staffDict[item.OrganizerUserId] 
+                                        : "Unknown";
+                                }
                                 <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3">
-                                    <i class="bi bi-person me-1"></i>@(string.IsNullOrEmpty(item.OrganizerUserId) ? "Unknown" : $"Staff {item.OrganizerUserId.Substring(0, 6)}...")
+                                    <i class="bi bi-person me-1"></i>@staffName
                                 </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a asp-controller="SalesManager" asp-action="EditAppointment" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
                             </td>
                         </tr>
                     }

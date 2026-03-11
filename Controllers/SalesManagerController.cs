@@ -137,6 +137,11 @@ namespace ClientSphere.Controllers
                 .Include(a => a.Customer)
                 .OrderBy(a => a.StartTime)
                 .ToListAsync();
+
+            // Try to map User IDs to actual Names
+            var staffusers = await _userManager.GetUsersInRoleAsync("Sales Staff");
+            ViewBag.StaffUsers = staffusers.ToDictionary(u => u.Id, u => $"{u.FirstName} {u.LastName}");
+
             return View(allAppointments);
         }
 
@@ -279,6 +284,82 @@ namespace ClientSphere.Controllers
                     Selected = u.Id == opp.AssignedToUserId
                 }).ToList();
             return View(opp);
+        }
+
+        // --- APPOINTMENTS (OVERSIGHT) ---
+        [HttpGet]
+        public async Task<IActionResult> EditAppointment(int? id)
+        {
+            if (id == null) return NotFound();
+            var appointment = await _context.Appointments.FindAsync(id.Value);
+            if (appointment == null) return NotFound();
+
+            var salesStaff = await _userManager.GetUsersInRoleAsync("Sales Staff");
+            ViewBag.SalesStaffList = salesStaff
+                .Select(u => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = u.Id,
+                    Text = $"{u.FirstName} {u.LastName}",
+                    Selected = u.Id == appointment.OrganizerUserId
+                }).ToList();
+
+            var customers = await _context.Customers.ToListAsync();
+            ViewBag.CustomerList = customers
+                .Select(c => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.ContactName,
+                    Selected = c.Id == appointment.CustomerId
+                }).ToList();
+
+            return View(appointment);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditAppointment(int id, [Bind("Id,Title,Description,StartTime,EndTime,Location,Status,OrganizerUserId,CustomerId")] Appointment appointment)
+        {
+            if (id != appointment.Id) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                var existing = await _context.Appointments.FindAsync(id);
+                if(existing == null) { return NotFound(); }
+                
+                existing.Title = appointment.Title;
+                existing.Description = appointment.Description;
+                existing.StartTime = appointment.StartTime;
+                existing.EndTime = appointment.EndTime;
+                existing.Location = appointment.Location;
+                existing.Status = appointment.Status;
+                existing.OrganizerUserId = appointment.OrganizerUserId;
+                existing.CustomerId = appointment.CustomerId;
+
+                _context.Appointments.Update(existing);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Team Appointment updated and reassigned successfully!";
+                return RedirectToAction(nameof(AllAppointments));
+            }
+
+            var salesStaff = await _userManager.GetUsersInRoleAsync("Sales Staff");
+            ViewBag.SalesStaffList = salesStaff
+                .Select(u => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = u.Id,
+                    Text = $"{u.FirstName} {u.LastName}",
+                    Selected = u.Id == appointment.OrganizerUserId
+                }).ToList();
+
+            var customers = await _context.Customers.ToListAsync();
+            ViewBag.CustomerList = customers
+                .Select(c => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.ContactName,
+                    Selected = c.Id == appointment.CustomerId
+                }).ToList();
+
+            return View(appointment);
         }
     }
 }

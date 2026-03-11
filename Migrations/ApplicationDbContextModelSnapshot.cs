@@ -243,6 +243,9 @@ namespace ClientSphere.Migrations
                     b.Property<decimal>("ExpectedRevenue")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsArchived")
                         .HasColumnType("bit");
 
@@ -626,6 +629,9 @@ namespace ClientSphere.Migrations
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsArchived")
                         .HasColumnType("bit");

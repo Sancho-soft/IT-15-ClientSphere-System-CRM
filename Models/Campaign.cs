@@ -12,6 +12,8 @@ namespace ClientSphere.Models
         public string Name { get; set; }
 
         public string? Description { get; set; }
+        
+        public string? ImageUrl { get; set; } // Cloudinary URL
 
         [Required]
         public string Type { get; set; } // Email, SMS, Social Media, etc.

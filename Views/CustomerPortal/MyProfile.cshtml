@@ -1,4 +1,4 @@
-﻿@model ClientSphere.Models.ApplicationUser
+@model ClientSphere.Models.ApplicationUser
 @{
     ViewData["Title"] = "My Profile";
     ViewData["HideTopNavTitle"] = true;
@@ -46,7 +46,7 @@
 </div>
 
 <!-- Edit Profile Form -->
-<form asp-action="MyProfile" method="post">
+<form asp-action="MyProfile" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()
     <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
@@ -62,6 +62,11 @@
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
+                        <div class="col-12 mb-2">
+                            <label class="form-label fw-semibold small text-muted text-uppercase" style="letter-spacing:.05em;">Profile Picture <i class="bi bi-cloud-upload ms-1 text-primary"></i></label>
+                            <input type="file" name="profilePicture" class="form-control" accept="image/*" />
+                            <div class="form-text small">Optional. Upload a new image to change your avatar via Cloudinary.</div>
+                        </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold small text-muted text-uppercase" style="letter-spacing:.05em;">First Name</label>
                             <div class="input-group">
@@ -80,8 +85,9 @@
                             <label class="form-label fw-semibold small text-muted text-uppercase" style="letter-spacing:.05em;">Email Address</label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                <input type="email" name="email" value="@Model.Email" class="form-control" placeholder="user@example.com" required />
+                                <input type="email" value="@Model.Email" class="form-control" placeholder="user@example.com" disabled readonly />
                             </div>
+                            <div class="form-text small">Email address cannot be changed here.</div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold small text-muted text-uppercase" style="letter-spacing:.05em;">Phone Number</label>

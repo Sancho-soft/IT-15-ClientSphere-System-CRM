@@ -1,4 +1,4 @@
-﻿@model ClientSphere.Models.Campaign
+@model ClientSphere.Models.Campaign
 
 @{
     ViewData["Title"] = "Edit Campaign";
@@ -16,7 +16,7 @@
 
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <form asp-action="Edit">
+            <form asp-action="Edit" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
                 <input type="hidden" asp-for="Id" />
 
@@ -78,6 +78,18 @@
                         <input asp-for="EndDate" class="form-control" type="date" />
                         <span asp-validation-for="EndDate" class="text-danger small"></span>
                     </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Campaign Banner <i class="bi bi-cloud-upload ms-1 text-primary"></i></label>
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <div class="mb-2">
+                            <img src="@Model.ImageUrl" alt="Current Banner" class="img-thumbnail rounded" style="max-height: 150px;" />
+                        </div>
+                    }
+                    <input type="file" name="campaignBanner" class="form-control" accept="image/*" />
+                    <div class="form-text small">Optional. Upload a new promotional graphic to replace the current one.</div>
                 </div>
 
                 <div class="mb-4">

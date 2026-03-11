@@ -11,10 +11,12 @@ namespace ClientSphere.Controllers
     public class MarketingController : Controller
     {
         private readonly ICampaignService _campaignService;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public MarketingController(ICampaignService campaignService)
+        public MarketingController(ICampaignService campaignService, ICloudinaryService cloudinaryService)
         {
             _campaignService = campaignService;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<IActionResult> Index(bool archived = false)
@@ -44,7 +46,8 @@ namespace ClientSphere.Controllers
                     Recipients = c.TargetAudienceSize,
                     Responses = (int)(c.ExpectedRevenue / 100),
                     ResponseRate = ((double)c.ExpectedRevenue / (double)c.Budget) * 100,
-                    ManagedBy = "Marketing Team"
+                    ManagedBy = "Marketing Team",
+                    ImageUrl = c.ImageUrl
                 }).ToList()
             };
 
@@ -59,10 +62,24 @@ namespace ClientSphere.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Models.Campaign campaign)
+        public async Task<IActionResult> Create(Models.Campaign campaign, IFormFile? campaignBanner)
         {
             if (ModelState.IsValid)
             {
+                if (campaignBanner != null && campaignBanner.Length > 0)
+                {
+                    try
+                    {
+                        string? url = await _cloudinaryService.UploadImageAsync(campaignBanner, "campaigns");
+                        if (!string.IsNullOrEmpty(url)) campaign.ImageUrl = url;
+                    }
+                    catch (Exception ex)
+                    {
+                        ModelState.AddModelError("", "Failed to upload banner: " + ex.Message);
+                        return View(campaign);
+                    }
+                }
+
                 campaign.Status = "Planned";
                 campaign.StartDate = DateTime.UtcNow;
                 if (!campaign.EndDate.HasValue) campaign.EndDate = campaign.StartDate.AddDays(30);
@@ -82,12 +99,28 @@ namespace ClientSphere.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Models.Campaign campaign)
+        public async Task<IActionResult> Edit(int id, Models.Campaign campaign, IFormFile? campaignBanner)
         {
             if (id != campaign.Id) return NotFound();
             if (ModelState.IsValid)
             {
-                try { await _campaignService.UpdateCampaignAsync(campaign); return RedirectToAction(nameof(Index)); }
+                try 
+                { 
+                    if (campaignBanner != null && campaignBanner.Length > 0)
+                    {
+                        string? url = await _cloudinaryService.UploadImageAsync(campaignBanner, "campaigns");
+                        if (!string.IsNullOrEmpty(url)) campaign.ImageUrl = url;
+                    }
+                    else
+                    {
+                        // Preserve existing image if not uploading a new one
+                        var existingCampaign = await _campaignService.GetCampaignByIdAsync(id);
+                        if (existingCampaign != null) campaign.ImageUrl = existingCampaign.ImageUrl;
+                    }
+
+                    await _campaignService.UpdateCampaignAsync(campaign); 
+                    return RedirectToAction(nameof(Index)); 
+                }
                 catch (Exception) { if (await _campaignService.GetCampaignByIdAsync(id) == null) return NotFound(); throw; }
             }
             return View(campaign);
