@@ -1,4 +1,4 @@
-﻿@model ClientSphere.ViewModels.MarketingStaffDashboardViewModel
+@model ClientSphere.ViewModels.MarketingStaffDashboardViewModel
 
 @{
     ViewData["Title"] = "My Marketing Dashboard";
@@ -26,7 +26,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Total Campaigns</div>
-                        <h3 class="fw-bold mb-0 text-info">@Model.TotalCampaigns</h3>
+                        <h3 class="fw-bold mb-0 text-dark">@Model.TotalCampaigns</h3>
                     </div>
                 </div>
             </div>
@@ -40,7 +40,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Total Recipients</div>
-                        <h3 class="fw-bold mb-0 text-primary">@Model.TotalRecipients.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0 text-dark">@Model.TotalRecipients.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -53,7 +53,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Avg Response Rate</div>
-                        <h3 class="fw-bold mb-0 text-warning">@Model.AvgResponseRate%</h3>
+                        <h3 class="fw-bold mb-0 text-dark">@Model.AvgResponseRate%</h3>
                     </div>
                 </div>
             </div>

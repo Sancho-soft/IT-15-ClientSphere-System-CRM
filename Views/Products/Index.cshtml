@@ -5,41 +5,66 @@
     ViewData["HideTopNavTitle"] = true;
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewData["CurrentPage"] = "Products";
+    var isArchived = (bool)(ViewData["IsArchived"] ?? false);
 }
 
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Product Management</h1>
-        <a asp-action="Create" class="btn btn-primary">
-            <i class="bi bi-plus-lg me-2"></i>New Product
-        </a>
+    <div class="d-flex justify-content-end align-items-center mb-3">
+        @if (!isArchived)
+        {
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-2"></i>New Product
+            </a>
+        }
     </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">All Products</h6>
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+            <a class="nav-link @(!isArchived ? "active fw-bold" : "")" href="?archived=false">
+                <i class="bi bi-box-seam me-1"></i> Active Products
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link @(isArchived ? "active fw-bold" : "")" href="?archived=true">
+                <i class="bi bi-archive me-1"></i> Archived
+            </a>
+        </li>
+    </ul>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
+    }
+
+    <div class="card shadow mb-4">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered table-hover" id="productsTable" width="100%" cellspacing="0">
+                <table class="table table-bordered table-hover" width="100%" cellspacing="0">
                     <thead class="table-light">
                         <tr>
                             <th>Name</th>
                             <th>Description</th>
                             <th>Price</th>
                             <th>Stock</th>
-                            <th>Actions</th>
+                            <th>@(isArchived ? "Archived On" : "Actions")</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr><td colspan="5" class="text-center py-4 text-muted">@(isArchived ? "No archived products." : "No products yet.")</td></tr>
+                        }
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td>@Html.DisplayFor(modelItem => item.Name)</td>
-                                <td>@Html.DisplayFor(modelItem => item.Description)</td>
-                                <td>@Html.DisplayFor(modelItem => item.Price)</td>
+                                <td>@item.Name</td>
+                                <td>@item.Description</td>
+                                <td>&#8369;@item.Price.ToString("N2")</td>
                                 <td>
-                                    @if(item.StockQuantity < 10)
+                                    @if (item.StockQuantity < 10)
                                     {
                                         <span class="badge bg-danger">Low: @item.StockQuantity</span>
                                     }
@@ -49,17 +74,32 @@
                                     }
                                 </td>
                                 <td>
-                                    <div class="btn-group" role="group">
-                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white" title="Details">
-                                            <i class="bi bi-eye"></i>
-                                        </a>
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning text-white" title="Edit">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger" title="Delete">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    </div>
+                                    @if (isArchived)
+                                    {
+                                        <form asp-action="UnarchiveProduct" asp-route-id="@item.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Restore">
+                                                <i class="bi bi-arrow-counterclockwise me-1"></i>Restore
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white" title="Details">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning text-white" title="Edit">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <form asp-action="ArchiveProduct" asp-route-id="@item.Id" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-secondary" title="Archive" onclick="return confirm('Archive this product?')">
+                                                    <i class="bi bi-archive"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    }
                                 </td>
                             </tr>
                         }
@@ -69,4 +109,3 @@
         </div>
     </div>
 </div>
-

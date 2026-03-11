@@ -24,5 +24,7 @@ namespace ClientSphere.Models
         
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastUpdated { get; set; }
+
+        public string? ImageUrl { get; set; } // Cloudinary URL
     }
 }

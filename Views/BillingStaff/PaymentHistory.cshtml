@@ -1,0 +1,125 @@
+@model IEnumerable<ClientSphere.Models.PaymentRecord>
+
+@{
+    ViewData["Title"] = "Payment History";
+    ViewData["HideTopNavTitle"] = true;
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "PaymentHistory";
+}
+
+<div class="container-fluid p-0">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Payment History</h3>
+            <p class="text-muted mb-0">All completed payments and transactions</p>
+        </div>
+        <div class="text-end">
+            <span class="text-muted small">Total Collected:</span>
+            <span class="fw-bold ms-1">&#8369;@(((decimal)(ViewBag.TotalPaid ?? 0m)).ToString("N2"))</span>
+        </div>
+    </div>
+
+    <!-- Search & Filter -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="PaymentHistory" class="row g-2 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small fw-semibold">Search</label>
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Invoice #, customer, or transaction ID" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-semibold">Payment Method</label>
+                    <select name="method" class="form-select">
+                        <option value="">All Methods</option>
+                        <option value="GCash" selected="@(ViewBag.Method == "GCash" ? "selected" : null)">GCash</option>
+                        <option value="Maya" selected="@(ViewBag.Method == "Maya" ? "selected" : null)">Maya</option>
+                        <option value="Manual" selected="@(ViewBag.Method == "Manual" ? "selected" : null)">Manual</option>
+                        <option value="PayMongo" selected="@(ViewBag.Method == "PayMongo" ? "selected" : null)">PayMongo</option>
+                        <option value="Bank Transfer" selected="@(ViewBag.Method == "Bank Transfer" ? "selected" : null)">Bank Transfer</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-semibold">From Date</label>
+                    <input type="date" name="dateFrom" value="@ViewBag.DateFrom" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-semibold">To Date</label>
+                    <input type="date" name="dateTo" value="@ViewBag.DateTo" class="form-control" />
+                </div>
+                <div class="col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search me-1"></i>Search</button>
+                    <a asp-action="PaymentHistory" class="btn btn-outline-secondary"><i class="bi bi-x"></i></a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Records Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr class="text-uppercase text-muted small">
+                                <th class="ps-4 border-0">Invoice #</th>
+                                <th class="border-0">Customer</th>
+                                <th class="border-0">Payment Method</th>
+                                <th class="border-0">Transaction ID</th>
+                                <th class="border-0 text-end">Amount Paid</th>
+                                <th class="pe-4 border-0">Paid At</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var record in Model)
+                            {
+                                <tr>
+                                    <td class="ps-4 fw-bold">@record.InvoiceNumber</td>
+                                    <td>@record.CustomerName</td>
+                                    <td>
+                                        @if (record.PaymentMethod != null && record.PaymentMethod.Contains("GCash"))
+                                        {
+                                            <i class="bi bi-wallet2 me-1"></i>
+                                        }
+                                        else if (record.PaymentMethod != null && record.PaymentMethod.Contains("Maya"))
+                                        {
+                                            <i class="bi bi-phone me-1"></i>
+                                        }
+                                        else if (record.PaymentMethod == "Manual")
+                                        {
+                                            <i class="bi bi-person-check me-1"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-credit-card me-1"></i>
+                                        }
+                                        @record.PaymentMethod
+                                    </td>
+                                    <td><code class="text-muted small">@(record.TransactionId ?? "—")</code></td>
+                                    <td class="text-end fw-bold">&#8369;@record.AmountPaid.ToString("N2")</td>
+                                    <td class="pe-4 text-muted small">@record.PaidAt.ToLocalTime().ToString("MMM dd, yyyy hh:mm tt")</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="bg-light">
+                            <tr>
+                                <td colspan="4" class="ps-4 fw-bold text-end">Total</td>
+                                <td class="fw-bold text-end">&#8369;@((decimal)(ViewBag.TotalPaid ?? 0m)).ToString("N2")</td>
+                                <td class="pe-4"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-receipt display-4 text-muted mb-3 d-block"></i>
+                    <p class="text-muted mb-0">No payment records found.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

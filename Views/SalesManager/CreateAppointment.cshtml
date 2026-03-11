@@ -1,0 +1,88 @@
+@model ClientSphere.Models.Appointment
+@{
+    ViewData["Title"] = "Schedule Appointment";
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "AllAppointments";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Schedule Meeting</h2>
+        <p class="text-muted mb-0">Book a new appointment and assign it to a Sales Staff</p>
+    </div>
+    <a asp-action="AllAppointments" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back to List</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form asp-action="CreateAppointment">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            
+            <div class="row g-3">
+                <div class="col-12">
+                    <label asp-for="Title" class="form-label fw-medium"></label>
+                    <input asp-for="Title" class="form-control" placeholder="e.g. Product Demo with Acme Corp" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+                
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label fw-medium"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Meeting agenda and details..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+                
+                <div class="col-md-6">
+                    <label asp-for="StartTime" class="form-label fw-medium"></label>
+                    <input asp-for="StartTime" class="form-control" type="datetime-local" />
+                    <span asp-validation-for="StartTime" class="text-danger small"></span>
+                </div>
+                
+                <div class="col-md-6">
+                    <label asp-for="EndTime" class="form-label fw-medium"></label>
+                    <input asp-for="EndTime" class="form-control" type="datetime-local" />
+                    <span asp-validation-for="EndTime" class="text-danger small"></span>
+                </div>
+                
+                <div class="col-md-6">
+                    <label asp-for="Location" class="form-label fw-medium"></label>
+                    <input asp-for="Location" class="form-control" placeholder="Office / Teams / Zoom Link" />
+                    <span asp-validation-for="Location" class="text-danger small"></span>
+                </div>
+                
+                <div class="col-md-6">
+                    <label asp-for="Status" class="form-label fw-medium"></label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="Scheduled">Scheduled</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="CustomerId" class="form-label fw-medium">Customer</label>
+                    <select asp-for="CustomerId" class="form-select" asp-items="ViewBag.CustomerList">
+                        <option value="">-- Select Customer (Optional) --</option>
+                    </select>
+                    <span asp-validation-for="CustomerId" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="OrganizerUserId" class="form-label fw-medium">Assign To (Sales Staff)</label>
+                    <select asp-for="OrganizerUserId" class="form-select" asp-items="ViewBag.SalesStaffList">
+                        <option value="">-- Select Sales Staff --</option>
+                    </select>
+                    <span asp-validation-for="OrganizerUserId" class="text-danger small"></span>
+                </div>
+            </div>
+            
+            <div class="mt-4 pt-3 border-top text-end">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-calendar-plus me-2"></i>Schedule Meeting</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

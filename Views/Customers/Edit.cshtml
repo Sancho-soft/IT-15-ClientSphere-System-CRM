@@ -49,33 +49,56 @@
                         <h5 class="mb-3 text-muted">Address Details</h5>
 
                         <div class="mb-3">
-                            <label asp-for="Address" class="form-label"></label>
-                            <input asp-for="Address" class="form-control" />
-                            <span asp-validation-for="Address" class="text-danger"></span>
+                            <input type="hidden" asp-for="Address" id="hiddenAddress" />
+                            <input type="hidden" asp-for="City" id="hiddenCity" />
+                            <input type="hidden" asp-for="Region" id="hiddenRegion" />
+                            <input type="hidden" asp-for="Country" value="Philippines" />
                         </div>
 
                         <div class="row mb-3">
-                            <div class="col-md-4">
-                                <label asp-for="City" class="form-label"></label>
-                                <input asp-for="City" class="form-control" />
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label class="form-label">Region <span class="text-danger">*</span></label>
+                                <select id="regionSelect" class="form-select" required>
+                                    <option value="">Select Region</option>
+                                </select>
+                                <span asp-validation-for="Region" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Province <span class="text-danger">*</span></label>
+                                <select id="provinceSelect" class="form-select" disabled required>
+                                    <option value="">Select Province</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label class="form-label">City/Municipality <span class="text-danger">*</span></label>
+                                <select id="citySelect" class="form-select" disabled required>
+                                    <option value="">Select City/Municipality</option>
+                                </select>
                                 <span asp-validation-for="City" class="text-danger"></span>
                             </div>
-                            <div class="col-md-4">
-                                <label asp-for="Region" class="form-label"></label>
-                                <input asp-for="Region" class="form-control" />
-                                <span asp-validation-for="Region" class="text-danger"></span>
+                            <div class="col-md-6">
+                                <label class="form-label">Barangay <span class="text-danger">*</span></label>
+                                <select id="barangaySelect" class="form-select" disabled required>
+                                    <option value="">Select Barangay</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-8 mb-3 mb-md-0">
+                                <label class="form-label">Street/Building/House No. <span class="text-danger">*</span></label>
+                                <input type="text" id="streetInput" class="form-control" placeholder="1234 Main St" value="@Model.Address" required />
+                                <span asp-validation-for="Address" class="text-danger"></span>
+                                <small class="text-muted d-block mt-1"><i class="bi bi-info-circle"></i> Please re-select your area from the dropdowns above to standardize your address formatting.</small>
                             </div>
                             <div class="col-md-4">
                                 <label asp-for="PostalCode" class="form-label"></label>
                                 <input asp-for="PostalCode" class="form-control" />
                                 <span asp-validation-for="PostalCode" class="text-danger"></span>
                             </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label asp-for="Country" class="form-label"></label>
-                            <input asp-for="Country" class="form-control" />
-                            <span asp-validation-for="Country" class="text-danger"></span>
                         </div>
 
                         <div class="d-flex justify-content-between">
@@ -91,5 +114,126 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        const apiUrl = 'https://psgc.gitlab.io/api';
+
+        async function fetchRegions() {
+            try {
+                const res = await fetch(`${apiUrl}/regions/`);
+                const data = await res.json();
+                const select = document.getElementById('regionSelect');
+                data.sort((a,b) => a.name.localeCompare(b.name)).forEach(r => {
+                    select.add(new Option(r.name, r.code));
+                });
+            } catch (error) {
+                console.error("Error fetching PSGC Regions:", error);
+            }
+        }
+
+        document.getElementById('regionSelect').addEventListener('change', async function() {
+            const code = this.value;
+            const provSelect = document.getElementById('provinceSelect');
+            const citySelect = document.getElementById('citySelect');
+            const brgySelect = document.getElementById('barangaySelect');
+            
+            provSelect.innerHTML = '<option value="">Select Province</option>';
+            citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+            brgySelect.innerHTML = '<option value="">Select Barangay</option>';
+            provSelect.disabled = true;
+            citySelect.disabled = true;
+            brgySelect.disabled = true;
+
+            if (!code) return;
+
+            try {
+                const res = await fetch(`${apiUrl}/regions/${code}/provinces/`);
+                const provinces = await res.json();
+                
+                if (provinces.length > 0) {
+                    provinces.sort((a,b) => a.name.localeCompare(b.name)).forEach(p => {
+                        provSelect.add(new Option(p.name, p.code));
+                    });
+                    provSelect.disabled = false;
+                } else {
+                    const resCities = await fetch(`${apiUrl}/regions/${code}/cities-municipalities/`);
+                    const cities = await resCities.json();
+                    provSelect.add(new Option('Metro Manila', 'NCR'));
+                    provSelect.value = 'NCR';
+                    
+                    cities.sort((a,b) => a.name.localeCompare(b.name)).forEach(c => {
+                        citySelect.add(new Option(c.name, c.code));
+                    });
+                    citySelect.disabled = false;
+                }
+            } catch (error) {
+                console.error("Error fetching PSGC Provinces/Cities:", error);
+            }
+        });
+
+        document.getElementById('provinceSelect').addEventListener('change', async function() {
+            const code = this.value;
+            const citySelect = document.getElementById('citySelect');
+            const brgySelect = document.getElementById('barangaySelect');
+            
+            citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+            brgySelect.innerHTML = '<option value="">Select Barangay</option>';
+            citySelect.disabled = true;
+            brgySelect.disabled = true;
+            
+            if (!code || code === 'NCR') return;
+
+            try {
+                const res = await fetch(`${apiUrl}/provinces/${code}/cities-municipalities/`);
+                const cities = await res.json();
+                cities.sort((a,b) => a.name.localeCompare(b.name)).forEach(c => {
+                    citySelect.add(new Option(c.name, c.code));
+                });
+                citySelect.disabled = false;
+            } catch (error) {
+                console.error("Error fetching PSGC Cities:", error);
+            }
+        });
+
+        document.getElementById('citySelect').addEventListener('change', async function() {
+            const code = this.value;
+            const brgySelect = document.getElementById('barangaySelect');
+            
+            brgySelect.innerHTML = '<option value="">Select Barangay</option>';
+            brgySelect.disabled = true;
+            
+            if (!code) return;
+
+            try {
+                const res = await fetch(`${apiUrl}/cities-municipalities/${code}/barangays/`);
+                const brgys = await res.json();
+                brgys.sort((a,b) => a.name.localeCompare(b.name)).forEach(b => {
+                    brgySelect.add(new Option(b.name, b.code));
+                });
+                brgySelect.disabled = false;
+            } catch (error) {
+                console.error("Error fetching PSGC Barangays:", error);
+            }
+        });
+
+        document.querySelector('form').addEventListener('submit', function() {
+            const region = document.getElementById('regionSelect').options[document.getElementById('regionSelect').selectedIndex]?.text || '';
+            const province = document.getElementById('provinceSelect').options[document.getElementById('provinceSelect').selectedIndex]?.text || '';
+            const city = document.getElementById('citySelect').options[document.getElementById('citySelect').selectedIndex]?.text || '';
+            const brgy = document.getElementById('barangaySelect').options[document.getElementById('barangaySelect').selectedIndex]?.text || '';
+            let street = document.getElementById('streetInput').value || '';
+            
+            document.getElementById('hiddenRegion').value = region;
+            document.getElementById('hiddenCity').value = city;
+            
+            let fullAddr = street;
+            if (brgy && brgy !== 'Select Barangay') fullAddr += ', Brgy. ' + brgy;
+            if (city && city !== 'Select City/Municipality') fullAddr += ', ' + city;
+            if (province && province !== 'Select Province' && province !== 'Metro Manila') fullAddr += ', ' + province;
+            
+            document.getElementById('hiddenAddress').value = fullAddr;
+        });
+
+        document.addEventListener('DOMContentLoaded', fetchRegions);
+    </script>
 }
 

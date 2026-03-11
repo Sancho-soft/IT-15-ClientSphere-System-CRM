@@ -139,6 +139,56 @@ namespace ClientSphere.Controllers
         }
 
         // OPPORTUNITIES
+        
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> WinDeal(int id)
+        {
+            var opp = await _opportunityService.GetOpportunityByIdAsync(id);
+            if (opp == null || opp.AssignedToUserId != _userManager.GetUserId(User)) 
+                return NotFound();
+
+            opp.Stage = "Closed Won";
+            opp.Probability = 100;
+            await _opportunityService.UpdateOpportunityAsync(opp);
+
+            TempData["Success"] = $"Opportunity '{opp.Name}' marked as Closed Won! Great job!";
+            return RedirectToAction(nameof(MyOpportunities));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConvertToOpportunity(int id)
+        {
+            var lead = await _leadService.GetLeadByIdAsync(id);
+            if (lead == null || lead.AssignedToUserId != _userManager.GetUserId(User)) 
+                return NotFound();
+
+            // Create a new Opportunity based on the Lead
+            var opportunityName = string.IsNullOrEmpty(lead.Company) 
+                ? $"{lead.FirstName} {lead.LastName} Deal" 
+                : $"{lead.Company} Deal";
+
+            var opp = new Opportunity
+            {
+                Name = opportunityName,
+                EstimatedValue = 0, // Default to 0, Sales Staff can edit later
+                Probability = 20, // Initial stage probability
+                Stage = "Prospecting", // Initial stage
+                ExpectedCloseDate = DateTime.UtcNow.AddMonths(1),
+                AssignedToUserId = lead.AssignedToUserId
+            };
+
+            await _opportunityService.AddOpportunityAsync(opp);
+
+            // Update Lead Status to Qualified
+            lead.Status = "Qualified";
+            await _leadService.UpdateLeadAsync(lead);
+
+            TempData["Success"] = $"Lead successfully converted to Opportunity: {opp.Name}!";
+            return RedirectToAction(nameof(MyOpportunities));
+        }
+
         public IActionResult CreateOpportunity()
         {
             return View();

@@ -20,11 +20,11 @@ namespace ClientSphere.Controllers
         public async Task<IActionResult> Index(bool archived = false)
         {
             var allCampaigns = await _campaignService.GetAllCampaignsAsync();
-            var campaigns = archived ? allCampaigns.Where(c => c.Status == "Completed" || c.Status == "Cancelled") : allCampaigns.Where(c => c.Status != "Completed" && c.Status != "Cancelled");
-            // Also need to fix the sum logic to not break if list is empty, but we convert to List first
-            campaigns = campaigns.ToList();
+            var campaigns = archived
+                ? allCampaigns.Where(c => c.IsArchived).ToList()
+                : allCampaigns.Where(c => !c.IsArchived).ToList();
             ViewData["IsArchived"] = archived;
-            
+
             var viewModel = new MarketingDashboardViewModel
             {
                 TotalCampaigns = campaigns.Count(),
@@ -65,12 +65,7 @@ namespace ClientSphere.Controllers
             {
                 campaign.Status = "Planned";
                 campaign.StartDate = DateTime.UtcNow;
-                // Ensure EndDate is after StartDate if not provided
-                if (!campaign.EndDate.HasValue)
-                {
-                    campaign.EndDate = campaign.StartDate.AddDays(30);
-                }
-
+                if (!campaign.EndDate.HasValue) campaign.EndDate = campaign.StartDate.AddDays(30);
                 await _campaignService.CreateCampaignAsync(campaign);
                 return RedirectToAction(nameof(Index));
             }
@@ -81,10 +76,7 @@ namespace ClientSphere.Controllers
         public async Task<IActionResult> Edit(int id)
         {
             var campaign = await _campaignService.GetCampaignByIdAsync(id);
-            if (campaign == null)
-            {
-                return NotFound();
-            }
+            if (campaign == null) return NotFound();
             return View(campaign);
         }
 
@@ -92,46 +84,39 @@ namespace ClientSphere.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Models.Campaign campaign)
         {
-            if (id != campaign.Id)
-            {
-                return NotFound();
-            }
-
+            if (id != campaign.Id) return NotFound();
             if (ModelState.IsValid)
             {
-                try
-                {
-                    await _campaignService.UpdateCampaignAsync(campaign);
-                    return RedirectToAction(nameof(Index));
-                }
-                catch (Exception)
-                {
-                    if (await _campaignService.GetCampaignByIdAsync(id) == null)
-                    {
-                        return NotFound();
-                    }
-                    throw;
-                }
-            }
-            return View(campaign);
-        }
-        [HttpGet]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var campaign = await _campaignService.GetCampaignByIdAsync(id);
-            if (campaign == null)
-            {
-                return NotFound();
+                try { await _campaignService.UpdateCampaignAsync(campaign); return RedirectToAction(nameof(Index)); }
+                catch (Exception) { if (await _campaignService.GetCampaignByIdAsync(id) == null) return NotFound(); throw; }
             }
             return View(campaign);
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> ArchiveCampaign(int id)
         {
-            await _campaignService.DeleteCampaignAsync(id);
+            var campaign = await _campaignService.GetCampaignByIdAsync(id);
+            if (campaign == null) return NotFound();
+            campaign.IsArchived = true;
+            campaign.ArchivedAt = DateTime.UtcNow;
+            await _campaignService.UpdateCampaignAsync(campaign);
+            TempData["Success"] = $"\"{campaign.Name}\" has been archived.";
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnarchiveCampaign(int id)
+        {
+            var campaign = await _campaignService.GetCampaignByIdAsync(id);
+            if (campaign == null) return NotFound();
+            campaign.IsArchived = false;
+            campaign.ArchivedAt = null;
+            await _campaignService.UpdateCampaignAsync(campaign);
+            TempData["Success"] = $"\"{campaign.Name}\" has been restored.";
+            return RedirectToAction(nameof(Index), new { archived = true });
         }
     }
 }

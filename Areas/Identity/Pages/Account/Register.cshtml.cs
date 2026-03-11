@@ -63,6 +63,28 @@ namespace ClientSphere.Areas.Identity.Pages.Account
             [Required]
             [Display(Name = "Role")]
             public string Role { get; set; } = "Customer";
+
+            // Address Fields
+            [Required]
+            [Display(Name = "Address (Street/Building)")]
+            public string Address { get; set; } = string.Empty;
+
+            [Required]
+            public string Region { get; set; } = string.Empty;
+
+            [Required]
+            public string Province { get; set; } = string.Empty;
+
+            [Required]
+            public string City { get; set; } = string.Empty;
+
+            [Required]
+            public string Barangay { get; set; } = string.Empty;
+
+            [Required]
+            [Phone]
+            [Display(Name = "Phone Number")]
+            public string PhoneNumber { get; set; } = string.Empty;
         }
 
         public async Task OnGetAsync(string? returnUrl = null)
@@ -86,7 +108,13 @@ namespace ClientSphere.Areas.Identity.Pages.Account
                     LastName = Input.LastName,
                     CompanyName = Input.CompanyName,
                     EmailConfirmed = true,
-                    CreatedAt = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow,
+                    Address = Input.Address,
+                    Region = Input.Region,
+                    Province = Input.Province,
+                    City = Input.City,
+                    Barangay = Input.Barangay,
+                    PhoneNumber = Input.PhoneNumber
                 };
 
                 var result = await _userManager.CreateAsync(user, Input.Password);

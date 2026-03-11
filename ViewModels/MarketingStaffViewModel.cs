@@ -26,4 +26,27 @@ namespace ClientSphere.ViewModels
         public double ResponseRate { get; set; }
         public string ManagedBy { get; set; } = string.Empty;
     }
+
+    // ─── Marketing Manager (team-level) ────────────────────────────────
+    public class MarketingManagerDashboardViewModel
+    {
+        public int TotalCampaigns { get; set; }
+        public int ActiveCampaigns { get; set; }
+        public int CompletedCampaigns { get; set; }
+        public int TotalRecipients { get; set; }
+        public int TotalConversions { get; set; }
+        public double AvgResponseRate { get; set; }
+        public decimal TotalBudget { get; set; }
+        public int TeamMemberCount { get; set; }
+        public List<CampaignTypeStats> CampaignsByType { get; set; } = new();
+        public List<CampaignStaffViewModel> RecentCampaigns { get; set; } = new();
+    }
+
+    public class CampaignTypeStats
+    {
+        public string Type { get; set; } = string.Empty;
+        public int Count { get; set; }
+        public decimal TotalBudget { get; set; }
+        public int Conversions { get; set; }
+    }
 }

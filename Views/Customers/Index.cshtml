@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ClientSphere.Models.Customer>
+@model IEnumerable<ClientSphere.Models.Customer>
 
 @{
     ViewData["Title"] = "Customer Master Data";
@@ -8,29 +8,25 @@
 }
 
 @{
-    var isArchived = Context.Request.Query["archived"].ToString() == "1";
+    var isArchived = Context.Request.Query["archived"].ToString().ToLower() == "true";
 }
 
 <div class="container-fluid p-0">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <div>
+    <div>
             <p class="text-muted mb-0">Centralized repository for all customer information</p>
         </div>
-        <a asp-action="Create" class="btn btn-primary px-4">
-            <i class="bi bi-plus-lg me-2"></i>Add New Customer
-        </a>
     </div>
 
     <!-- Archive Tab Nav -->
     <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
-            <a class="nav-link @(!isArchived ? "active fw-bold" : "")" href="?archived=0">
+            <a class="nav-link @(!isArchived ? "active fw-bold" : "")" href="?archived=false">
                 <i class="bi bi-person-check me-1"></i> Active Customers
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link @(isArchived ? "active fw-bold" : "")" href="?archived=1">
+            <a class="nav-link @(isArchived ? "active fw-bold" : "")" href="?archived=true">
                 <i class="bi bi-person-slash me-1"></i> Inactive
             </a>
         </li>
@@ -59,7 +55,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Active</div>
-                        <h3 class="fw-bold mb-0 text-success">@Model.Count()</h3> <!-- Mocked as all active for now -->
+                        <h3 class="fw-bold mb-0 text-dark">@Model.Count()</h3> <!-- Mocked as all active for now -->
                     </div>
                 </div>
             </div>
@@ -72,7 +68,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Inactive</div>
-                        <h3 class="fw-bold mb-0 text-danger">0</h3>
+                        <h3 class="fw-bold mb-0 text-dark">0</h3>
                     </div>
                 </div>
             </div>
@@ -85,7 +81,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">New This Month</div>
-                        <h3 class="fw-bold mb-0 text-info">@Model.Count(c => c.CreatedAt.Month == DateTime.Now.Month && c.CreatedAt.Year == DateTime.Now.Year)</h3>
+                        <h3 class="fw-bold mb-0 text-dark">@Model.Count(c => c.CreatedAt.Month == DateTime.Now.Month && c.CreatedAt.Year == DateTime.Now.Year)</h3>
                     </div>
                 </div>
             </div>
@@ -193,9 +189,6 @@
                                 </form>
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-light btn-sm text-muted" title="Edit">
                                     <i class="bi bi-pencil"></i>
-                                </a>
-                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-light btn-sm text-muted" title="Delete">
-                                    <i class="bi bi-trash"></i>
                                 </a>
                             </div>
                         </div>

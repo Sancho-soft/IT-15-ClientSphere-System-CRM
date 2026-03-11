@@ -102,22 +102,14 @@ namespace ClientSphere.Services
             // Avg Deal Size (All Time or MTD? Let's do MTD)
             decimal avgDealSize = mtdDeals > 0 ? mtdRevenue / mtdDeals : 0;
 
-            // Pending High Value Deals (> $5000 and Pending/Processing)
-            var highValue = await _context.Orders
-                .Where(o => o.TotalAmount > 5000 && (o.Status == OrderStatus.Pending || o.Status == OrderStatus.Processing))
-                .OrderByDescending(o => o.TotalAmount)
-                .Take(5)
-                .ToListAsync();
-
             return new SalesManagerStats
             {
                 TotalRevenueMTD = mtdRevenue,
                 RevenueGrowth = Math.Round(growth, 1),
-                QuotaAchievement = 85.0m, // Hardcoded for now as Quotas aren't in DB
+                QuotaAchievement = 85.0m,
                 DealsClosedMTD = mtdDeals,
                 DealsGrowth = Math.Round(dealGrowth, 1),
-                AvgDealSize = Math.Round(avgDealSize, 2),
-                PendingHighValueDeals = highValue
+                AvgDealSize = Math.Round(avgDealSize, 2)
             };
         }
     }

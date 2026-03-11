@@ -1,4 +1,4 @@
-﻿@model ClientSphere.ViewModels.UserManagementViewModel
+@model ClientSphere.ViewModels.UserManagementViewModel
 @{
     ViewData["Title"] = "User Management";
     ViewData["HideTopNavTitle"] = true;
@@ -29,7 +29,7 @@
                 </div>
                 <div>
                     <div class="text-muted small">Admins</div>
-                    <h3 class="fw-bold mb-0 text-primary">@Model.AdminCount</h3>
+                    <h3 class="fw-bold mb-0 text-dark">@Model.AdminCount</h3>
                 </div>
             </div>
         </div>
@@ -42,7 +42,7 @@
                 </div>
                 <div>
                     <div class="text-muted small">Sales</div>
-                    <h3 class="fw-bold mb-0 text-info">@Model.SalesTeamCount</h3>
+                    <h3 class="fw-bold mb-0 text-dark">@Model.SalesTeamCount</h3>
                 </div>
             </div>
         </div>
@@ -55,7 +55,7 @@
                 </div>
                 <div>
                     <div class="text-muted small">Support</div>
-                    <h3 class="fw-bold mb-0 text-success">@Model.SupportTeamCount</h3>
+                    <h3 class="fw-bold mb-0 text-dark">@Model.SupportTeamCount</h3>
                 </div>
             </div>
         </div>
@@ -68,7 +68,7 @@
                 </div>
                 <div>
                     <div class="text-muted small">Active</div>
-                    <h3 class="fw-bold mb-0 text-success">@Model.ActiveUsers</h3>
+                    <h3 class="fw-bold mb-0 text-dark">@Model.ActiveUsers</h3>
                 </div>
             </div>
         </div>
@@ -112,13 +112,30 @@
                                     </div>
                                 </div>
                             </td>
-                            <td><span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3 py-2 fw-normal" style="font-size: 0.8rem;">@user.Role</span></td>
+                            <td><span class="badge bg-secondary bg-opacity-10 text-dark rounded-pill px-3 py-2 fw-normal" style="font-size: 0.8rem;">@user.Role</span></td>
                             <td><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-normal" style="font-size: 0.8rem;">@user.Status</span></td>
                             <td class="text-muted small" style="font-size: 0.85rem;">@user.LastActiveDisplay</td>
                             <td class="text-end">
                                 <a asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-sm btn-link text-primary text-decoration-none px-2" title="Edit User"><i class="bi bi-pencil-square"></i></a>
                                 <a asp-action="ResetPassword" asp-route-userId="@user.Id" class="btn btn-sm btn-link text-warning text-decoration-none px-2" title="Reset Password"><i class="bi bi-key"></i></a>
-                                <a asp-action="DeleteUser" asp-route-id="@user.Id" class="btn btn-sm btn-link text-danger text-decoration-none px-2" title="Delete User"><i class="bi bi-trash"></i></a>
+                                @if (user.Status == "Active")
+                                {
+                                    <form asp-action="DeactivateUser" asp-route-id="@user.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-link text-danger text-decoration-none px-2" title="Deactivate User" onclick="return confirm('Deactivate this user? They will be locked out.')">
+                                            <i class="bi bi-person-slash"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="ReactivateUser" asp-route-id="@user.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-link text-success text-decoration-none px-2" title="Reactivate User">
+                                            <i class="bi bi-person-check"></i>
+                                        </button>
+                                    </form>
+                                }
                             </td>
                         </tr>
                     }

@@ -1,0 +1,77 @@
+@model IEnumerable<ClientSphere.Models.Lead>
+@{
+    ViewData["Title"] = "All Team Leads";
+    ViewData["HideTopNavTitle"] = true;
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "AllLeads";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">All Team Leads</h2>
+        <p class="text-muted mb-0">Full overview of all leads across the entire sales team.</p>
+    </div>
+    <a asp-controller="SalesManager" asp-action="Dashboard" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Name</th>
+                        <th>Company</th>
+                        <th>Status</th>
+                        <th>Source</th>
+                        <th>Assigned To</th>
+                        <th>Date Added</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-people display-4 mb-3 d-block"></i>
+                                <h5>No leads found</h5>
+                                <p>Leads created by Sales Staff will appear here.</p>
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var lead in Model)
+                    {
+                        <tr>
+                            <td class="ps-4">
+                                <div class="fw-bold">@lead.FirstName @lead.LastName</div>
+                                <div class="text-muted small">@lead.Email</div>
+                            </td>
+                            <td>@lead.Company</td>
+                            <td>
+                                @if(lead.Status == "New") { <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3">New</span> }
+                                else if(lead.Status == "Contacted") { <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Contacted</span> }
+                                else if(lead.Status == "Qualified") { <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Qualified</span> }
+                                else { <span class="badge bg-secondary text-light rounded-pill px-3">@lead.Status</span> }
+                            </td>
+                            <td>@lead.Source</td>
+                            <td>
+                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3">
+                                    <i class="bi bi-person me-1"></i>@(string.IsNullOrEmpty(lead.AssignedToUserId) ? "Unassigned" : $"Staff {lead.AssignedToUserId.Substring(0, 6)}...")
+                                </span>
+                            </td>
+                            <td>@lead.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td class="text-end pe-4">
+                                <a asp-controller="SalesManager" asp-action="EditLead" asp-route-id="@lead.Id" class="btn btn-sm btn-outline-primary" title="Edit & Reassign">
+                                    <i class="bi bi-pencil-square me-1"></i>Edit
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

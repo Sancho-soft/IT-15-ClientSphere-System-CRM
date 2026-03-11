@@ -10,6 +10,5 @@ namespace ClientSphere.Services
         public int DealsClosedMTD { get; set; }
         public double DealsGrowth { get; set; }
         public decimal AvgDealSize { get; set; }
-        public List<Models.Order> PendingHighValueDeals { get; set; }
     }
 }

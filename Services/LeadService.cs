@@ -13,6 +13,13 @@ namespace ClientSphere.Services
             _context = context;
         }
 
+        public async Task<IEnumerable<Lead>> GetAllLeadsAsync()
+        {
+            return await _context.Leads
+                .OrderByDescending(l => l.CreatedAt)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<Lead>> GetLeadsBySalesStaffAsync(string userId)
         {
             return await _context.Leads

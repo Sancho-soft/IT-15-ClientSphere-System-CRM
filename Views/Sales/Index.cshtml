@@ -1,4 +1,4 @@
-﻿@model ClientSphere.ViewModels.SalesDashboardViewModel
+@model ClientSphere.ViewModels.SalesDashboardViewModel
 
 @{
     ViewData["Title"] = "Sales Management";
@@ -8,7 +8,7 @@
 }
 
 @{
-    var isSalesArchived = Context.Request.Query["archived"].ToString() == "1";
+    var isSalesArchived = Context.Request.Query["archived"].ToString().ToLower() == "true";
 }
 
 <div class="container-fluid p-0">
@@ -26,12 +26,12 @@
     <!-- Status Tabs -->
     <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
-            <a class="nav-link @(!isSalesArchived ? "active fw-bold" : "")" href="?archived=0">
+            <a class="nav-link @(!isSalesArchived ? "active fw-bold" : "")" href="?archived=false">
                 <i class="bi bi-graph-up me-1"></i> Active Orders
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link @(isSalesArchived ? "active fw-bold" : "")" href="?archived=1">
+            <a class="nav-link @(isSalesArchived ? "active fw-bold" : "")" href="?archived=true">
                 <i class="bi bi-archive me-1"></i> Archived
             </a>
         </li>
@@ -47,7 +47,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Total Revenue</div>
-                        <h3 class="fw-bold mb-0 text-success">&#8369;@Model.TotalRevenue.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0 text-dark">&#8369;@Model.TotalRevenue.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -60,7 +60,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Pending</div>
-                        <h3 class="fw-bold mb-0 text-warning">&#8369;@Model.PendingRevenue.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0 text-dark">&#8369;@Model.PendingRevenue.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -73,7 +73,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Total Sales</div>
-                        <h3 class="fw-bold mb-0 text-primary">@Model.TotalSalesCount</h3>
+                        <h3 class="fw-bold mb-0 text-dark">@Model.TotalSalesCount</h3>
                     </div>
                 </div>
             </div>
@@ -86,7 +86,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Avg Deal Size</div>
-                        <h3 class="fw-bold mb-0 text-info">&#8369;@Model.AvgDealSize.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0 text-dark">&#8369;@Model.AvgDealSize.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -149,15 +149,15 @@
                                 <td>
                                     @if(item.Status == ClientSphere.Models.OrderStatus.Completed)
                                     {
-                                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3"><i class="bi bi-check-circle me-1"></i> Completed</span>
+                                        <span class="badge bg-light text-dark border rounded-pill px-3"><i class="bi bi-check-circle me-1 text-muted"></i> Completed</span>
                                     }
                                     else if(item.Status == ClientSphere.Models.OrderStatus.Pending)
                                     {
-                                        <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3"><i class="bi bi-clock me-1"></i> Pending</span>
+                                        <span class="badge bg-light text-dark border rounded-pill px-3"><i class="bi bi-clock me-1 text-muted"></i> Pending</span>
                                     }
                                     else if(item.Status == ClientSphere.Models.OrderStatus.Cancelled)
                                     {
-                                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3"><i class="bi bi-x-circle me-1"></i> Cancelled</span>
+                                        <span class="badge bg-light text-dark border rounded-pill px-3"><i class="bi bi-x-circle me-1 text-muted"></i> Cancelled</span>
                                     }
                                     else
                                     {

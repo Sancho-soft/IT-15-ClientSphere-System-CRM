@@ -1,4 +1,4 @@
-﻿@model ClientSphere.Models.Invoice
+@model ClientSphere.Models.Invoice
 
 @{
     ViewData["Title"] = "Create Invoice";
@@ -8,11 +8,7 @@
 }
 
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800">Create Invoice</h1>
-            <p class="text-muted small">Generate a new invoice for a customer.</p>
-        </div>
+    <div class="d-flex justify-content-end align-items-center mb-4">
         <a asp-action="Index" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Back to List
         </a>
@@ -70,8 +66,9 @@
                     <div class="col-md-4">
                          <label asp-for="Status" class="form-label fw-bold"></label>
                         <select asp-for="Status" class="form-select">
-                            <option value="Draft">Draft</option>
-                            <option value="Sent">Sent</option>
+                            <option value="Unpaid">Unpaid</option>
+                            <option value="Processing">Processing</option>
+                            <option value="Partial">Partial</option>
                             <option value="Paid">Paid</option>
                             <option value="Overdue">Overdue</option>
                             <option value="Cancelled">Cancelled</option>
@@ -82,8 +79,12 @@
                          <label asp-for="PaymentMethod" class="form-label fw-bold">Payment Method</label>
                         <select asp-for="PaymentMethod" class="form-select">
                             <option value="">-- Select Method --</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Credit Card">Credit Card</option>
                             <option value="GCash">GCash</option>
                             <option value="PayMaya">PayMaya</option>
+                            <option value="Manual">Manual</option>
+                            <option value="PayMongo">PayMongo</option>
                         </select>
                         <span asp-validation-for="PaymentMethod" class="text-danger small"></span>
                     </div>

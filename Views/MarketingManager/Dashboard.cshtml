@@ -1,0 +1,232 @@
+@model ClientSphere.ViewModels.MarketingManagerDashboardViewModel
+
+@{
+    ViewData["Title"] = "Marketing Manager Dashboard";
+    ViewData["HideTopNavTitle"] = true;
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "Dashboard";
+}
+
+<div class="container-fluid p-0">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Marketing Team Dashboard</h3>
+            <p class="text-muted mb-0">Full overview of all campaigns and team performance</p>
+        </div>
+        <a asp-controller="Marketing" asp-action="Create" class="btn btn-primary px-4">
+            <i class="bi bi-plus-lg me-2"></i>New Campaign
+        </a>
+    </div>
+
+    <!-- Stats Cards Row 1 -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
+                        <i class="bi bi-megaphone h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Campaigns</div>
+                        <h3 class="fw-bold mb-0 text-dark">@Model.TotalCampaigns</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-success bg-opacity-10 text-success rounded-3 p-3 me-3">
+                        <i class="bi bi-broadcast h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Active Campaigns</div>
+                        <h3 class="fw-bold mb-0 text-dark">@Model.ActiveCampaigns</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-info bg-opacity-10 text-info rounded-3 p-3 me-3">
+                        <i class="bi bi-people h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Recipients</div>
+                        <h3 class="fw-bold mb-0 text-dark">@Model.TotalRecipients.ToString("N0")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-warning bg-opacity-10 text-warning rounded-3 p-3 me-3">
+                        <i class="bi bi-graph-up-arrow h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Avg Response Rate</div>
+                        <h3 class="fw-bold mb-0 text-dark">@Model.AvgResponseRate%</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards Row 2 -->
+    <div class="row mb-4 g-3">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-secondary bg-opacity-10 text-secondary rounded-3 p-3 me-3">
+                        <i class="bi bi-check2-circle h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Completed Campaigns</div>
+                        <h3 class="fw-bold mb-0">@Model.CompletedCampaigns</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-success bg-opacity-10 text-success rounded-3 p-3 me-3">
+                        <i class="bi bi-currency-dollar h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Conversions</div>
+                        <h3 class="fw-bold mb-0 text-dark">@Model.TotalConversions.ToString("N0")</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="d-flex align-items-center">
+                    <div class="icon-shape bg-primary bg-opacity-10 text-primary rounded-3 p-3 me-3">
+                        <i class="bi bi-person-workspace h4 mb-0"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Team Members</div>
+                        <h3 class="fw-bold mb-0 text-dark">@Model.TeamMemberCount</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Campaign by Type breakdown -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-pie-chart me-2 text-primary"></i>Campaigns by Type</h5>
+                </div>
+                <div class="card-body px-4 pb-4">
+                    @if (!Model.CampaignsByType.Any())
+                    {
+                        <p class="text-muted text-center py-4">No campaigns yet.</p>
+                    }
+                    else
+                    {
+                        @foreach (var type in Model.CampaignsByType)
+                        {
+                            var pct = Model.TotalCampaigns > 0 ? (double)type.Count / Model.TotalCampaigns * 100 : 0;
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-medium">@type.Type</span>
+                                    <span class="text-muted small">@type.Count campaign(s) &bull; @type.Conversions conversions</span>
+                                </div>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" style="width: @pct.ToString("0.0")%"></div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-clock-history me-2 text-warning"></i>Recent Campaigns</h5>
+                    <a asp-controller="Marketing" asp-action="Index" class="btn btn-sm btn-outline-primary rounded-pill px-3">View All</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4 small">Campaign</th>
+                                    <th class="small">Type</th>
+                                    <th class="small">Status</th>
+                                    <th class="small text-end pe-4">Response Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.RecentCampaigns.Any())
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">No campaigns found.</td>
+                                    </tr>
+                                }
+                                @foreach (var c in Model.RecentCampaigns)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            <div class="fw-semibold">@c.Name</div>
+                                            <div class="text-muted small">@c.CampaignId &bull; @c.StartDate.ToString("MMM d, yyyy")</div>
+                                        </td>
+                                        <td><span class="badge bg-secondary bg-opacity-10 text-dark rounded-pill px-2">@c.Type</span></td>
+                                        <td>
+                                            @if (c.Status == "Active")
+                                            { <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2">Active</span> }
+                                            else if (c.Status == "Completed")
+                                            { <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-2">Completed</span> }
+                                            else
+                                            { <span class="badge bg-light text-dark rounded-pill px-2">@c.Status</span> }
+                                        </td>
+                                        <td class="text-end pe-4 fw-bold @(c.ResponseRate > 10 ? "text-success" : "text-muted")">@c.ResponseRate%</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions bottom row -->
+    <div class="row g-3 mt-3">
+        <div class="col-md-4">
+            <a asp-controller="Marketing" asp-action="Index" class="card border-0 shadow-sm text-decoration-none hover-lift">
+                <div class="card-body d-flex align-items-center gap-3 p-3">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-3"><i class="bi bi-grid h4 mb-0"></i></div>
+                    <div><div class="fw-bold">All Campaigns</div><div class="text-muted small">View and manage team campaigns</div></div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Marketing" asp-action="Create" class="card border-0 shadow-sm text-decoration-none hover-lift">
+                <div class="card-body d-flex align-items-center gap-3 p-3">
+                    <div class="bg-success bg-opacity-10 text-success rounded-3 p-3"><i class="bi bi-plus-circle h4 mb-0"></i></div>
+                    <div><div class="fw-bold">Create Campaign</div><div class="text-muted small">Launch a new marketing campaign</div></div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-4">
+            <a asp-controller="Customers" asp-action="Index" class="card border-0 shadow-sm text-decoration-none hover-lift">
+                <div class="card-body d-flex align-items-center gap-3 p-3">
+                    <div class="bg-info bg-opacity-10 text-info rounded-3 p-3"><i class="bi bi-people h4 mb-0"></i></div>
+                    <div><div class="fw-bold">Customers</div><div class="text-muted small">View customer target list</div></div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace ClientSphere.Controllers
 {
@@ -15,12 +16,14 @@ namespace ClientSphere.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ISupportService _supportService;
+        private readonly IPaymongoService _paymongoService;
 
-        public CustomerPortalController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ISupportService supportService)
+        public CustomerPortalController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ISupportService supportService, IPaymongoService paymongoService)
         {
             _context = context;
             _userManager = userManager;
             _supportService = supportService;
+            _paymongoService = paymongoService;
         }
 
         public async Task<IActionResult> Dashboard()
@@ -193,8 +196,87 @@ namespace ClientSphere.Controllers
             {
                 invoice.Status = "Paid"; 
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Invoice successfully archived (Paid).";
+                TempData["SuccessMessage"] = "Invoice successfully archived (Paid)."; 
             }
+            return RedirectToAction(nameof(MyInvoices));
+        }
+
+        // POST: CustomerPortal/PayWithPaymongo
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> PayWithPaymongo(int id)
+        {
+            try
+            {
+                var userName = User.Identity?.Name;
+                var customer = !string.IsNullOrEmpty(userName)
+                    ? _context.Customers.FirstOrDefault(c => c.Email == userName)
+                    : null;
+                if (customer == null) return NotFound();
+
+                var invoice = await _context.Invoices
+                    .Include(i => i.Customer)
+                    .FirstOrDefaultAsync(i => i.Id == id && i.CustomerId == customer.Id);
+
+                if (invoice == null) return NotFound();
+
+                // Only allow payment of non-paid invoices
+                if (invoice.Status == "Paid" || invoice.Status == "Cancelled")
+                {
+                    TempData["ErrorMessage"] = "This invoice has already been settled.";
+                    return RedirectToAction(nameof(MyInvoices));
+                }
+
+                // Build a success URL that carries the invoice ID so PaymentSuccess can update the DB
+                var baseSuccessUrl = Url.Action(nameof(PaymentSuccess), "CustomerPortal", null, Request.Scheme);
+                var customSuccessUrl = $"{baseSuccessUrl}?invoiceId={invoice.Id}";
+
+                var paymentUrl = await _paymongoService.CreatePaymentLinkAsync(invoice, customSuccessUrl);
+                return Redirect(paymentUrl);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Payment could not be initiated: {ex.Message}";
+                return RedirectToAction(nameof(MyInvoices));
+            }
+        }
+
+        // GET: CustomerPortal/PaymentSuccess
+        public async Task<IActionResult> PaymentSuccess(int? invoiceId)
+        {
+            if (invoiceId.HasValue)
+            {
+                var userName = User.Identity?.Name;
+                var customer = !string.IsNullOrEmpty(userName)
+                    ? _context.Customers.FirstOrDefault(c => c.Email == userName)
+                    : null;
+
+                if (customer != null)
+                {
+                    var invoice = await _context.Invoices
+                        .FirstOrDefaultAsync(i => i.Id == invoiceId.Value && i.CustomerId == customer.Id);
+
+                    if (invoice != null && invoice.Status != "Paid")
+                    {
+                        // Set to Processing — billing staff will review and confirm as Paid
+                        invoice.Status = "Processing";
+                        if (string.IsNullOrEmpty(invoice.PaymentMethod) || invoice.PaymentMethod == "PayMongo")
+                        {
+                            invoice.PaymentMethod = "PayMongo";
+                        }
+                        await _context.SaveChangesAsync();
+                    }
+                }
+            }
+
+            TempData["SuccessMessage"] = "Payment submitted! Your invoice is being reviewed by our billing team.";
+            return RedirectToAction(nameof(MyInvoices));
+        }
+
+        // GET: CustomerPortal/PaymentCancelled
+        public IActionResult PaymentCancelled()
+        {
+            TempData["ErrorMessage"] = "Payment was cancelled. Please try again if needed.";
             return RedirectToAction(nameof(MyInvoices));
         }
 

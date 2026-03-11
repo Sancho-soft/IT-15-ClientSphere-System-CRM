@@ -25,5 +25,7 @@ namespace ClientSphere.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
+        public bool IsArchived { get; set; } = false;
+        public DateTime? ArchivedAt { get; set; }
     }
 }

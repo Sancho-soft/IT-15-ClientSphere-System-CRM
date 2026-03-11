@@ -34,7 +34,8 @@ html {
 
 body {
   margin-bottom: 0;
-  background-color: #f5f4f0;
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
 }
 
 .form-floating>.form-control-plaintext::placeholder,
@@ -55,4 +56,195 @@ body {
 .hover-lift:hover {
   transform: translateY(-4px);
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ============================================================
+   BLUE-ISH DARK THEME
+   ============================================================ */
+[data-bs-theme="dark"] {
+  /* Main backgrounds - deep navy blue */
+  --bs-body-bg: #0d1b2e;
+  --bs-body-bg-rgb: 13, 27, 46;
+  /* Secondary background - slightly lighter navy */
+  --bs-secondary-bg: #122240;
+  --bs-secondary-bg-rgb: 18, 34, 64;
+  /* Tertiary background - card/panel color */
+  --bs-tertiary-bg: #1a2f50;
+  --bs-tertiary-bg-rgb: 26, 47, 80;
+  /* Text colors */
+  --bs-body-color: #cdd9ea;
+  --bs-body-color-rgb: 205, 217, 234;
+  --bs-secondary-color: #8da5c4;
+  /* Borders */
+  --bs-border-color: #253a5e;
+  --bs-border-color-translucent: rgba(37, 58, 94, 0.7);
+  /* Cards */
+  --bs-card-bg: #122240;
+  --bs-card-cap-bg: #1a2f50;
+  /* Tables */
+  --bs-table-bg: transparent;
+  --bs-table-color: #cdd9ea;
+  --bs-table-border-color: #253a5e;
+  --bs-table-striped-bg: #1a2f50;
+  --bs-table-hover-bg: #1e3460;
+  --bs-table-active-bg: #1e3460;
+  /* Primary subtle (for nav hover) */
+  --bs-primary-bg-subtle: #1a3a6e;
+  --bs-primary-text-emphasis: #5b9cff;
+  /* Input */
+  --bs-form-control-bg: #0d1b2e;
+  --bs-input-bg: #0f2040;
+}
+
+/* Sidebar and topbar in dark mode */
+[data-bs-theme="dark"] .sidebar {
+  background-color: #0a1628 !important;
+  border-color: #1e3256 !important;
+}
+
+[data-bs-theme="dark"] header.border-bottom,
+[data-bs-theme="dark"] .border-bottom {
+  border-color: #253a5e !important;
+}
+
+/* Fix hardcoded bg-white → transparent in dark mode */
+[data-bs-theme="dark"] .bg-white {
+  background-color: #122240 !important;
+  color: #cdd9ea !important;
+}
+
+/* Fix table headers that use bg-white */
+[data-bs-theme="dark"] thead.bg-white,
+[data-bs-theme="dark"] .table thead.bg-white {
+  background-color: #1a2f50 !important;
+  color: #cdd9ea !important;
+}
+
+/* Fix table-light class */
+[data-bs-theme="dark"] .table-light,
+[data-bs-theme="dark"] .table-light>td,
+[data-bs-theme="dark"] .table-light>th,
+[data-bs-theme="dark"] thead.table-light,
+[data-bs-theme="dark"] thead.table-light>tr>th {
+  background-color: #1a2f50 !important;
+  color: #cdd9ea !important;
+}
+
+/* Fix all tables */
+[data-bs-theme="dark"] .table {
+  color: #cdd9ea;
+  border-color: #253a5e;
+}
+
+[data-bs-theme="dark"] .table th,
+[data-bs-theme="dark"] .table td {
+  border-color: #253a5e;
+  color: #cdd9ea;
+}
+
+/* Fix bg-light */
+[data-bs-theme="dark"] .bg-light {
+  background-color: #122240 !important;
+  color: #cdd9ea !important;
+}
+
+/* Fix cards */
+[data-bs-theme="dark"] .card {
+  background-color: #122240;
+  border-color: #253a5e;
+}
+
+[data-bs-theme="dark"] .card-header,
+[data-bs-theme="dark"] .card-footer {
+  background-color: #1a2f50;
+  border-color: #253a5e;
+}
+
+/* Fix form controls */
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+  background-color: #0f2040;
+  border-color: #253a5e;
+  color: #cdd9ea;
+}
+
+[data-bs-theme="dark"] .form-control:disabled,
+[data-bs-theme="dark"] .form-control[readonly] {
+  background-color: #0d1b2e;
+  color: #8da5c4;
+}
+
+/* Fix input group */
+[data-bs-theme="dark"] .input-group-text {
+  background-color: #1a2f50;
+  border-color: #253a5e;
+  color: #cdd9ea;
+}
+
+/* Fix sidebar bottom panel */
+[data-bs-theme="dark"] .sidebar .border-top,
+[data-bs-theme="dark"] .p-3.border-top {
+  background-color: #0a1628;
+  border-color: #1e3256 !important;
+}
+
+/* Fix success/danger/info subtle badges in dark */
+[data-bs-theme="dark"] .bg-success-subtle {
+  background-color: #0d2e1d !important;
+}
+
+[data-bs-theme="dark"] .text-success {
+  color: #4ade80 !important;
+}
+
+[data-bs-theme="dark"] .bg-danger-subtle {
+  background-color: #2e0d13 !important;
+}
+
+[data-bs-theme="dark"] .bg-warning-subtle {
+  background-color: #2e2108 !important;
+}
+
+[data-bs-theme="dark"] .bg-info-subtle {
+  background-color: #0d1e35 !important;
+}
+
+[data-bs-theme="dark"] .bg-secondary-subtle {
+  background-color: #1a2f50 !important;
+}
+
+[data-bs-theme="dark"] .text-secondary {
+  color: #8da5c4 !important;
+}
+
+[data-bs-theme="dark"] .text-muted {
+  color: #7a97b8 !important;
+}
+
+/* Nav tabs in dark */
+[data-bs-theme="dark"] .nav-tabs {
+  border-color: #253a5e;
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link {
+  color: #8da5c4;
+}
+
+[data-bs-theme="dark"] .nav-tabs .nav-link.active {
+  background-color: #122240;
+  border-color: #253a5e #253a5e #122240;
+  color: #5b9cff;
+}
+
+/* Alert overrides */
+[data-bs-theme="dark"] .alert-success {
+  background-color: #0d2e1d;
+  border-color: #1a5c38;
+  color: #4ade80;
+}
+
+[data-bs-theme="dark"] .alert-danger {
+  background-color: #2e0d13;
+  border-color: #7f1d2e;
+  color: #f87171;
 }

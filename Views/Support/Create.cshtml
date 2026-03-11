@@ -7,11 +7,7 @@
 }
 
 <div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800">Create Support Ticket</h1>
-            <p class="text-muted small">Open a new support ticket for a customer.</p>
-        </div>
+    <div class="d-flex justify-content-end align-items-center mb-4">
         <a asp-action="Index" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Back to List
         </a>
@@ -19,7 +15,7 @@
 
     <div class="card border-0 shadow-sm">
         <div class="card-body">
-            <form asp-action="Create">
+            <form asp-action="Create" enctype="multipart/form-data">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 <div class="row mb-3">
@@ -63,6 +59,12 @@
                     <label asp-for="Description" class="form-label fw-bold"></label>
                     <textarea asp-for="Description" class="form-control" rows="5" placeholder="Detailed description of the issue..."></textarea>
                     <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Attachment (Optional)</label>
+                    <input type="file" name="attachment" class="form-control" accept="image/*" />
+                    <div class="form-text">Upload a screenshot or image related to the issue.</div>
                 </div>
 
                 <div class="d-flex justify-content-end">

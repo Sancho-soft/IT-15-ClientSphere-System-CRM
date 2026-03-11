@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ClientSphere.Models.Opportunity>
+@model IEnumerable<ClientSphere.Models.Opportunity>
 @{
     ViewData["Title"] = "My Opportunities";
     ViewData["HideTopNavTitle"] = true;
@@ -47,7 +47,16 @@
                             <td class="text-end fw-bold">&#8369;@opp.EstimatedValue.ToString("N0")</td>
                             <td>@opp.ExpectedCloseDate.ToString("MMM dd, yyyy")</td>
                             <td class="text-end pe-4">
-                                <a asp-controller="SalesStaff" asp-action="EditOpportunity" asp-route-id="@opp.Id" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
+                                <a asp-controller="SalesStaff" asp-action="EditOpportunity" asp-route-id="@opp.Id" class="btn btn-sm btn-outline-primary me-1" title="Edit Opportunity"><i class="bi bi-pencil"></i></a>
+                                @if(opp.Stage != "Closed Won" && opp.Stage != "Closed Lost")
+                                {
+                                    <form asp-controller="SalesStaff" asp-action="WinDeal" asp-route-id="@opp.Id" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Mark as Closed Won" onclick="return confirm('Win this deal? This marks the opportunity as Closed Won!');">
+                                            <i class="bi bi-trophy"></i> Win Deal
+                                        </button>
+                                    </form>
+                                }
                             </td>
                         </tr>
                     }

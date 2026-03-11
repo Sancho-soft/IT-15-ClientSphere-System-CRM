@@ -1,4 +1,5 @@
 ﻿@model ClientSphere.Models.Customer
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 @{
     ViewData["Title"] = "Customer Details";
@@ -95,6 +96,14 @@
                             <div class="fw-semibold">@(string.IsNullOrEmpty(Model.Country) ? "—" : Model.Country)</div>
                         </div>
                     </div>
+
+                    <!-- Mapbox Map Integration -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="text-muted small mb-2 fw-bold">Location Map</div>
+                            <div id="map" style="width: 100%; height: 300px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -131,3 +140,63 @@
     </div>
 </div>
 
+@section Scripts {
+    <!-- Leaflet JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        .leaflet-container {
+            font-family: inherit;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Combine address fields for geocoding
+            var addressQuery = '@Html.Raw(Model.Address) @Html.Raw(Model.City) @Html.Raw(Model.Country)'.trim();
+            
+            if (!addressQuery || addressQuery === '') {
+                 document.getElementById('map').innerHTML = '<div class="d-flex h-100 justify-content-center align-items-center bg-light text-muted small">No address available to map.</div>';
+                 return;
+            }
+
+            // Using Nominatim (OpenStreetMap's free geocoding service)
+            // Note: Nominatim requires a User-Agent, and requests should be limited to 1 per second.
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressQuery)}`, {
+                headers: {
+                    'Accept-Language': 'en-US,en;q=0.9'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    // Nominatim returns lat/lon as strings
+                    var lat = parseFloat(data[0].lat);
+                    var lon = parseFloat(data[0].lon);
+                    
+                    // Initialize the map
+                    var map = L.map('map').setView([lat, lon], 14);
+
+                    // Add the free OpenStreetMap tiles
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
+
+                    // Add a marker at the address
+                    var popupContent = '<h6>@Html.Raw(Model.CompanyName)</h6><p class="small mb-0">@Html.Raw(Model.Address)</p>';
+                    L.marker([lat, lon]).addTo(map)
+                        .bindPopup(popupContent)
+                        .openPopup();
+                } else {
+                     document.getElementById('map').innerHTML = '<div class="d-flex h-100 justify-content-center align-items-center bg-light text-muted small">Could not locate address on map.</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching geocode from Nominatim:', error);
+                document.getElementById('map').innerHTML = '<div class="d-flex h-100 justify-content-center align-items-center bg-light text-muted small">Error loading map location.</div>';
+            });
+        });
+    </script>
+}

@@ -4,6 +4,7 @@ namespace ClientSphere.Services
 {
     public interface ILeadService
     {
+        Task<IEnumerable<Lead>> GetAllLeadsAsync();
         Task<IEnumerable<Lead>> GetLeadsBySalesStaffAsync(string userId);
         Task<Lead?> GetLeadByIdAsync(int id);
         Task AddLeadAsync(Lead lead);

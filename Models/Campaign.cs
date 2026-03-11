@@ -35,5 +35,7 @@ namespace ClientSphere.Models
         public string? ManagedByUserId { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public bool IsArchived { get; set; } = false;
+        public DateTime? ArchivedAt { get; set; }
     }
 }

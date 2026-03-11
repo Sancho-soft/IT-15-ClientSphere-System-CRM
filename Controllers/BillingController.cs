@@ -1,9 +1,11 @@
 using ClientSphere.ViewModels;
 using ClientSphere.Services;
 using ClientSphere.Models;
+using ClientSphere.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ClientSphere.Controllers
 {
@@ -11,20 +13,24 @@ namespace ClientSphere.Controllers
     public class BillingController : Controller
     {
         private readonly IInvoiceService _invoiceService;
-        private readonly IPaymentService _paymentService;
         private readonly IEmailService _emailService;
         private readonly ICustomerService _customerService;
         private readonly IOrderService _orderService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IPaymongoService _paymongoService;
+        private readonly ApplicationDbContext _context;
+        private readonly INotificationService _notificationService;
 
-        public BillingController(IInvoiceService invoiceService, IPaymentService paymentService, IEmailService emailService, ICustomerService customerService, IOrderService orderService, UserManager<ApplicationUser> userManager)
+        public BillingController(IInvoiceService invoiceService, IEmailService emailService, ICustomerService customerService, IOrderService orderService, UserManager<ApplicationUser> userManager, IPaymongoService paymongoService, ApplicationDbContext context, INotificationService notificationService)
         {
             _invoiceService = invoiceService;
-            _paymentService = paymentService;
             _emailService = emailService;
             _customerService = customerService;
             _orderService = orderService;
             _userManager = userManager;
+            _paymongoService = paymongoService;
+            _context = context;
+            _notificationService = notificationService;
         }
 
         public async Task<IActionResult> Index(bool archived = false)
@@ -40,6 +46,9 @@ namespace ClientSphere.Controllers
             if (stats.ContainsKey("PaidRevenue")) totalPaid = stats["PaidRevenue"];
             if (stats.ContainsKey("PendingRevenue")) pending = stats["PendingRevenue"];
             if (stats.ContainsKey("OverdueRevenue")) overdue = stats["OverdueRevenue"];
+
+            // Exchange rate API removed; hardcoding to 1 for native PHP pricing
+            decimal currentPhpRate = 1m;
 
             var viewModel = new BillingDashboardViewModel
             {
@@ -58,7 +67,8 @@ namespace ClientSphere.Controllers
                     SaleId = $"SALE-{i.OrderId}",
                     Amount = i.Amount,
                     Status = i.Status,
-                    PaymentMethod = i.PaymentMethod
+                    PaymentMethod = i.PaymentMethod,
+                    ExchangeRate = currentPhpRate
                 }).ToList()
             };
 
@@ -126,7 +136,7 @@ namespace ClientSphere.Controllers
                 InvoiceNumber = $"INV-{DateTime.Now.Year}-{new Random().Next(1000, 9999)}",
                 IssueDate = DateTime.Today,
                 DueDate = DateTime.Today.AddDays(14),
-                Status = "Draft"
+                Status = "Unpaid"
             };
             return View(model);
         }
@@ -203,44 +213,98 @@ namespace ClientSphere.Controllers
             var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
             if (invoice != null)
             {
+                var wasProcessing = invoice.Status == "Processing";
                 invoice.Status = "Paid";
-                invoice.PaymentMethod = "Bank Transfer";
+                if (string.IsNullOrEmpty(invoice.PaymentMethod) || invoice.PaymentMethod == "PayMongo")
+                    invoice.PaymentMethod = "Manual";
                 invoice.PaidDate = DateTime.UtcNow;
                 await _invoiceService.UpdateInvoiceAsync(invoice);
+
+                // Create Payment History record
+                var customerName = invoice.Customer?.ContactName ?? "Unknown";
+                
+                try
+                {
+                    var paymentRecord = new PaymentRecord
+                    {
+                        InvoiceId = invoice.Id,
+                        InvoiceNumber = invoice.InvoiceNumber ?? $"INV-{invoice.Id}",
+                        CustomerName = customerName,
+                        PaymentMethod = invoice.PaymentMethod,
+                        TransactionId = invoice.TransactionId,
+                        AmountPaid = invoice.Amount,
+                        PaidAt = DateTime.UtcNow
+                    };
+                    
+                    _context.PaymentRecords.Add(paymentRecord);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    // Log error but don't stop the customer notification
+                    Console.WriteLine($"Error saving PaymentRecord: {ex.Message}");
+                }
+
+                // Notify the customer that their invoice was confirmed as Paid
+                if (invoice.Customer != null)
+                {
+                    var customerUser = await _userManager.FindByEmailAsync(invoice.Customer.Email);
+                    if (customerUser != null)
+                    {
+                        await _notificationService.CreateForUserAsync(
+                            customerUser.Id,
+                            "Invoice Confirmed as Paid",
+                            $"Your invoice {invoice.InvoiceNumber} for &#8369;{invoice.Amount:N2} has been confirmed as paid.",
+                            "/CustomerPortal/MyInvoices",
+                            "Billing"
+                        );
+                    }
+                }
             }
+            TempData["Success"] = "Invoice marked as paid.";
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> GeneratePaymentLink(int id)
+        public async Task<IActionResult> GeneratePaymongoLink(int id)
         {
             try
             {
-                var paymentUrl = await _paymentService.CreatePaymentLinkAsync(id);
+                var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
+                if (invoice == null) return NotFound();
+
+                var paymentUrl = await _paymongoService.CreatePaymentLinkAsync(invoice);
+                // Embed invoice ID in success URL so PaymentSuccess can update the DB
+                var baseSuccessUrl = Url.Action(nameof(PaymentSuccess), "Billing", null, Request.Scheme);
+                var customSuccessUrl = $"{baseSuccessUrl}?invoiceId={invoice.Id}";
+                paymentUrl = await _paymongoService.CreatePaymentLinkAsync(invoice, customSuccessUrl);
                 return Redirect(paymentUrl);
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Failed to generate payment link: {ex.Message}";
+                TempData["Error"] = $"Failed to generate Paymongo link: {ex.Message}";
                 return RedirectToAction(nameof(Index));
             }
         }
 
-        [HttpPost]
-        [IgnoreAntiforgeryToken]
-        public async Task<IActionResult> StripeWebhook()
+        public async Task<IActionResult> PaymentSuccess(int? invoiceId)
         {
-            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
-            var signature = Request.Headers["Stripe-Signature"].ToString();
-
-            var success = await _paymentService.ProcessWebhookAsync(json, signature);
-            return success ? Ok() : BadRequest();
-        }
-
-        public IActionResult PaymentSuccess()
-        {
-            TempData["Success"] = "Payment completed successfully!";
+            if (invoiceId.HasValue)
+            {
+                var invoice = await _invoiceService.GetInvoiceByIdAsync(invoiceId.Value);
+                if (invoice != null && invoice.Status != "Paid")
+                {
+                    // Set to Processing — billing staff must confirm before marking as Paid
+                    invoice.Status = "Processing";
+                    if (string.IsNullOrEmpty(invoice.PaymentMethod) || invoice.PaymentMethod == "PayMongo")
+                    {
+                        invoice.PaymentMethod = "PayMongo";
+                    }
+                    await _invoiceService.UpdateInvoiceAsync(invoice);
+                }
+            }
+            TempData["Success"] = "Payment submitted! Billing staff will verify and confirm your payment.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -260,24 +324,6 @@ namespace ClientSphere.Controllers
                 await _emailService.SendInvoiceEmailAsync(invoice.Customer.Email, invoice);
                 TempData["Success"] = "Invoice email sent successfully!";
             }
-            return RedirectToAction(nameof(Index));
-        }
-        [HttpGet]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var invoice = await _invoiceService.GetInvoiceByIdAsync(id);
-            if (invoice == null)
-            {
-                return NotFound();
-            }
-            return View(invoice);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            await _invoiceService.DeleteInvoiceAsync(id);
             return RedirectToAction(nameof(Index));
         }
     }

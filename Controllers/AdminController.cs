@@ -9,11 +9,13 @@ namespace ClientSphere.Controllers
     {
         private readonly Data.ApplicationDbContext _context;
         private readonly Microsoft.AspNetCore.Identity.UserManager<Models.ApplicationUser> _userManager;
+        private readonly Services.ISystemSettingService _systemSettingService;
 
-        public AdminController(Data.ApplicationDbContext context, Microsoft.AspNetCore.Identity.UserManager<Models.ApplicationUser> userManager)
+        public AdminController(Data.ApplicationDbContext context, Microsoft.AspNetCore.Identity.UserManager<Models.ApplicationUser> userManager, Services.ISystemSettingService systemSettingService)
         {
             _context = context;
             _userManager = userManager;
+            _systemSettingService = systemSettingService;
         }
 
         public async Task<IActionResult> Dashboard()
@@ -366,59 +368,104 @@ namespace ClientSphere.Controllers
             return View(user);
         }
 
-        // GET: Admin/DeleteUser/5
+        // POST: Admin/DeactivateUser — disables login without data loss
         [Authorize(Roles = "Super Admin")]
-        public async Task<IActionResult> DeleteUser(string id)
-        {
-            if (string.IsNullOrEmpty(id))
-            {
-                return NotFound();
-            }
-
-            var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            var roles = await _userManager.GetRolesAsync(user);
-            ViewData["CurrentPage"] = "User Management";
-            ViewBag.UserRole = roles.FirstOrDefault() ?? "No Role";
-            return View(user);
-        }
-
-        // POST: Admin/DeleteUser/5
-        [Authorize(Roles = "Super Admin")]
-        [HttpPost, ActionName("DeleteUser")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteUserConfirmed(string id)
+        public async Task<IActionResult> DeactivateUser(string id)
         {
             var user = await _userManager.FindByIdAsync(id);
-            if (user == null)
-            {
-                return NotFound();
-            }
+            if (user == null) return NotFound();
 
-            var result = await _userManager.DeleteAsync(user);
+            user.IsActive = false;
+            user.LockoutEnabled = true;
+            user.LockoutEnd = DateTimeOffset.MaxValue; // Lock indefinitely
+            var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
             {
-                TempData["SuccessMessage"] = $"User deleted successfully!";
-                return RedirectToAction(nameof(UserManagement));
+                TempData["SuccessMessage"] = $"User '{user.Email}' has been deactivated. They can no longer log in.";
             }
+            return RedirectToAction(nameof(UserManagement));
+        }
 
-            foreach (var error in result.Errors)
+        // POST: Admin/ReactivateUser
+        [Authorize(Roles = "Super Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ReactivateUser(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            user.IsActive = true;
+            user.LockoutEnd = null; // Remove lockout
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
             {
-                ModelState.AddModelError("", error.Description);
+                TempData["SuccessMessage"] = $"User '{user.Email}' has been reactivated.";
             }
-            return View(user);
+            return RedirectToAction(nameof(UserManagement));
         }
 
         // System Settings - Super Admin and Admin
         [Authorize(Roles = "Super Admin,Admin")]
-        public IActionResult SystemSettings()
+        public async Task<IActionResult> SystemSettings()
         {
             ViewData["CurrentPage"] = "System Settings";
-            return View();
+            var viewModel = new ViewModels.SystemSettingsViewModel
+            {
+                SessionTimeoutMinutes = await _systemSettingService.GetSettingIntAsync("SessionTimeoutMinutes", 15),
+                MinimumPasswordLength = await _systemSettingService.GetSettingIntAsync("MinimumPasswordLength", 8),
+                SmtpServer = await _systemSettingService.GetSettingAsync("SmtpServer", "smtp.clientsphere.com"),
+                SmtpPort = await _systemSettingService.GetSettingIntAsync("SmtpPort", 587),
+                SmtpEncryption = await _systemSettingService.GetSettingAsync("SmtpEncryption", "TLS"),
+                FromEmailAddress = await _systemSettingService.GetSettingAsync("FromEmailAddress", "noreply@clientsphere.com"),
+                NotifyNewRegistrations = await _systemSettingService.GetSettingBoolAsync("NotifyNewRegistrations", true),
+                NotifySystemUpdates = await _systemSettingService.GetSettingBoolAsync("NotifySystemUpdates", true),
+                NotifyCriticalAlerts = await _systemSettingService.GetSettingBoolAsync("NotifyCriticalAlerts", true),
+                AutomaticBackups = await _systemSettingService.GetSettingBoolAsync("AutomaticBackups", true),
+                BackupFrequency = await _systemSettingService.GetSettingAsync("BackupFrequency", "Daily"),
+                RetentionPeriod = await _systemSettingService.GetSettingAsync("RetentionPeriod", "30 days"),
+                ApiAccessEnabled = await _systemSettingService.GetSettingBoolAsync("ApiAccessEnabled", true),
+                ApiRateLimit = await _systemSettingService.GetSettingIntAsync("ApiRateLimit", 100),
+                SystemApiKey = await _systemSettingService.GetSettingAsync("SystemApiKey", "........................................")
+            };
+            return View(viewModel);
+        }
+
+        [Authorize(Roles = "Super Admin,Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SystemSettings(ViewModels.SystemSettingsViewModel model)
+        {
+            ViewData["CurrentPage"] = "System Settings";
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            // Save all settings using the service
+            await _systemSettingService.SetSettingIntAsync("SessionTimeoutMinutes", model.SessionTimeoutMinutes, "General");
+            await _systemSettingService.SetSettingIntAsync("MinimumPasswordLength", model.MinimumPasswordLength, "General");
+            
+            await _systemSettingService.SetSettingAsync("SmtpServer", model.SmtpServer, "Email");
+            await _systemSettingService.SetSettingIntAsync("SmtpPort", model.SmtpPort, "Email");
+            await _systemSettingService.SetSettingAsync("SmtpEncryption", model.SmtpEncryption, "Email");
+            await _systemSettingService.SetSettingAsync("FromEmailAddress", model.FromEmailAddress, "Email");
+
+            await _systemSettingService.SetSettingBoolAsync("NotifyNewRegistrations", model.NotifyNewRegistrations, "Notifications");
+            await _systemSettingService.SetSettingBoolAsync("NotifySystemUpdates", model.NotifySystemUpdates, "Notifications");
+            await _systemSettingService.SetSettingBoolAsync("NotifyCriticalAlerts", model.NotifyCriticalAlerts, "Notifications");
+
+            await _systemSettingService.SetSettingBoolAsync("AutomaticBackups", model.AutomaticBackups, "Database");
+            await _systemSettingService.SetSettingAsync("BackupFrequency", model.BackupFrequency, "Database");
+            await _systemSettingService.SetSettingAsync("RetentionPeriod", model.RetentionPeriod, "Database");
+
+            await _systemSettingService.SetSettingBoolAsync("ApiAccessEnabled", model.ApiAccessEnabled, "API");
+            await _systemSettingService.SetSettingIntAsync("ApiRateLimit", model.ApiRateLimit, "API");
+            
+            TempData["SuccessMessage"] = "System settings updated successfully!";
+            return RedirectToAction(nameof(SystemSettings));
         }
 
         // Reset Password - Super Admin Only

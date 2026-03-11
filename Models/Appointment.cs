@@ -11,7 +11,7 @@ namespace ClientSphere.Models
         [Required]
         public string Title { get; set; }
 
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
         [Required]
         public DateTime StartTime { get; set; }
@@ -19,15 +19,15 @@ namespace ClientSphere.Models
         [Required]
         public DateTime EndTime { get; set; }
 
-        public string Location { get; set; }
+        public string? Location { get; set; }
 
         public int? CustomerId { get; set; } // Optional link to customer
         [ForeignKey("CustomerId")]
-        public Customer Customer { get; set; }
+        public Customer? Customer { get; set; }
 
-        public string OrganizerUserId { get; set; } // The Sales Staff
+        public string? OrganizerUserId { get; set; } // The Sales Staff
 
-        public string Status { get; set; } = "Scheduled"; // Scheduled, Completed, Cancelled
+        public string? Status { get; set; } = "Scheduled"; // Scheduled, Completed, Cancelled
         
         public string? ExternalCalendarId { get; set; } // Microsoft Graph Event ID
 

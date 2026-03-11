@@ -1,0 +1,194 @@
+@model ClientSphere.Models.ApplicationUser
+@{
+    ViewData["Title"] = "My Profile";
+    ViewData["HideTopNavTitle"] = true;
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "Profile";
+    var roles = ViewBag.Roles as IList<string> ?? new List<string>();
+    var primaryRole = roles.FirstOrDefault() ?? "User";
+    var initials = (!string.IsNullOrEmpty(Model.FirstName) ? Model.FirstName[0].ToString() : "") +
+                   (!string.IsNullOrEmpty(Model.LastName) ? Model.LastName[0].ToString() : "");
+    if (string.IsNullOrEmpty(initials)) initials = (Model.Email ?? "U").Substring(0, 1).ToUpper();
+}
+
+@if (TempData["Success"] != null)
+{
+    <div id="successAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div id="errorAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="d-flex align-items-center mb-4 gap-3">
+    @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+    {
+        <img src="@Model.ProfilePictureUrl" alt="Profile Picture" class="rounded-circle shadow" style="width: 60px; height: 60px; object-fit: cover; flex-shrink: 0;" />
+    }
+    else
+    {
+        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow"
+             style="width: 60px; height: 60px; font-size: 1.4rem; font-weight: bold; flex-shrink: 0;">
+            @initials
+        </div>
+    }
+    <div>
+        <h2 class="fw-bold mb-0">@Model.FirstName @Model.LastName</h2>
+        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3">@primaryRole</span>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Profile Info -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-0 pt-4 px-4">
+                <h5 class="fw-bold mb-0"><i class="bi bi-person me-2 text-primary"></i>Personal Information</h5>
+            </div>
+            <div class="card-body p-4">
+                <form asp-controller="Profile" asp-action="UpdateProfile" method="post" enctype="multipart/form-data">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-12 mb-2">
+                            <label class="form-label fw-medium">Profile Picture <i class="bi bi-cloud-upload ms-1 text-muted"></i></label>
+                            <input type="file" name="profilePicture" class="form-control" accept="image/*" />
+                            <div class="form-text">Optional. Upload a new image to change your avatar.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">First Name</label>
+                            <input type="text" name="firstName" value="@Model.FirstName" class="form-control" placeholder="Enter first name" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">Last Name</label>
+                            <input type="text" name="lastName" value="@Model.LastName" class="form-control" placeholder="Enter last name" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-medium">Email Address</label>
+                            <input type="email" value="@Model.Email" class="form-control bg-body-secondary" disabled readonly />
+                            <div class="form-text">Email address cannot be changed here.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">Company</label>
+                            <input type="text" name="companyName" value="@Model.CompanyName" class="form-control" placeholder="Company name" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-medium">Phone Number</label>
+                            <input type="tel" name="phoneNumber" value="@Model.PhoneNumber" class="form-control" placeholder="+63 XXX XXX XXXX" />
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-top d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-2"></i>Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right column: Password + Preferences -->
+    <div class="col-lg-5 d-flex flex-column gap-4">
+        <!-- Change Password -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0 pt-4 px-4">
+                <h5 class="fw-bold mb-0"><i class="bi bi-shield-lock me-2 text-warning"></i>Change Password</h5>
+            </div>
+            <div class="card-body p-4">
+                <form asp-controller="Profile" asp-action="ChangePassword" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Current Password</label>
+                        <input type="password" name="currentPassword" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">New Password</label>
+                        <input type="password" name="newPassword" class="form-control" required minlength="6" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-medium">Confirm New Password</label>
+                        <input type="password" name="confirmPassword" class="form-control" required minlength="6" />
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="btn btn-warning text-dark fw-bold px-4">
+                            <i class="bi bi-key me-2"></i>Change Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Display Preferences -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent border-0 pt-4 px-4">
+                <h5 class="fw-bold mb-0"><i class="bi bi-palette me-2 text-info"></i>Display Preferences</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-medium">Dark Mode</div>
+                        <div class="text-muted small">Switch between light and dark theme</div>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="darkModeToggleProfile" role="switch" style="width: 3em; height: 1.5em; cursor: pointer;">
+                    </div>
+                </div>
+                <div class="text-muted small mt-3">
+                    <i class="bi bi-info-circle me-1"></i>You can also toggle dark mode using the <i class="bi bi-moon-stars"></i> button in the top bar.
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Info -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2 text-secondary"></i>Account Details</h6>
+                <div class="row text-center">
+                    <div class="col-6 border-end">
+                        <div class="text-muted small">Role</div>
+                        <div class="fw-bold text-primary mt-1">@primaryRole</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-muted small">Member Since</div>
+                        <div class="fw-bold mt-1">@Model.CreatedAt.ToString("MMM yyyy")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Sync the profile page toggle with the global dark mode state
+    const profileToggle = document.getElementById('darkModeToggleProfile');
+    if (profileToggle) {
+        profileToggle.checked = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+        profileToggle.addEventListener('change', function () {
+            const isDark = this.checked;
+            document.documentElement.setAttribute('data-bs-theme', isDark ? 'dark' : 'light');
+            localStorage.setItem('clientsphere-theme', isDark ? 'dark' : 'light');
+            const topbarToggle = document.getElementById('darkModeToggle');
+            if (topbarToggle) topbarToggle.checked = isDark;
+        });
+    }
+
+    // Auto-dismiss alerts after 5 seconds
+    document.addEventListener('DOMContentLoaded', function () {
+        ['successAlert', 'errorAlert'].forEach(function (id) {
+            const alertEl = document.getElementById(id);
+            if (alertEl) {
+                setTimeout(function () {
+                    const bsAlert = bootstrap.Alert.getOrCreateInstance(alertEl);
+                    bsAlert.close();
+                }, 5000);
+            }
+        });
+    });
+</script>
+}

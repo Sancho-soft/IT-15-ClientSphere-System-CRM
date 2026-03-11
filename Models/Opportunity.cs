@@ -15,7 +15,7 @@ namespace ClientSphere.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal EstimatedValue { get; set; }
 
-        public string Stage { get; set; } // Prospecting, Qualification, Proposal, Negotiation, Closed Won, Closed Lost
+        public string? Stage { get; set; } // Prospecting, Qualification, Proposal, Negotiation, Closed Won, Closed Lost
         
         [Display(Name = "Probability (%)")]
         public int Probability { get; set; }
@@ -24,7 +24,7 @@ namespace ClientSphere.Models
         [DataType(DataType.Date)]
         public DateTime ExpectedCloseDate { get; set; }
 
-        public string AssignedToUserId { get; set; } // Link to Sales Staff
+        public string? AssignedToUserId { get; set; } // Link to Sales Staff
         
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

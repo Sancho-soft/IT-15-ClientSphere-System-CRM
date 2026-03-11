@@ -4,24 +4,39 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+@model ClientSphere.ViewModels.SystemSettingsViewModel
+
 <div class="row">
     <div class="col-md-12">
-        <form>
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <form asp-action="SystemSettings" asp-controller="Admin" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
              <!-- General System Settings -->
             <div class="card border-0 shadow-sm mb-4">
                  <div class="card-body">
                     <div class="mb-4">
-                        <label class="form-label fw-bold small">Session Timeout</label>
+                        <label asp-for="SessionTimeoutMinutes" class="form-label fw-bold small"></label>
                         <div class="form-text text-muted mb-2 mt-0">Auto logout after inactivity</div>
-                        <select class="form-select">
-                            <option selected>15 minutes</option>
-                            <option>30 minutes</option>
-                            <option>1 hour</option>
+                        <select asp-for="SessionTimeoutMinutes" class="form-select">
+                            <option value="15">15 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="60">1 hour</option>
                         </select>
+                        <span asp-validation-for="SessionTimeoutMinutes" class="text-danger small"></span>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold small">Minimum Password Length</label>
-                        <input type="number" class="form-control" value="8">
+                        <label asp-for="MinimumPasswordLength" class="form-label fw-bold small"></label>
+                        <input asp-for="MinimumPasswordLength" type="number" class="form-control">
+                        <span asp-validation-for="MinimumPasswordLength" class="text-danger small"></span>
                     </div>
                  </div>
             </div>
@@ -33,26 +48,30 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label class="form-label fw-bold small">SMTP Server</label>
-                        <input type="text" class="form-control" value="smtp.clientsphere.com">
+                        <label asp-for="SmtpServer" class="form-label fw-bold small"></label>
+                        <input asp-for="SmtpServer" type="text" class="form-control">
+                        <span asp-validation-for="SmtpServer" class="text-danger small"></span>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small">SMTP Port</label>
-                            <input type="text" class="form-control" value="587">
+                            <label asp-for="SmtpPort" class="form-label fw-bold small"></label>
+                            <input asp-for="SmtpPort" type="number" class="form-control">
+                            <span asp-validation-for="SmtpPort" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold small">Encryption</label>
-                             <select class="form-select">
-                                <option selected>TLS</option>
-                                <option>SSL</option>
-                                <option>None</option>
+                            <label asp-for="SmtpEncryption" class="form-label fw-bold small"></label>
+                             <select asp-for="SmtpEncryption" class="form-select">
+                                <option value="TLS">TLS</option>
+                                <option value="SSL">SSL</option>
+                                <option value="None">None</option>
                             </select>
+                            <span asp-validation-for="SmtpEncryption" class="text-danger small"></span>
                         </div>
                     </div>
                      <div class="mb-3">
-                        <label class="form-label fw-bold small">From Email Address</label>
-                        <input type="email" class="form-control" value="noreply@clientsphere.com">
+                        <label asp-for="FromEmailAddress" class="form-label fw-bold small"></label>
+                        <input asp-for="FromEmailAddress" type="email" class="form-control">
+                        <span asp-validation-for="FromEmailAddress" class="text-danger small"></span>
                     </div>
                     <button type="button" class="btn btn-outline-secondary btn-sm"><i class="bi bi-send me-1"></i> Send Test Email</button>
                 </div>
@@ -66,29 +85,29 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <div class="fw-bold">New User Registrations</div>
+                            <div class="fw-bold">@Html.DisplayNameFor(m => m.NotifyNewRegistrations)</div>
                             <div class="text-muted small">Notify admins of new user signups</div>
                         </div>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" checked style="width: 3em; height: 1.5em;">
+                            <input asp-for="NotifyNewRegistrations" class="form-check-input" type="checkbox" role="switch" style="width: 3em; height: 1.5em;">
                         </div>
                     </div>
                      <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <div class="fw-bold">System Updates</div>
+                            <div class="fw-bold">@Html.DisplayNameFor(m => m.NotifySystemUpdates)</div>
                             <div class="text-muted small">Notify users of system maintenance</div>
                         </div>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" checked style="width: 3em; height: 1.5em;">
+                            <input asp-for="NotifySystemUpdates" class="form-check-input" type="checkbox" role="switch" style="width: 3em; height: 1.5em;">
                         </div>
                     </div>
                      <div class="d-flex justify-content-between align-items-center mb-2">
                         <div>
-                            <div class="fw-bold">Critical Alerts</div>
+                            <div class="fw-bold">@Html.DisplayNameFor(m => m.NotifyCriticalAlerts)</div>
                             <div class="text-muted small">Send alerts for system errors</div>
                         </div>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" checked style="width: 3em; height: 1.5em;">
+                            <input asp-for="NotifyCriticalAlerts" class="form-check-input" type="checkbox" role="switch" style="width: 3em; height: 1.5em;">
                         </div>
                     </div>
                 </div>
@@ -102,27 +121,27 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <div class="fw-bold">Automatic Backups</div>
+                            <div class="fw-bold">@Html.DisplayNameFor(m => m.AutomaticBackups)</div>
                             <div class="text-muted small">Daily automated database backups</div>
                         </div>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" checked style="width: 3em; height: 1.5em;">
+                            <input asp-for="AutomaticBackups" class="form-check-input" type="checkbox" role="switch" style="width: 3em; height: 1.5em;">
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold small">Backup Frequency</label>
-                         <select class="form-select">
-                            <option selected>Every 6 hours</option>
-                            <option>Daily</option>
-                            <option>Weekly</option>
+                        <label asp-for="BackupFrequency" class="form-label fw-bold small"></label>
+                         <select asp-for="BackupFrequency" class="form-select">
+                            <option value="Every 6 hours">Every 6 hours</option>
+                            <option value="Daily">Daily</option>
+                            <option value="Weekly">Weekly</option>
                         </select>
                     </div>
                      <div class="mb-4">
-                        <label class="form-label fw-bold small">Retention Period</label>
-                         <select class="form-select">
-                            <option selected>7 days</option>
-                            <option>30 days</option>
-                            <option>90 days</option>
+                        <label asp-for="RetentionPeriod" class="form-label fw-bold small"></label>
+                         <select asp-for="RetentionPeriod" class="form-select">
+                            <option value="7 days">7 days</option>
+                            <option value="30 days">30 days</option>
+                            <option value="90 days">90 days</option>
                         </select>
                     </div>
                     <div class="d-flex gap-2">
@@ -139,31 +158,32 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
-                        <label class="form-label fw-bold small">API Key</label>
+                        <label asp-for="SystemApiKey" class="form-label fw-bold small"></label>
                         <div class="input-group">
-                            <input type="text" class="form-control" value="........................................" readonly>
+                            <input asp-for="SystemApiKey" type="text" class="form-control" readonly>
                             <button class="btn btn-outline-secondary" type="button">Regenerate</button>
                         </div>
                     </div>
                      <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
-                            <div class="fw-bold">API Access</div>
+                            <div class="fw-bold">@Html.DisplayNameFor(m => m.ApiAccessEnabled)</div>
                             <div class="text-muted small">Enable external API access</div>
                         </div>
                         <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" role="switch" checked style="width: 3em; height: 1.5em;">
+                            <input asp-for="ApiAccessEnabled" class="form-check-input" type="checkbox" role="switch" style="width: 3em; height: 1.5em;">
                         </div>
                     </div>
                     <div class="mb-2">
-                        <label class="form-label fw-bold small">Rate Limit (requests per minute)</label>
-                        <input type="number" class="form-control" value="100">
+                        <label asp-for="ApiRateLimit" class="form-label fw-bold small"></label>
+                        <input asp-for="ApiRateLimit" type="number" class="form-control">
+                        <span asp-validation-for="ApiRateLimit" class="text-danger small"></span>
                     </div>
                 </div>
             </div>
             <!-- Save Actions -->
             <div class="d-flex justify-content-end mb-4">
-                <button type="button" class="btn btn-outline-secondary me-2">Cancel</button>
-                <button type="button" class="btn btn-primary" disabled title="Settings management coming soon">Save Changes</button>
+                <a asp-action="Dashboard" asp-controller="Admin" class="btn btn-outline-secondary me-2">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
             </div>
         </form>
     </div>

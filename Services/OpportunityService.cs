@@ -13,6 +13,13 @@ namespace ClientSphere.Services
             _context = context;
         }
 
+        public async Task<IEnumerable<Opportunity>> GetAllOpportunitiesAsync()
+        {
+            return await _context.Opportunities
+                .OrderByDescending(o => o.CreatedAt)
+                .ToListAsync();
+        }
+
         public async Task<IEnumerable<Opportunity>> GetOpportunitiesBySalesStaffAsync(string userId)
         {
             return await _context.Opportunities

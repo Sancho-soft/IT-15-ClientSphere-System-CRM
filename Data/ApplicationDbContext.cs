@@ -38,5 +38,8 @@ namespace ClientSphere.Data
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<SystemSetting> SystemSettings { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<PaymentRecord> PaymentRecords { get; set; }
     }
 }

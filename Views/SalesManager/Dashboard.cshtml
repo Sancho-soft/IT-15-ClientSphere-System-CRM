@@ -21,7 +21,7 @@
                     <i class="bi bi-arrow-up-short"></i> @Model.RevenueGrowth%
                 </span>
             </div>
-            <h3 class="fw-bold mb-0 text-dark">&#8369;@Model.TotalRevenueMTD.ToString("N0")K</h3>
+            <h3 class="fw-bold mb-0">&#8369;@Model.TotalRevenueMTD.ToString("N0")K</h3>
             <div class="text-muted small">Total Revenue (MTD)</div>
         </div>
     </div>
@@ -33,7 +33,7 @@
                 </div>
                 <span class="text-primary fw-bold small">85%</span>
             </div>
-            <h3 class="fw-bold mb-0 text-dark">&#8369;253K</h3>
+            <h3 class="fw-bold mb-0">&#8369;253K</h3>
             <div class="text-muted small">Quota Achievement</div>
         </div>
     </div>
@@ -47,7 +47,7 @@
                     <i class="bi bi-arrow-up-short"></i> @Model.DealsGrowth%
                 </span>
             </div>
-            <h3 class="fw-bold mb-0 text-dark">@Model.DealsClosedMTD</h3>
+            <h3 class="fw-bold mb-0">@Model.DealsClosedMTD</h3>
             <div class="text-muted small">Deals Closed (MTD)</div>
         </div>
     </div>
@@ -59,7 +59,7 @@
                 </div>
                 <span class="text-muted small">3 members</span>
             </div>
-            <h3 class="fw-bold mb-0 text-dark">&#8369;@((Model.AvgDealSize/1000).ToString("N0"))K</h3>
+            <h3 class="fw-bold mb-0">&#8369;@((Model.AvgDealSize/1000).ToString("N0"))K</h3>
             <div class="text-muted small">Avg Deal Size</div>
         </div>
     </div>
@@ -80,11 +80,11 @@
                         <span class="badge rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">#@person.Rank</span>
                     </div>
                     <div class="flex-grow-1">
-                        <div class="fw-bold text-dark">@person.Name</div>
+                        <div class="fw-bold">@person.Name</div>
                         <div class="small text-muted">@person.Role</div>
                     </div>
                     <div class="text-end me-4">
-                        <div class="fw-bold text-dark">&#8369;@((person.TotalSales/1000).ToString("N0"))K</div>
+                        <div class="fw-bold">&#8369;@((person.TotalSales/1000).ToString("N0"))K</div>
                         <div class="small text-muted">@person.DealsCount deals</div>
                     </div>
                     <div class="text-end" style="width: 80px;">
@@ -107,69 +107,6 @@
     </div>
 </div>
 
-<!-- Pending Approvals -->
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-white border-0 py-3">
-        <h5 class="mb-0 fw-bold text-danger">Pending High-Value Orders (Requires Approval)</h5>
-    </div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="ps-4">Order ID</th>
-                        <th>Customer</th>
-                        <th>Amount</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th class="text-end pe-4">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.PendingHighValueDeals != null && Model.PendingHighValueDeals.Any())
-                    {
-                        @foreach (var order in Model.PendingHighValueDeals)
-                        {
-                            <tr>
-                                <td class="ps-4 fw-bold">#ORD-@order.Id</td>
-                                <td>
-                                    <!-- Simple check if Customer is loaded, otherwise just ID -->
-                                    @(order.Customer != null ? order.Customer.CompanyName : "Client #" + order.CustomerId)
-                                </td>
-                                <td class="fw-bold">&#8369;@order.TotalAmount.ToString("N2")</td>
-                                <td>@order.OrderDate.ToString("MMM dd")</td>
-                                <td><span class="badge bg-warning text-dark">@order.Status</span></td>
-                                <td class="text-end pe-4">
-                                    <div class="d-flex justify-content-end gap-2">
-                                        <form asp-action="ApproveOrder" asp-route-id="@order.Id" method="post" style="display:inline;">
-                                            <button type="submit" class="btn btn-sm btn-success text-white">
-                                                <i class="bi bi-check-lg"></i> Approve
-                                            </button>
-                                        </form>
-                                        <form asp-action="RejectOrder" asp-route-id="@order.Id" method="post" style="display:inline;">
-                                             <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                <i class="bi bi-x-lg"></i> Reject
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">
-                                <i class="bi bi-check-circle h4 d-block mb-2"></i>
-                                No pending high-value orders.
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
 
 <!-- Bottom Actions Grid -->
 <div class="row">
@@ -192,11 +129,11 @@
         </div>
     </div>
     <div class="col-md-4 mb-3">
-        <div class="card border-0 shadow-sm h-100 hover-card cursor-pointer" onclick="window.location.href='@Url.Action("Index", "Orders")'">
+        <div class="card border-0 shadow-sm h-100 hover-card cursor-pointer" onclick="window.location.href='@Url.Action("AllLeads", "SalesManager")'">
             <div class="card-body">
-                <i class="bi bi-check2-circle h3 text-purple mb-3 d-block" style="color: #6f42c1;"></i>
-                <h5 class="fw-bold">Approve High-Value Deals</h5>
-                <p class="text-muted small mb-0">@Model.PendingHighValueDeals.Count deals pending approval</p>
+                <i class="bi bi-funnel h3 text-purple mb-3 d-block" style="color: #6f42c1;"></i>
+                <h5 class="fw-bold">View Team Leads</h5>
+                <p class="text-muted small mb-0">Monitor new and active leads</p>
             </div>
         </div>
     </div>

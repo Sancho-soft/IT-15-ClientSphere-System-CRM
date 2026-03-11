@@ -91,7 +91,7 @@ namespace ClientSphere.Areas.Identity.Pages.Account
                         if (roles.Contains("Sales Staff")) return LocalRedirect("/SalesStaff/Dashboard");
                         if (roles.Contains("Support Staff")) return LocalRedirect("/SupportStaff/Dashboard");
                         if (roles.Contains("Marketing Manager") || roles.Contains("Marketing Staff")) return LocalRedirect("/MarketingStaff/Dashboard"); // Assuming shared dashboard for now or separate?
-                        if (roles.Contains("Billing Staff")) return LocalRedirect("/Billing/Index"); // Billing leads to Index
+                        if (roles.Contains("Billing Staff")) return LocalRedirect("/BillingStaff/Dashboard");
                         if (roles.Contains("Customer")) return LocalRedirect("/CustomerPortal/Dashboard");
                     }
 

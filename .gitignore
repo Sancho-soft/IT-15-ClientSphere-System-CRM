@@ -5,3 +5,6 @@ packages/
 *.user
 *.suo
 *.log
+
+# Ignore publish folder
+publish_output/

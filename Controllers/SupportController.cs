@@ -11,10 +11,12 @@ namespace ClientSphere.Controllers
     public class SupportController : Controller
     {
         private readonly ISupportService _supportService;
+        private readonly ICloudinaryService _cloudinaryService;
 
-        public SupportController(ISupportService supportService)
+        public SupportController(ISupportService supportService, ICloudinaryService cloudinaryService)
         {
             _supportService = supportService;
+            _cloudinaryService = cloudinaryService;
         }
 
         public async Task<IActionResult> Index(bool archived = false)
@@ -41,7 +43,8 @@ namespace ClientSphere.Controllers
                     CustomerId = t.CustomerId,
                     AssignedTo = "Support Team",
                     CreatedAt = t.CreatedAt,
-                    LastUpdated = t.LastUpdated ?? t.CreatedAt
+                    LastUpdated = t.LastUpdated ?? t.CreatedAt,
+                    ImageUrl = t.ImageUrl
                 }).ToList()
             };
 
@@ -56,7 +59,7 @@ namespace ClientSphere.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Models.SupportTicket ticket)
+        public async Task<IActionResult> Create(Models.SupportTicket ticket, IFormFile attachment)
         {
             if (ModelState.IsValid)
             {
@@ -70,6 +73,20 @@ namespace ClientSphere.Controllers
                 ticket.CreatedAt = DateTime.UtcNow;
                 ticket.LastUpdated = DateTime.UtcNow;
                 
+                if (attachment != null && attachment.Length > 0)
+                {
+                    try
+                    {
+                        string imageUrl = await _cloudinaryService.UploadImageAsync(attachment, "support_tickets");
+                        ticket.ImageUrl = imageUrl;
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log error or display message
+                        TempData["Error"] = $"Image upload failed: {ex.Message}";
+                    }
+                }
+
                 await _supportService.CreateTicketAsync(ticket);
                 return RedirectToAction(nameof(Index));
             }
@@ -113,24 +130,6 @@ namespace ClientSphere.Controllers
                 }
             }
             return View(ticket);
-        }
-        [HttpGet]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var ticket = await _supportService.GetTicketByIdAsync(id);
-            if (ticket == null)
-            {
-                return NotFound();
-            }
-            return View(ticket);
-        }
-
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            await _supportService.DeleteTicketAsync(id);
-            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]

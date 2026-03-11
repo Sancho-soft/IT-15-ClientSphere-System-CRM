@@ -40,9 +40,12 @@ builder.Services.AddScoped<ClientSphere.Services.ICampaignService, ClientSphere.
 builder.Services.AddScoped<ClientSphere.Services.IInvoiceService, ClientSphere.Services.InvoiceService>();
 
 // API Integration Services
-builder.Services.AddScoped<ClientSphere.Services.IPaymentService, ClientSphere.Services.StripePaymentService>();
+builder.Services.AddScoped<ClientSphere.Services.IPaymongoService, ClientSphere.Services.PaymongoService>();
+builder.Services.AddScoped<ClientSphere.Services.ICloudinaryService, ClientSphere.Services.CloudinaryService>();
 builder.Services.AddScoped<ClientSphere.Services.IEmailService, ClientSphere.Services.SendGridEmailService>();
 builder.Services.AddScoped<ClientSphere.Services.ICalendarService, ClientSphere.Services.GraphCalendarService>();
+builder.Services.AddScoped<ClientSphere.Services.ISystemSettingService, ClientSphere.Services.SystemSettingService>();
+builder.Services.AddScoped<ClientSphere.Services.INotificationService, ClientSphere.Services.NotificationService>();
 
 builder.Services.AddScoped<ClientSphere.Filters.AuditLogFilter>();
 builder.Services.AddControllersWithViews(options => {
@@ -60,18 +63,20 @@ var localizationOptions = new RequestLocalizationOptions
 };
 app.UseRequestLocalization(localizationOptions);
 
-// Seed Database
+// Apply Migrations and Seed Database
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     try
     {
+        var db = services.GetRequiredService<ApplicationDbContext>();
+        await db.Database.MigrateAsync(); // Apply any pending EF migrations automatically
         await DbInitializer.Initialize(services);
     }
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while seeding the database.");
+        logger.LogError(ex, "An error occurred while migrating or seeding the database.");
     }
 }
 

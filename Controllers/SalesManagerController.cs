@@ -11,12 +11,21 @@ namespace ClientSphere.Controllers
     public class SalesManagerController : Controller
     {
         private readonly IOrderService _orderService;
+        private readonly ILeadService _leadService;
+        private readonly IOpportunityService _opportunityService;
         private readonly Data.ApplicationDbContext _context;
         private readonly Microsoft.AspNetCore.Identity.UserManager<Models.ApplicationUser> _userManager;
 
-        public SalesManagerController(IOrderService orderService, Data.ApplicationDbContext context, Microsoft.AspNetCore.Identity.UserManager<Models.ApplicationUser> userManager)
+        public SalesManagerController(
+            IOrderService orderService,
+            ILeadService leadService,
+            IOpportunityService opportunityService,
+            Data.ApplicationDbContext context,
+            Microsoft.AspNetCore.Identity.UserManager<Models.ApplicationUser> userManager)
         {
             _orderService = orderService;
+            _leadService = leadService;
+            _opportunityService = opportunityService;
             _context = context;
             _userManager = userManager;
         }
@@ -85,10 +94,8 @@ namespace ClientSphere.Controllers
                 DealsClosedMTD = stats.DealsClosedMTD,
                 DealsGrowth = stats.DealsGrowth,
                 AvgDealSize = stats.AvgDealSize,
-                
-                TeamPerformance = teamPerformance,
 
-                PendingHighValueDeals = stats.PendingHighValueDeals
+                TeamPerformance = teamPerformance
             };
 
             return View(viewModel);
@@ -108,6 +115,170 @@ namespace ClientSphere.Controllers
         {
             await _orderService.UpdateOrderStatusAsync(id, OrderStatus.Cancelled);
             return RedirectToAction(nameof(Dashboard));
+        }
+
+        // --- TEAM-WIDE VIEWS ---
+
+        public async Task<IActionResult> AllLeads()
+        {
+            var allLeads = await _leadService.GetAllLeadsAsync();
+            return View(allLeads);
+        }
+
+        public async Task<IActionResult> AllOpportunities()
+        {
+            var allOpportunities = await _opportunityService.GetAllOpportunitiesAsync();
+            return View(allOpportunities);
+        }
+
+        public async Task<IActionResult> AllAppointments()
+        {
+            var allAppointments = await _context.Appointments
+                .Include(a => a.Customer)
+                .OrderBy(a => a.StartTime)
+                .ToListAsync();
+            return View(allAppointments);
+        }
+
+        // --- CREATE APPOINTMENT ---
+
+        [HttpGet]
+        public async Task<IActionResult> CreateAppointment()
+        {
+            var salesStaff = await _userManager.GetUsersInRoleAsync("Sales Staff");
+            ViewBag.SalesStaffList = salesStaff
+                .Select(u => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = u.Id,
+                    Text = $"{u.FirstName} {u.LastName}"
+                }).ToList();
+
+            var customers = await _context.Customers.ToListAsync();
+            ViewBag.CustomerList = customers
+                .Select(c => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.ContactName
+                }).ToList();
+
+            return View(new Appointment { StartTime = DateTime.UtcNow, EndTime = DateTime.UtcNow.AddHours(1) });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateAppointment([Bind("Title,Description,StartTime,EndTime,Location,Status,OrganizerUserId,CustomerId")] Appointment appointment)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Appointments.Add(appointment);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Appointment scheduled and assigned to Sales Staff successfully!";
+                return RedirectToAction(nameof(AllAppointments));
+            }
+
+            var salesStaff = await _userManager.GetUsersInRoleAsync("Sales Staff");
+            ViewBag.SalesStaffList = salesStaff
+                .Select(u => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = u.Id,
+                    Text = $"{u.FirstName} {u.LastName}"
+                }).ToList();
+
+            var customers = await _context.Customers.ToListAsync();
+            ViewBag.CustomerList = customers
+                .Select(c => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.ContactName
+                }).ToList();
+
+            return View(appointment);
+        }
+
+        // --- EDIT & REASSIGN ---
+
+        [HttpGet]
+        public async Task<IActionResult> EditLead(int? id)
+        {
+            if (id == null) return NotFound();
+            var lead = await _leadService.GetLeadByIdAsync(id.Value);
+            if (lead == null) return NotFound();
+
+            var salesStaff = await _userManager.GetUsersInRoleAsync("Sales Staff");
+            ViewBag.SalesStaffList = salesStaff
+                .Select(u => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = u.Id,
+                    Text = $"{u.FirstName} {u.LastName}",
+                    Selected = u.Id == lead.AssignedToUserId
+                }).ToList();
+
+            return View(lead);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditLead(int id, [Bind("Id,FirstName,LastName,Email,Phone,Company,Source,Status,CreatedAt,AssignedToUserId")] Models.Lead lead)
+        {
+            if (id != lead.Id) return NotFound();
+            if (ModelState.IsValid)
+            {
+                await _leadService.UpdateLeadAsync(lead);
+                TempData["Success"] = "Lead updated and reassigned successfully!";
+                return RedirectToAction(nameof(AllLeads));
+            }
+
+            var salesStaff = await _userManager.GetUsersInRoleAsync("Sales Staff");
+            ViewBag.SalesStaffList = salesStaff
+                .Select(u => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = u.Id,
+                    Text = $"{u.FirstName} {u.LastName}",
+                    Selected = u.Id == lead.AssignedToUserId
+                }).ToList();
+            return View(lead);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditOpportunity(int? id)
+        {
+            if (id == null) return NotFound();
+            var opp = await _opportunityService.GetOpportunityByIdAsync(id.Value);
+            if (opp == null) return NotFound();
+
+            var salesStaff = await _userManager.GetUsersInRoleAsync("Sales Staff");
+            ViewBag.SalesStaffList = salesStaff
+                .Select(u => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = u.Id,
+                    Text = $"{u.FirstName} {u.LastName}",
+                    Selected = u.Id == opp.AssignedToUserId
+                }).ToList();
+
+            return View(opp);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditOpportunity(int id, [Bind("Id,Name,EstimatedValue,Stage,Probability,ExpectedCloseDate,CreatedAt,AssignedToUserId")] Models.Opportunity opp)
+        {
+            if (id != opp.Id) return NotFound();
+            if (ModelState.IsValid)
+            {
+                await _opportunityService.UpdateOpportunityAsync(opp);
+                TempData["Success"] = "Opportunity updated and reassigned successfully!";
+                return RedirectToAction(nameof(AllOpportunities));
+            }
+
+            var salesStaff = await _userManager.GetUsersInRoleAsync("Sales Staff");
+            ViewBag.SalesStaffList = salesStaff
+                .Select(u => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = u.Id,
+                    Text = $"{u.FirstName} {u.LastName}",
+                    Selected = u.Id == opp.AssignedToUserId
+                }).ToList();
+            return View(opp);
         }
     }
 }

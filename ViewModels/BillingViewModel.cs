@@ -24,5 +24,9 @@ namespace ClientSphere.ViewModels
         public decimal Amount { get; set; }
         public string Status { get; set; } = "Unpaid"; // Paid, Unpaid, Overdue
         public string PaymentMethod { get; set; } = "-";
+        
+        // Exchange Rate API integration
+        public decimal ExchangeRate { get; set; } = 1.0m;
+        public decimal AmountInPHP => Amount * ExchangeRate;
     }
 }

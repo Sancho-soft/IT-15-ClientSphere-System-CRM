@@ -15,27 +15,23 @@ namespace ClientSphere.Controllers
             _productService = productService;
         }
 
-        // GET: Products
-        public async Task<IActionResult> Index()
+        // GET: Products — supports ?archived=true
+        public async Task<IActionResult> Index(bool archived = false)
         {
             var products = await _productService.GetAllProductsAsync();
-            return View(products);
+            var filtered = archived
+                ? products.Where(p => p.IsArchived)
+                : products.Where(p => !p.IsArchived);
+            ViewData["IsArchived"] = archived;
+            return View(filtered);
         }
 
         // GET: Products/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
             var product = await _productService.GetProductByIdAsync(id.Value);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
+            if (product == null) return NotFound();
             return View(product);
         }
 
@@ -61,16 +57,9 @@ namespace ClientSphere.Controllers
         // GET: Products/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
+            if (id == null) return NotFound();
             var product = await _productService.GetProductByIdAsync(id.Value);
-            if (product == null)
-            {
-                return NotFound();
-            }
+            if (product == null) return NotFound();
             return View(product);
         }
 
@@ -79,58 +68,46 @@ namespace ClientSphere.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,StockQuantity,CreatedAt")] Product product)
         {
-            if (id != product.Id)
-            {
-                return NotFound();
-            }
-
+            if (id != product.Id) return NotFound();
             if (ModelState.IsValid)
             {
-                try
-                {
-                    await _productService.UpdateProductAsync(product);
-                }
+                try { await _productService.UpdateProductAsync(product); }
                 catch (Exception)
                 {
-                    var exists = await _productService.GetProductByIdAsync(id);
-                    if (exists == null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (await _productService.GetProductByIdAsync(id) == null) return NotFound();
+                    else throw;
                 }
                 return RedirectToAction(nameof(Index));
             }
             return View(product);
         }
 
-        // GET: Products/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        // POST: Products/Archive/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ArchiveProduct(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var product = await _productService.GetProductByIdAsync(id.Value);
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            return View(product);
+            var product = await _productService.GetProductByIdAsync(id);
+            if (product == null) return NotFound();
+            product.IsArchived = true;
+            product.ArchivedAt = DateTime.UtcNow;
+            await _productService.UpdateProductAsync(product);
+            TempData["Success"] = $"\"{product.Name}\" has been archived.";
+            return RedirectToAction(nameof(Index));
         }
 
-        // POST: Products/Delete/5
-        [HttpPost, ActionName("Delete")]
+        // POST: Products/UnarchiveProduct/5
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> UnarchiveProduct(int id)
         {
-            await _productService.DeleteProductAsync(id);
-            return RedirectToAction(nameof(Index));
+            var product = await _productService.GetProductByIdAsync(id);
+            if (product == null) return NotFound();
+            product.IsArchived = false;
+            product.ArchivedAt = null;
+            await _productService.UpdateProductAsync(product);
+            TempData["Success"] = $"\"{product.Name}\" has been restored.";
+            return RedirectToAction(nameof(Index), new { archived = true });
         }
     }
 }

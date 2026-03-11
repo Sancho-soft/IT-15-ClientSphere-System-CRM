@@ -141,31 +141,6 @@ namespace ClientSphere.Controllers
             return View(customer);
         }
 
-        // GET: Customers/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var customer = await _customerService.GetCustomerByIdAsync(id.Value);
-            if (customer == null)
-            {
-                return NotFound();
-            }
-
-            return View(customer);
-        }
-
-        // POST: Customers/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            await _customerService.DeleteCustomerAsync(id);
-            return RedirectToAction(nameof(Index));
-        }
 
         // POST: Customers/ToggleActive/5
         [HttpPost]

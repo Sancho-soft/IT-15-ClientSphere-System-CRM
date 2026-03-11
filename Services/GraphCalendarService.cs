@@ -22,10 +22,10 @@ namespace ClientSphere.Services
         public GraphCalendarService(IConfiguration configuration)
         {
             _configuration = configuration;
-            _clientId = _configuration["MicrosoftGraph:ClientId"];
-            _clientSecret = _configuration["MicrosoftGraph:ClientSecret"];
+            _clientId = _configuration["MicrosoftGraph:ClientId"] ?? string.Empty;
+            _clientSecret = _configuration["MicrosoftGraph:ClientSecret"] ?? string.Empty;
             _tenantId = _configuration["MicrosoftGraph:TenantId"] ?? "common";
-            _redirectUri = _configuration["MicrosoftGraph:RedirectUri"];
+            _redirectUri = _configuration["MicrosoftGraph:RedirectUri"] ?? string.Empty;
         }
 
         public async Task<string> GetAuthorizationUrlAsync(string userId)

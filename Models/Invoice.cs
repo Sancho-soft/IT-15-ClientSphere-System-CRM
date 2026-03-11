@@ -26,7 +26,9 @@ namespace ClientSphere.Models
 
         public string? Status { get; set; } // Draft, Sent, Paid, Overdue, Cancelled
         
-        public string? PaymentMethod { get; set; } // GCash, PayMaya
+        public string? PaymentMethod { get; set; } // GCash, PayMaya, etc.
+
+        public string? TransactionId { get; set; } // PayMongo payment/transaction reference ID
 
         public bool IsArchived { get; set; } = false;
 

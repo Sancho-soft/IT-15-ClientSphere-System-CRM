@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ClientSphere.Models.Lead>
+@model IEnumerable<ClientSphere.Models.Lead>
 @{
     ViewData["Title"] = "My Leads";
     ViewData["HideTopNavTitle"] = true;
@@ -43,8 +43,16 @@
                             <td>@lead.Source</td>
                             <td>@lead.CreatedAt.ToString("MMM dd, yyyy")</td>
                             <td class="text-end pe-4">
-                                <a asp-controller="SalesStaff" asp-action="EditLead" asp-route-id="@lead.Id" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i></a>
-                                <a asp-controller="SalesStaff" asp-action="Dashboard" class="btn btn-sm btn-outline-success"><i class="bi bi-check-lg"></i></a>
+                                <a asp-controller="SalesStaff" asp-action="EditLead" asp-route-id="@lead.Id" class="btn btn-sm btn-outline-primary me-1" title="Edit Lead"><i class="bi bi-pencil"></i></a>
+                                @if(lead.Status != "Qualified")
+                                {
+                                    <form asp-controller="SalesStaff" asp-action="ConvertToOpportunity" asp-route-id="@lead.Id" method="post" style="display:inline;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Convert to Opportunity" onclick="return confirm('Are you sure you want to convert this Lead to an Opportunity?');">
+                                            <i class="bi bi-arrow-right-circle"></i> Convert
+                                        </button>
+                                    </form>
+                                }
                             </td>
                         </tr>
                     }

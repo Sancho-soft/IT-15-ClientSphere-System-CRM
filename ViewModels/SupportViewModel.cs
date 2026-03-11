@@ -25,5 +25,6 @@ namespace ClientSphere.ViewModels
         public string AssignedTo { get; set; } = "Unassigned";
         public DateTime CreatedAt { get; set; }
         public DateTime LastUpdated { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }
