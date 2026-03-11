@@ -52,6 +52,13 @@ builder.Services.AddControllersWithViews(options => {
     options.Filters.Add<ClientSphere.Filters.AuditLogFilter>();
 });
 
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
 var defaultCulture = new System.Globalization.CultureInfo("en-PH");
@@ -92,6 +99,8 @@ app.UseDeveloperExceptionPage(); // FORCE DETAILED ERRORS FOR DEBUGGING
 
 app.UseHttpsRedirection();
 app.UseRouting();
+
+app.UseSession();
 
 app.UseAuthentication();
 app.UseAuthorization();
