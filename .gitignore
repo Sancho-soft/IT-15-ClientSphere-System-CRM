@@ -8,3 +8,10 @@ packages/
 
 # Ignore publish folder
 publish_output/
+
+# !! SECURITY: Never commit real credentials to source control !!
+# Copy appsettings.example.json -> appsettings.json and fill in real values locally.
+appsettings.json
+appsettings.Production.json
+appsettings.*.json
+!appsettings.example.json
