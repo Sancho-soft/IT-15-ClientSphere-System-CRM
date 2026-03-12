@@ -20,6 +20,8 @@ namespace ClientSphere.ViewModels
         public string Type { get; set; } = "Email"; // Email, SMS, Social Media, Call
         public string Status { get; set; } = "Draft"; // Draft, Active, Completed, Paused
         public decimal Budget { get; set; }
+        public decimal ExpectedRevenue { get; set; }
+        public decimal ActualRevenue { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int Recipients { get; set; }

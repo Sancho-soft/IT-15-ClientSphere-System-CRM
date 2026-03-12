@@ -101,6 +101,9 @@
                     <a class="nav-link @(ViewData["CurrentPage"] as string == "AllAppointments" ? "active" : "")" asp-area="" asp-controller="SalesManager" asp-action="AllAppointments">
                         <i class="bi bi-calendar-check"></i> All Appointments
                     </a>
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Analytics" ? "active" : "")" asp-area="" asp-controller="Analytics" asp-action="Index">
+                        <i class="bi bi-bar-chart"></i> Analytics
+                    </a>
                 }
 
                 @* --- SALES STAFF --- *@
@@ -160,6 +163,9 @@
                     <a class="nav-link @(ViewData["CurrentPage"] as string == "CreateCampaign" ? "active" : "")" asp-area="" asp-controller="Marketing" asp-action="Create">
                         <i class="bi bi-plus-circle"></i> Create Campaign
                     </a>
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Analytics" ? "active" : "")" asp-area="" asp-controller="Analytics" asp-action="Index">
+                        <i class="bi bi-bar-chart"></i> Analytics
+                    </a>
                 }
 
                 @* --- BILLING STAFF --- *@
@@ -173,6 +179,9 @@
                     </a>
                     <a class="nav-link @(ViewData["CurrentPage"] as string == "PaymentHistory" ? "active" : "")" asp-area="" asp-controller="BillingStaff" asp-action="PaymentHistory">
                         <i class="bi bi-clock-history"></i> Payment History
+                    </a>
+                    <a class="nav-link @(ViewData["CurrentPage"] as string == "Analytics" ? "active" : "")" asp-area="" asp-controller="Analytics" asp-action="Index">
+                        <i class="bi bi-bar-chart"></i> Analytics
                     </a>
                 }
 
@@ -215,7 +224,7 @@
                             <i class="bi bi-hdd-stack"></i> Module Management
                         </a>
                     }
-                    <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Analytics">
+                    <a class="nav-link" asp-area="" asp-controller="Analytics" asp-action="Index">
                         <i class="bi bi-bar-chart"></i> Analytics
                     </a>
                     @if (User.IsInRole("Super Admin"))

@@ -1,5 +1,6 @@
 using ClientSphere.ViewModels;
 using ClientSphere.Services;
+using ClientSphere.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -12,11 +13,13 @@ namespace ClientSphere.Controllers
     {
         private readonly ICampaignService _campaignService;
         private readonly ICloudinaryService _cloudinaryService;
+        private readonly ApplicationDbContext _context;
 
-        public MarketingController(ICampaignService campaignService, ICloudinaryService cloudinaryService)
+        public MarketingController(ICampaignService campaignService, ICloudinaryService cloudinaryService, ApplicationDbContext context)
         {
             _campaignService = campaignService;
             _cloudinaryService = cloudinaryService;
+            _context = context;
         }
 
         public async Task<IActionResult> Index(bool archived = false)
@@ -32,22 +35,35 @@ namespace ClientSphere.Controllers
                 TotalCampaigns = campaigns.Count(),
                 ActiveBudget = campaigns.Any(c => c.Status == "Active") ? campaigns.Where(c => c.Status == "Active").Sum(c => c.Budget) : 0,
                 TotalRecipients = campaigns.Any() ? campaigns.Sum(c => c.TargetAudienceSize) : 0,
-                AvgResponseRate = campaigns.Any() ? campaigns.Average(c => ((double)c.ExpectedRevenue / (double)c.Budget) * 100) : 0,
-                Campaigns = campaigns.Select(c => new CampaignViewModel
+                AvgResponseRate = campaigns.Any() ? campaigns.Average(c => ((double)c.ExpectedRevenue / (double)Math.Max(c.Budget, 1)) * 100) : 0,
+                Campaigns = campaigns.Select(c =>
                 {
-                    Id = c.Id,
-                    CampaignId = $"CAMP-{c.Id:D3}",
-                    Name = c.Name,
-                    Type = c.Type,
-                    Status = c.Status,
-                    Budget = c.Budget,
-                    StartDate = c.StartDate,
-                    EndDate = c.EndDate ?? DateTime.UtcNow.AddDays(30),
-                    Recipients = c.TargetAudienceSize,
-                    Responses = (int)(c.ExpectedRevenue / 100),
-                    ResponseRate = ((double)c.ExpectedRevenue / (double)c.Budget) * 100,
-                    ManagedBy = "Marketing Team",
-                    ImageUrl = c.ImageUrl
+                    // Calculate actual revenue from paid invoices within this campaign's date range
+                    var campaignEnd = c.EndDate ?? DateTime.UtcNow;
+                    var actualRev = _context.Invoices
+                        .Where(i => i.Status == "Paid" &&
+                                    i.IssueDate >= c.StartDate.Date &&
+                                    i.IssueDate <= campaignEnd.Date)
+                        .Sum(i => (decimal?)i.Amount) ?? 0m;
+
+                    return new CampaignViewModel
+                    {
+                        Id = c.Id,
+                        CampaignId = $"CAMP-{c.Id:D3}",
+                        Name = c.Name,
+                        Type = c.Type,
+                        Status = c.Status,
+                        Budget = c.Budget,
+                        ExpectedRevenue = c.ExpectedRevenue,
+                        ActualRevenue = actualRev,
+                        StartDate = c.StartDate,
+                        EndDate = c.EndDate ?? DateTime.UtcNow.AddDays(30),
+                        Recipients = c.TargetAudienceSize,
+                        Responses = (int)(c.ExpectedRevenue / 100),
+                        ResponseRate = c.Budget > 0 ? Math.Round(((double)c.ExpectedRevenue / (double)c.Budget) * 100, 1) : 0,
+                        ManagedBy = "Marketing Team",
+                        ImageUrl = c.ImageUrl
+                    };
                 }).ToList()
             };
 

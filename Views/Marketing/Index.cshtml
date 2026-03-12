@@ -129,7 +129,7 @@
                             </div>
                             @if(campaign.Status == "Active") { <span class="badge bg-success-subtle text-success rounded-pill px-3">Active</span> }
                             else if(campaign.Status == "Completed") { <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3">Completed</span> }
-                            else { <span class="badge bg-light text-dark rounded-pill px-3">@campaign.Status</span> }
+                            else { <span class="badge bg-body-tertiary text-body rounded-pill px-3">@campaign.Status</span> }
                         </div>
 
                         <div class="row mb-3">
@@ -140,6 +140,24 @@
                             <div class="col-6 text-end">
                                 <div class="small text-muted">Budget</div>
                                 <div class="fw-bold">&#8369;@campaign.Budget.ToString("N0")</div>
+                            </div>
+                        </div>
+
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <div class="small text-muted">Expected Revenue</div>
+                                <div class="fw-bold text-muted">&#8369;@campaign.ExpectedRevenue.ToString("N0")</div>
+                            </div>
+                            <div class="col-6 text-end">
+                                <div class="small text-muted">Actual Revenue</div>
+                                <div class="fw-bold @(campaign.ActualRevenue >= campaign.ExpectedRevenue ? "text-success" : campaign.ActualRevenue > 0 ? "text-warning" : "text-danger")">
+                                    &#8369;@campaign.ActualRevenue.ToString("N0")
+                                    @if (campaign.ExpectedRevenue > 0)
+                                    {
+                                        var pct = (double)campaign.ActualRevenue / (double)campaign.ExpectedRevenue * 100;
+                                        <small class="text-muted fw-normal">(@pct.ToString("0")%)</small>
+                                    }
+                                </div>
                             </div>
                         </div>
 

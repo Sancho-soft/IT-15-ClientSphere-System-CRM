@@ -1,0 +1,96 @@
+@model ClientSphere.Models.Appointment
+@{
+    ViewData["Title"] = "Oversight: Edit Appointment";
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "AllAppointments";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="bi bi-shield-check text-primary me-2"></i>Manager Oversight: Edit Appointment</h2>
+        <p class="text-muted mb-0">Override meeting details or optionally reassign to a different staff member.</p>
+    </div>
+    <a asp-action="AllAppointments" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back to Team Calendar</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form asp-action="EditAppointment">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CreatedAt" />
+            <input type="hidden" asp-for="ExternalCalendarId" />
+            
+            <div class="row g-3">
+                <div class="col-md-6 mb-2">
+                    <label asp-for="OrganizerUserId" class="form-label fw-medium w-100">Assigned Staff <span class="badge bg-warning text-dark float-end">Manager Override</span></label>
+                    <select asp-for="OrganizerUserId" class="form-select border-warning" asp-items="ViewBag.SalesStaffList">
+                         <option value="">-- Reassign to Staff --</option>
+                    </select>
+                    <span asp-validation-for="OrganizerUserId" class="text-danger small"></span>
+                </div>
+                
+                 <div class="col-md-6 mb-2">
+                    <label asp-for="CustomerId" class="form-label fw-medium w-100">Customer <span class="badge bg-warning text-dark float-end">Manager Override</span></label>
+                    <select asp-for="CustomerId" class="form-select border-warning" asp-items="ViewBag.CustomerList">
+                         <option value="">-- Change Customer --</option>
+                    </select>
+                    <span asp-validation-for="CustomerId" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 mt-4 pt-3 border-top">
+                     <h5 class="fw-bold mb-3">Meeting Logistics</h5>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Title" class="form-label fw-medium"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+                
+                <div class="col-12">
+                    <label asp-for="Description" class="form-label fw-medium"></label>
+                    <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+                
+                <div class="col-md-6">
+                    <label asp-for="StartTime" class="form-label fw-medium"></label>
+                    <input asp-for="StartTime" class="form-control" type="datetime-local" />
+                    <span asp-validation-for="StartTime" class="text-danger small"></span>
+                </div>
+                
+                <div class="col-md-6">
+                    <label asp-for="EndTime" class="form-label fw-medium"></label>
+                    <input asp-for="EndTime" class="form-control" type="datetime-local" />
+                    <span asp-validation-for="EndTime" class="text-danger small"></span>
+                </div>
+                
+                <div class="col-md-6">
+                    <label asp-for="Location" class="form-label fw-medium"></label>
+                    <input asp-for="Location" class="form-control" />
+                    <span asp-validation-for="Location" class="text-danger small"></span>
+                </div>
+                
+                <div class="col-md-6">
+                    <label asp-for="Status" class="form-label fw-medium"></label>
+                    <select asp-for="Status" class="form-select">
+                        <option value="Scheduled">Scheduled</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger small"></span>
+                </div>
+            </div>
+            
+            <div class="mt-4 pt-4 border-top d-flex justify-content-end gap-2">
+                <a asp-action="AllAppointments" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-warning fw-bold text-dark"><i class="bi bi-save me-2"></i>Force Override Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

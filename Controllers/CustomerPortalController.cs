@@ -46,6 +46,7 @@ namespace ClientSphere.Controllers
             if (customer != null)
             {
                  realOrders = _context.Orders
+                    .Include(o => o.OrderItems)
                     .Where(o => o.CustomerId == customer.Id)
                     .OrderByDescending(o => o.OrderDate)
                     .ToList();
@@ -121,6 +122,7 @@ namespace ClientSphere.Controllers
             if (customer != null)
             {
                 orders = _context.Orders
+                    .Include(o => o.OrderItems)
                     .Where(o => o.CustomerId == customer.Id)
                     .OrderByDescending(o => o.OrderDate)
                     .ToList();

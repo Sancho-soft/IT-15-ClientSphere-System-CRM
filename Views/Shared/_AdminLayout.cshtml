@@ -95,7 +95,7 @@
                         <i class="bi bi-hdd-stack"></i> Module Management
                     </a>
                 }
-                <a class="nav-link @(ViewData["CurrentPage"] as string == "Analytics" ? "active" : "")" asp-controller="Admin" asp-action="Analytics">
+                <a class="nav-link @(ViewData["CurrentPage"] as string == "Analytics" ? "active" : "")" asp-controller="Analytics" asp-action="Index">
                     <i class="bi bi-bar-chart"></i> Analytics
                 </a>
                 <a class="nav-link @(ViewData["CurrentPage"] as string == "System Settings" ? "active" : "")" asp-controller="Admin" asp-action="SystemSettings">

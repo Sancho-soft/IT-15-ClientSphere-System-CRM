@@ -25,6 +25,7 @@ namespace ClientSphere.Models
 
         public decimal Budget { get; set; }
         public decimal ExpectedRevenue { get; set; }
+        public decimal ActualRevenue { get; set; } // Updated by billing when invoices are paid
 
         public int TargetAudienceSize { get; set; }
         public int ActualRecipients { get; set; }

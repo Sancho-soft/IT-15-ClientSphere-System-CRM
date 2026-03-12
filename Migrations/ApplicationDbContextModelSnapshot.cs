@@ -219,6 +219,9 @@ namespace ClientSphere.Migrations
                     b.Property<int>("ActualRecipients")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("ActualRevenue")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime?>("ArchivedAt")
                         .HasColumnType("datetime2");
 
