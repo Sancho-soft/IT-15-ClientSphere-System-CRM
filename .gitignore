@@ -25,3 +25,7 @@ extracted_docx.txt
 pdf_img_*.png
 *.txt
 !wwwroot/lib/**/*.txt
+*.pdf
+*.docx
+*.zip
+3RD_DELIVERABLE.md
