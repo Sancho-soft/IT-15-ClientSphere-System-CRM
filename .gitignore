@@ -15,3 +15,10 @@ appsettings.json
 appsettings.Production.json
 appsettings.*.json
 !appsettings.example.json
+
+# Documentation and extraction scripts
+Reyes-IT15_PROJECT FINAL DOCS*
+Charles_Docs_Extracted/
+convert_md_to_docx.py
+extract_docx.py
+extracted_docx.txt
