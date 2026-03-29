@@ -152,6 +152,22 @@ body {
   color: #cdd9ea !important;
 }
 
+/* Fix btn-light (the white filters) */
+[data-bs-theme="dark"] .btn-light {
+  background-color: #1a2f50 !important;
+  border-color: #253a5e !important;
+  color: #cdd9ea !important;
+}
+[data-bs-theme="dark"] .btn-light:hover {
+  background-color: #1e3460 !important;
+  color: #fff !important;
+}
+
+/* Fix hardcoded text-dark */
+[data-bs-theme="dark"] .text-dark {
+  color: #cdd9ea !important;
+}
+
 /* Fix cards */
 [data-bs-theme="dark"] .card {
   background-color: #122240;

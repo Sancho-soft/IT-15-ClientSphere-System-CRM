@@ -43,7 +43,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Total Campaigns</div>
-                        <h3 class="fw-bold mb-0 text-dark">@Model.TotalCampaigns</h3>
+                        <h3 class="fw-bold mb-0">@Model.TotalCampaigns</h3>
                     </div>
                 </div>
             </div>
@@ -56,7 +56,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Active Budget</div>
-                        <h3 class="fw-bold mb-0 text-dark">&#8369;@Model.ActiveBudget.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0">&#8369;@Model.ActiveBudget.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -69,7 +69,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Total Recipients</div>
-                        <h3 class="fw-bold mb-0 text-dark">@Model.TotalRecipients.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0">@Model.TotalRecipients.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -82,7 +82,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Avg Response Rate</div>
-                        <h3 class="fw-bold mb-0 text-dark">@Model.AvgResponseRate%</h3>
+                        <h3 class="fw-bold mb-0">@Model.AvgResponseRate%</h3>
                     </div>
                 </div>
             </div>
@@ -93,10 +93,10 @@
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-2">
             <div class="input-group">
-                <span class="input-group-text bg-white border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
-                <input type="text" class="form-control border-0" placeholder="Search campaigns by name or ID...">
-                <button class="btn btn-light border-start rounded-0 px-4" type="button"><i class="bi bi-funnel me-2"></i> All Status</button>
-                <button class="btn btn-light border-start rounded-0 px-4" type="button">All Types</button>
+                <span class="input-group-text bg-body border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control bg-body border-0" placeholder="Search campaigns by name or ID...">
+                <button class="btn btn-outline-secondary border-start rounded-0 px-4" type="button"><i class="bi bi-funnel me-2"></i> All Status</button>
+                <button class="btn btn-outline-secondary border-start rounded-0 px-4" type="button">All Types</button>
             </div>
         </div>
     </div>

@@ -1,5 +1,7 @@
 @page
 @model RegisterModel
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
 @{
     ViewData["Title"] = "Register";
 }
@@ -15,6 +17,7 @@
                     </div>
 
                     <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                        <div class="cf-turnstile mt-2 mb-3" data-sitekey="@Configuration["Turnstile:SiteKey"]" data-action="register"></div>
                         <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
 
                         <!-- Personal Information -->
@@ -155,6 +158,7 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <script>
         // Toggle password visibility for Password field
         document.getElementById('toggleRegisterPassword').addEventListener('click', function () {
@@ -321,3 +325,4 @@
         });
     </script>
 }
+

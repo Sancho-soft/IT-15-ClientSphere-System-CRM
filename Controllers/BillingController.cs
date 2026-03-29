@@ -75,6 +75,31 @@ namespace ClientSphere.Controllers
             return View(viewModel);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> ExportCsv(bool archived = false)
+        {
+            var allInvoices = await _invoiceService.GetAllInvoicesAsync();
+            var filteredInvoices = allInvoices.Where(i => i.IsArchived == archived).ToList();
+
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("Invoice ID,Issue Date,Due Date,Customer,Sale ID,Status,Payment Method,Subtotal,VAT (12%),Total");
+
+            foreach (var invoice in filteredInvoices)
+            {
+                var customerName = invoice.Customer?.ContactName ?? "Unknown";
+                var vat = invoice.Amount * 0.12m;
+                var total = invoice.Amount + vat;
+                
+                // Escape quotes if customer name has commas
+                var safeCustomerName = customerName.Replace("\"", "\"\"");
+                
+                sb.AppendLine($"{invoice.InvoiceNumber},{invoice.IssueDate:yyyy-MM-dd},{invoice.DueDate:yyyy-MM-dd},\"{safeCustomerName}\",{invoice.OrderId},{invoice.Status},{invoice.PaymentMethod},{invoice.Amount:0.00},{vat:0.00},{total:0.00}");
+            }
+
+            var fileBytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
+            return File(fileBytes, "text/csv", $"ClientSphere_Invoices_{DateTime.Now:yyyyMMdd}.csv");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Super Admin,Admin,Billing Staff")]

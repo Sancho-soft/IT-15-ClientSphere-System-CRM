@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore; // Added this line
 
 namespace ClientSphere.Controllers
 {
-    [Authorize(Roles = "Sales Staff,Admin")]
+    [Authorize(Roles = "Sales Staff,Admin,Super Admin")]
     public class SalesStaffController : Controller
     {
         private readonly ILeadService _leadService;

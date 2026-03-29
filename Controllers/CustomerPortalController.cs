@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ClientSphere.Controllers
 {
-    [Authorize(Roles = "Customer, Admin")]
+    [Authorize(Roles = "Customer, Admin, Super Admin")]
     public class CustomerPortalController : Controller
     {
         private readonly ApplicationDbContext _context;

@@ -18,5 +18,9 @@ namespace ClientSphere.Models
         public string? Province { get; set; }
         public string? City { get; set; }
         public string? Barangay { get; set; }
+
+        // Security / Geolocation fields
+        public string? LastLoginIp { get; set; }
+        public string? LastLoginLocation { get; set; }
     }
 }

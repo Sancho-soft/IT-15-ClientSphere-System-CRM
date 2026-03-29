@@ -8,7 +8,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace ClientSphere.Services
 {
-    public class SendGridEmailService : IEmailService
+    public class SendGridEmailService : IEmailService, Microsoft.AspNetCore.Identity.UI.Services.IEmailSender
     {
         private readonly IConfiguration _configuration;
         private readonly string _apiKey;
@@ -93,6 +93,15 @@ namespace ClientSphere.Services
             {
                 return false;
             }
+        }
+        public async Task SendEmailAsync(string email, string subject, string htmlMessage)
+        {
+            var client = new SendGridClient(_apiKey);
+            var from = new EmailAddress(_senderEmail, _senderName);
+            var to = new EmailAddress(email);
+            // Identity usually sends HTML payloads, so we inject the plain text equivalent where appropriate, or just fallback to htmlMessage.
+            var msg = MailHelper.CreateSingleEmail(from, to, subject, htmlMessage, htmlMessage);
+            await client.SendEmailAsync(msg);
         }
     }
 }

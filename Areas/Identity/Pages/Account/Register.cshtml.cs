@@ -12,15 +12,18 @@ namespace ClientSphere.Areas.Identity.Pages.Account
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
+        private readonly ClientSphere.Services.ITurnstileService _turnstileService;
 
         public RegisterModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            ILogger<RegisterModel> logger)
+            ILogger<RegisterModel> logger,
+            ClientSphere.Services.ITurnstileService turnstileService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _turnstileService = turnstileService;
         }
 
         [BindProperty]
@@ -85,6 +88,8 @@ namespace ClientSphere.Areas.Identity.Pages.Account
             [Phone]
             [Display(Name = "Phone Number")]
             public string PhoneNumber { get; set; } = string.Empty;
+            [BindProperty(Name = "cf-turnstile-response")]
+            public string? TurnstileToken { get; set; }
         }
 
         public async Task OnGetAsync(string? returnUrl = null)
@@ -100,6 +105,13 @@ namespace ClientSphere.Areas.Identity.Pages.Account
             
             if (ModelState.IsValid)
             {
+                var isHuman = await _turnstileService.VerifyTokenAsync(Input.TurnstileToken);
+                if (!isHuman)
+                {
+                    ModelState.AddModelError(string.Empty, "Cloudflare Turnstile verification failed. Please try again.");
+                    return Page();
+                }
+
                 var user = new ApplicationUser 
                 { 
                     UserName = Input.Email, 

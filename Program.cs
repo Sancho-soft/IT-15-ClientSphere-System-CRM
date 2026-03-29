@@ -2,6 +2,8 @@ using ClientSphere.Data;
 using ClientSphere.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,19 +13,25 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 
+
+
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.SignIn.RequireConfirmedAccount = false;
-    // TEMPORARY: Relax password requirements to allow email address as password
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequiredLength = 1;
-    options.Password.RequiredUniqueChars = 0;
+    // Enforce strict password requirements for security
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequiredUniqueChars = 1;
 })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultUI()
-    .AddDefaultTokenProviders();
+    .AddDefaultTokenProviders()
+    .AddPasswordValidator<ClientSphere.Services.PwnedPasswordValidator<ApplicationUser>>();
+
+builder.Services.AddHttpClient<ClientSphere.Services.PwnedPasswordValidator<ApplicationUser>>();
 
 builder.Services.AddScoped<ClientSphere.Repositories.ICustomerRepository, ClientSphere.Repositories.CustomerRepository>();
 builder.Services.AddScoped<ClientSphere.Repositories.IProductRepository, ClientSphere.Repositories.ProductRepository>();
@@ -40,9 +48,12 @@ builder.Services.AddScoped<ClientSphere.Services.ICampaignService, ClientSphere.
 builder.Services.AddScoped<ClientSphere.Services.IInvoiceService, ClientSphere.Services.InvoiceService>();
 
 // API Integration Services
+builder.Services.AddHttpClient<ClientSphere.Services.IIpGeolocationService, ClientSphere.Services.IpGeolocationService>();
+builder.Services.AddHttpClient<ClientSphere.Services.ITurnstileService, ClientSphere.Services.TurnstileService>();
 builder.Services.AddScoped<ClientSphere.Services.IPaymongoService, ClientSphere.Services.PaymongoService>();
 builder.Services.AddScoped<ClientSphere.Services.ICloudinaryService, ClientSphere.Services.CloudinaryService>();
 builder.Services.AddScoped<ClientSphere.Services.IEmailService, ClientSphere.Services.SendGridEmailService>();
+builder.Services.AddScoped<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, ClientSphere.Services.SendGridEmailService>();
 builder.Services.AddScoped<ClientSphere.Services.ICalendarService, ClientSphere.Services.GraphCalendarService>();
 builder.Services.AddScoped<ClientSphere.Services.ISystemSettingService, ClientSphere.Services.SystemSettingService>();
 builder.Services.AddScoped<ClientSphere.Services.INotificationService, ClientSphere.Services.NotificationService>();
@@ -50,6 +61,7 @@ builder.Services.AddScoped<ClientSphere.Services.INotificationService, ClientSph
 builder.Services.AddScoped<ClientSphere.Filters.AuditLogFilter>();
 builder.Services.AddControllersWithViews(options => {
     options.Filters.Add<ClientSphere.Filters.AuditLogFilter>();
+    options.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute());
 });
 
 builder.Services.AddSession(options =>
@@ -57,6 +69,22 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+});
+
+// Add Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers.Host.ToString(),
+            factory: partition => new FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100, // Limit to 100 requests
+                QueueLimit = 0,
+                Window = TimeSpan.FromMinutes(1) // per 1 minute per IP
+            }));
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
 var app = builder.Build();
@@ -88,14 +116,28 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-// Configure the HTTP request pipeline.
-// if (!app.Environment.IsDevelopment())
-// {
-//     app.UseExceptionHandler("/Home/Error");
-//     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-//     app.UseHsts();
-// }
-app.UseDeveloperExceptionPage(); // FORCE DETAILED ERRORS FOR DEBUGGING
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
+}
+else
+{
+    app.UseDeveloperExceptionPage(); // FORCE DETAILED ERRORS FOR DEBUGGING
+}
+
+// Security Headers Middleware
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    await next();
+});
+
+app.UseRateLimiter(); // Apply Rate Limiting
 
 app.UseHttpsRedirection();
 app.UseRouting();

@@ -24,6 +24,10 @@ namespace ClientSphere.ViewModels
         public decimal Amount { get; set; }
         public string Status { get; set; } = "Unpaid"; // Paid, Unpaid, Overdue
         public string PaymentMethod { get; set; } = "-";
+
+        // VAT calculations
+        public decimal VatAmount => Amount * 0.12m;
+        public decimal TotalWithVat => Amount + VatAmount;
         
         // Exchange Rate API integration
         public decimal ExchangeRate { get; set; } = 1.0m;

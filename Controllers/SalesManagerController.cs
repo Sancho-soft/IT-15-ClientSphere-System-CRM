@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ClientSphere.Controllers
 {
-    [Authorize(Roles = "Sales Manager,Admin")]
+    [Authorize(Roles = "Sales Manager,Admin,Super Admin")]
     public class SalesManagerController : Controller
     {
         private readonly IOrderService _orderService;

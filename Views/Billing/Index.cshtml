@@ -24,9 +24,9 @@
             <a asp-action="Create" class="btn btn-primary px-4 shadow-sm">
                 <i class="bi bi-plus-lg me-2"></i>Generate Invoice
             </a>
-            <button class="btn btn-white border shadow-sm ms-2" onclick="window.print()">
+            <a href="@Url.Action("ExportCsv", "Billing", new { archived = Context.Request.Query["archived"] })" class="btn btn-outline-secondary shadow-sm ms-2">
                 <i class="bi bi-download me-2"></i>Export
-            </button>
+            </a>
         </div>
     </div>
 
@@ -75,7 +75,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Total Revenue</div>
-                        <h3 class="fw-bold mb-0 text-dark">&#8369;@Model.TotalRevenue.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0">&#8369;@Model.TotalRevenue.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -88,7 +88,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Pending</div>
-                        <h3 class="fw-bold mb-0 text-dark">&#8369;@Model.PendingRevenue.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0">&#8369;@Model.PendingRevenue.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -101,7 +101,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Overdue</div>
-                        <h3 class="fw-bold mb-0 text-dark">&#8369;@Model.OverdueRevenue.ToString("N0")</h3>
+                        <h3 class="fw-bold mb-0">&#8369;@Model.OverdueRevenue.ToString("N0")</h3>
                     </div>
                 </div>
             </div>
@@ -114,7 +114,7 @@
                     </div>
                     <div>
                         <div class="text-muted small">Total Invoices</div>
-                        <h3 class="fw-bold mb-0 text-dark">@Model.TotalInvoices</h3>
+                        <h3 class="fw-bold mb-0">@Model.TotalInvoices</h3>
                     </div>
                 </div>
             </div>
@@ -125,9 +125,9 @@
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-2">
             <div class="input-group">
-                <span class="input-group-text bg-white border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
-                <input type="text" class="form-control border-0" placeholder="Search invoices by ID, customer, or customer ID...">
-                <button class="btn btn-light border-start rounded-0 px-4" type="button"><i class="bi bi-funnel me-2"></i> All Status</button>
+                <span class="input-group-text bg-body border-0 ps-3"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control bg-body border-0" placeholder="Search invoices by ID, customer, or customer ID...">
+                <button class="btn btn-outline-secondary border-start rounded-0 px-4" type="button"><i class="bi bi-funnel me-2"></i> All Status</button>
             </div>
         </div>
     </div>
@@ -142,7 +142,9 @@
                             <th class="ps-4 border-0">Invoice ID</th>
                             <th class="border-0">Customer</th>
                             <th class="border-0">Sale ID</th>
-                            <th class="border-0">Amount</th>
+                            <th class="border-0">Subtotal</th>
+                            <th class="border-0">VAT (12%)</th>
+                            <th class="border-0">Total</th>
                             <th class="border-0">Due Date</th>
                             <th class="border-0">Status</th>
                             <th class="border-0">Payment Method</th>
@@ -159,10 +161,9 @@
                                     <div class="small fw-normal text-muted">@invoice.CustomerId</div>
                                 </td>
                                 <td>@invoice.SaleId</td>
-                                <td class="fw-bold">
-                                    &#8369;@invoice.Amount.ToString("N0")
-                                    <div class="small fw-normal text-muted">~ ₱@invoice.AmountInPHP.ToString("N2") (PHP)</div>
-                                </td>
+                                <td class="fw-bold text-muted">&#8369;@invoice.Amount.ToString("N2")</td>
+                                <td class="fw-bold text-muted">&#8369;@invoice.VatAmount.ToString("N2")</td>
+                                <td class="fw-bold text-primary">&#8369;@invoice.TotalWithVat.ToString("N2")</td>
                                 <td><i class="bi bi-calendar me-1 text-muted"></i> @invoice.DueDate.ToString("yyyy-MM-dd")</td>
                                 <td>
                                     @if(invoice.Status == "Paid")

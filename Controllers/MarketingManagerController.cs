@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ClientSphere.Controllers
 {
-    [Authorize(Roles = "Marketing Manager, Admin")]
+    [Authorize(Roles = "Marketing Manager, Admin, Super Admin")]
     public class MarketingManagerController : Controller
     {
         private readonly ICampaignService _campaignService;
