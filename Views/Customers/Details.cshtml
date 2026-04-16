@@ -1,4 +1,4 @@
-﻿@model ClientSphere.Models.Customer
+@model ClientSphere.Models.Customer
 @inject Microsoft.Extensions.Configuration.IConfiguration Configuration
 
 @{
@@ -154,7 +154,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Combine address fields for geocoding
-            var addressQuery = '@Html.Raw(Model.Address) @Html.Raw(Model.City) @Html.Raw(Model.Country)'.trim();
+            var addressQuery = '@Html.JavaScriptStringEncode(Model.Address) @Html.JavaScriptStringEncode(Model.City) @Html.JavaScriptStringEncode(Model.Country)'.trim();
             
             if (!addressQuery || addressQuery === '') {
                  document.getElementById('map').innerHTML = '<div class="d-flex h-100 justify-content-center align-items-center bg-light text-muted small">No address available to map.</div>';
@@ -185,7 +185,7 @@
                     }).addTo(map);
 
                     // Add a marker at the address
-                    var popupContent = '<h6>@Html.Raw(Model.CompanyName)</h6><p class="small mb-0">@Html.Raw(Model.Address)</p>';
+                    var popupContent = '<h6>' + @Json.Serialize(Model.CompanyName) + '</h6><p class="small mb-0">' + @Json.Serialize(Model.Address) + '</p>';
                     L.marker([lat, lon]).addTo(map)
                         .bindPopup(popupContent)
                         .openPopup();

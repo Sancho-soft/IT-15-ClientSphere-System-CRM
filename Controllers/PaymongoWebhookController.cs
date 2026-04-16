@@ -35,41 +35,43 @@ namespace ClientSphere.Controllers
                 rawBody = await reader.ReadToEndAsync();
             }
 
-            // Temporary Debug Logging to Database
-            var debugInfo = $"SecretKeyToCheck: {_configuration["Paymongo:WebhookSecret"]} | Signature Header: {Request.Headers["Paymongo-Signature"].FirstOrDefault()} | RawBodyStart: {(rawBody.Length > 200 ? rawBody.Substring(0, 200) : rawBody)}";
-            _context.AuditLogs.Add(new ClientSphere.Models.AuditLog 
+            // Log receipt (safe - no secret key or raw body logged)
+            _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
             {
                 Action = "Webhook Received",
-                Description = debugInfo,
+                Description = $"PayMongo webhook received. Event header present: {Request.Headers.ContainsKey("Paymongo-Signature")}",
                 Timestamp = DateTime.UtcNow,
                 UserId = "Webhook",
                 UserName = "System",
-                IpAddress = "127.0.0.1"
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"
             });
             await _context.SaveChangesAsync();
 
-            // Verify the webhook signature
+            // Verify the webhook signature — fail CLOSED if secret is missing
             var webhookSecret = _configuration["Paymongo:WebhookSecret"];
-            if (!string.IsNullOrEmpty(webhookSecret))
+            if (string.IsNullOrEmpty(webhookSecret))
             {
-                var signature = Request.Headers["Paymongo-Signature"].FirstOrDefault();
-                if (string.IsNullOrEmpty(signature) || !IsValidSignature(rawBody, signature, webhookSecret))
+                _logger.LogError("Paymongo:WebhookSecret is not configured. Rejecting all webhook calls.");
+                return StatusCode(500, "Webhook not configured.");
+            }
+
+            var signature = Request.Headers["Paymongo-Signature"].FirstOrDefault();
+            if (string.IsNullOrEmpty(signature) || !IsValidSignature(rawBody, signature, webhookSecret))
+            {
+                _logger.LogWarning("PayMongo webhook received with invalid signature.");
+
+                _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
                 {
-                    _logger.LogWarning("PayMongo webhook received with invalid signature.");
-                    
-                    _context.AuditLogs.Add(new ClientSphere.Models.AuditLog 
-                    {
-                        Action = "Webhook Failed Signature",
-                        Description = $"Expected match failed for signature.",
-                        Timestamp = DateTime.UtcNow,
-                        UserId = "Webhook",
-                        UserName = "System",
-                        IpAddress = "127.0.0.1"
-                    });
-                    await _context.SaveChangesAsync();
-                    
-                    return Unauthorized("Invalid signature.");
-                }
+                    Action = "Webhook Failed Signature",
+                    Description = "Expected match failed for signature.",
+                    Timestamp = DateTime.UtcNow,
+                    UserId = "Webhook",
+                    UserName = "System",
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"
+                });
+                await _context.SaveChangesAsync();
+
+                return Unauthorized("Invalid signature.");
             }
 
             // Parse the event

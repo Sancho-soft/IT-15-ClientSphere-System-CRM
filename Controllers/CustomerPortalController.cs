@@ -86,28 +86,30 @@ namespace ClientSphere.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateTicket(SupportTicket ticket)
+        public async Task<IActionResult> CreateTicket(string subject, string description)
         {
-            // Clear validation errors for fields we set manually
-            ModelState.Remove("CustomerId");
-            ModelState.Remove("Status");
-            ModelState.Remove("Priority");
-
-            if (ModelState.IsValid)
+            if (string.IsNullOrWhiteSpace(subject) || string.IsNullOrWhiteSpace(description))
             {
-                var userId = _userManager.GetUserId(User);
-                ticket.CustomerId = userId;
-                ticket.Status = "Open";
-                ticket.Priority = "Medium"; // Default priority for customer submitted tickets
-                ticket.CreatedAt = DateTime.UtcNow;
-                ticket.LastUpdated = DateTime.UtcNow;
-
-                await _supportService.CreateTicketAsync(ticket);
-
-                TempData["SuccessMessage"] = "Your support ticket has been submitted successfully.";
-                return RedirectToAction(nameof(Dashboard));
+                ModelState.AddModelError("", "Subject and description are required.");
+                return View();
             }
-            return View(ticket);
+
+            var userId = _userManager.GetUserId(User);
+            var ticket = new SupportTicket
+            {
+                Subject = subject,
+                Description = description,
+                CustomerId = userId,
+                Status = "Open",
+                Priority = "Medium",
+                CreatedAt = DateTime.UtcNow,
+                LastUpdated = DateTime.UtcNow
+            };
+
+            await _supportService.CreateTicketAsync(ticket);
+
+            TempData["SuccessMessage"] = "Your support ticket has been submitted successfully.";
+            return RedirectToAction(nameof(Dashboard));
         }
 
         // GET: CustomerPortal/MyOrders
