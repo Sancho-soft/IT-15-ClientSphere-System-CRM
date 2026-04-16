@@ -48,9 +48,10 @@ namespace ClientSphere.Areas.Identity.Pages.Account
 
             [Display(Name = "Remember me?")]
             public bool RememberMe { get; set; }
-            [BindProperty(Name = "cf-turnstile-response")]
-            public string? TurnstileToken { get; set; }
         }
+
+        [BindProperty(Name = "cf-turnstile-response")]
+        public string? TurnstileToken { get; set; }
 
         public async Task OnGetAsync(string? returnUrl = null)
         {
@@ -77,7 +78,7 @@ namespace ClientSphere.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                var isHuman = await _turnstileService.VerifyTokenAsync(Input.TurnstileToken);
+                var isHuman = await _turnstileService.VerifyTokenAsync(TurnstileToken);
                 if (!isHuman)
                 {
                     ModelState.AddModelError(string.Empty, "Cloudflare Turnstile verification failed. Please try again.");

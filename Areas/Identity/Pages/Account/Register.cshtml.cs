@@ -88,9 +88,10 @@ namespace ClientSphere.Areas.Identity.Pages.Account
             [Phone]
             [Display(Name = "Phone Number")]
             public string PhoneNumber { get; set; } = string.Empty;
-            [BindProperty(Name = "cf-turnstile-response")]
-            public string? TurnstileToken { get; set; }
         }
+
+        [BindProperty(Name = "cf-turnstile-response")]
+        public string? TurnstileToken { get; set; }
 
         public async Task OnGetAsync(string? returnUrl = null)
         {
@@ -105,7 +106,7 @@ namespace ClientSphere.Areas.Identity.Pages.Account
             
             if (ModelState.IsValid)
             {
-                var isHuman = await _turnstileService.VerifyTokenAsync(Input.TurnstileToken);
+                var isHuman = await _turnstileService.VerifyTokenAsync(TurnstileToken);
                 if (!isHuman)
                 {
                     ModelState.AddModelError(string.Empty, "Cloudflare Turnstile verification failed. Please try again.");
