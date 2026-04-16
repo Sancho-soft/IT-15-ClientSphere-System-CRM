@@ -1,4 +1,4 @@
-﻿@model ClientSphere.ViewModels.AdminDashboardViewModel
+@model ClientSphere.ViewModels.AdminDashboardViewModel
 
 @{
     ViewData["Title"] = "Dashboard";
@@ -21,7 +21,7 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-end">
                     <h3 class="fw-bold mb-0">@Model.TotalUsers</h3>
-                    <small class="text-success fw-bold"><i class="bi bi-arrow-up"></i> 12.5%</small>
+                    <small class="text-secondary fw-bold"><i class="bi bi-arrow-up"></i> 12.5%</small>
                 </div>
             </div>
         </div>
@@ -40,7 +40,7 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-end">
                     <h3 class="fw-bold mb-0">@Model.TotalOrders</h3>
-                    <small class="text-success fw-bold"><i class="bi bi-arrow-up"></i> 8.2%</small>
+                    <small class="text-secondary fw-bold"><i class="bi bi-arrow-up"></i> 8.2%</small>
                 </div>
             </div>
         </div>
@@ -59,7 +59,7 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-end">
                     <h3 class="fw-bold mb-0">@Model.ActiveTickets</h3>
-                    <small class="text-danger fw-bold"><i class="bi bi-arrow-down"></i> 4.3%</small>
+                    <small class="text-secondary fw-bold"><i class="bi bi-arrow-down"></i> 4.3%</small>
                 </div>
             </div>
         </div>
@@ -78,7 +78,7 @@
                 </div>
                <div class="d-flex justify-content-between align-items-end">
                     <h3 class="fw-bold mb-0">&#8369;@Model.TotalRevenue.ToString("N0")</h3>
-                    <small class="text-success fw-bold"><i class="bi bi-arrow-up"></i> 15.8%</small>
+                    <small class="text-secondary fw-bold"><i class="bi bi-arrow-up"></i> 15.8%</small>
                 </div>
             </div>
         </div>
@@ -96,8 +96,8 @@
         <a href="@Url.Action("Index", "Customers")" class="text-decoration-none">
             <div class="card border-0 shadow-sm h-100 hover-lift">
                 <div class="card-body text-center py-3 px-2">
-                    <div class="rounded-3 p-2 mb-2 mx-auto d-inline-block" style="background: rgba(13,110,253,0.15);">
-                        <i class="bi bi-people fs-4 text-primary"></i>
+                    <div class="rounded-3 p-2 mb-2 mx-auto d-inline-block bg-secondary-subtle">
+                        <i class="bi bi-people fs-4 text-secondary"></i>
                     </div>
                     <div class="fw-semibold small">Customers</div>
                 </div>
@@ -108,8 +108,8 @@
         <a href="@Url.Action("UserManagement", "Admin")" class="text-decoration-none">
             <div class="card border-0 shadow-sm h-100 hover-lift">
                 <div class="card-body text-center py-3 px-2">
-                    <div class="rounded-3 p-2 mb-2 mx-auto d-inline-block" style="background: rgba(25,135,84,0.15);">
-                        <i class="bi bi-person-badge fs-4 text-success"></i>
+                    <div class="rounded-3 p-2 mb-2 mx-auto d-inline-block bg-secondary-subtle">
+                        <i class="bi bi-person-badge fs-4 text-secondary"></i>
                     </div>
                     <div class="fw-semibold small">Users</div>
                 </div>
@@ -120,8 +120,8 @@
         <a href="@Url.Action("Index", "Products")" class="text-decoration-none">
             <div class="card border-0 shadow-sm h-100 hover-lift">
                 <div class="card-body text-center py-3 px-2">
-                    <div class="rounded-3 p-2 mb-2 mx-auto d-inline-block" style="background: rgba(111,66,193,0.15);">
-                        <i class="bi bi-box-seam fs-4 text-purple" style="color:#6f42c1;"></i>
+                    <div class="rounded-3 p-2 mb-2 mx-auto d-inline-block bg-secondary-subtle">
+                        <i class="bi bi-box-seam fs-4 text-secondary"></i>
                     </div>
                     <div class="fw-semibold small">Products</div>
                 </div>
@@ -132,8 +132,8 @@
         <a href="@Url.Action("Index", "Orders")" class="text-decoration-none">
             <div class="card border-0 shadow-sm h-100 hover-lift">
                 <div class="card-body text-center py-3 px-2">
-                    <div class="rounded-3 p-2 mb-2 mx-auto d-inline-block" style="background: rgba(255,193,7,0.15);">
-                        <i class="bi bi-cart-check fs-4 text-warning"></i>
+                    <div class="rounded-3 p-2 mb-2 mx-auto d-inline-block bg-secondary-subtle">
+                        <i class="bi bi-cart-check fs-4 text-secondary"></i>
                     </div>
                     <div class="fw-semibold small">Orders</div>
                 </div>
@@ -144,8 +144,8 @@
         <a href="@Url.Action("Index", "Billing")" class="text-decoration-none">
             <div class="card border-0 shadow-sm h-100 hover-lift">
                 <div class="card-body text-center py-3 px-2">
-                    <div class="rounded-3 p-2 mb-2 mx-auto d-inline-block" style="background: rgba(13,202,240,0.15);">
-                        <i class="bi bi-receipt fs-4 text-info"></i>
+                    <div class="rounded-3 p-2 mb-2 mx-auto d-inline-block bg-secondary-subtle">
+                        <i class="bi bi-receipt fs-4 text-secondary"></i>
                     </div>
                     <div class="fw-semibold small">Billing</div>
                 </div>
@@ -156,8 +156,8 @@
         <a href="@Url.Action("SystemSettings", "Admin")" class="text-decoration-none">
             <div class="card border-0 shadow-sm h-100 hover-lift">
                 <div class="card-body text-center py-3 px-2">
-                    <div class="rounded-3 p-2 mb-2 mx-auto d-inline-block" style="background: rgba(220,53,69,0.15);">
-                        <i class="bi bi-gear fs-4 text-danger"></i>
+                    <div class="rounded-3 p-2 mb-2 mx-auto d-inline-block bg-secondary-subtle">
+                        <i class="bi bi-gear fs-4 text-secondary"></i>
                     </div>
                     <div class="fw-semibold small">Settings</div>
                 </div>
@@ -222,7 +222,7 @@
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-4">
                     <div class="d-flex align-items-center">
-                         <div class="icon-shape bg-light text-primary rounded-circle p-2 me-3">
+                         <div class="icon-shape bg-light text-secondary rounded-circle p-2 me-3">
                             <i class="bi bi-database"></i>
                         </div>
                         <div>
@@ -230,11 +230,11 @@
                             <small class="text-muted">Connected</small>
                         </div>
                     </div>
-                     <span class="badge bg-success rounded-pill">Result: Ok</span>
+                     <span class="badge bg-secondary rounded-pill">Result: Ok</span>
                 </div>
                  <div class="d-flex align-items-center justify-content-between mb-4">
                     <div class="d-flex align-items-center">
-                         <div class="icon-shape bg-light text-info rounded-circle p-2 me-3">
+                         <div class="icon-shape bg-light text-secondary rounded-circle p-2 me-3">
                             <i class="bi bi-hdd-network"></i>
                         </div>
                         <div>
@@ -242,11 +242,11 @@
                             <small class="text-muted">Online</small>
                         </div>
                     </div>
-                     <span class="badge bg-success rounded-pill">Running</span>
+                     <span class="badge bg-secondary rounded-pill">Running</span>
                 </div>
                  <div class="d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center">
-                         <div class="icon-shape bg-light text-warning rounded-circle p-2 me-3">
+                         <div class="icon-shape bg-light text-secondary rounded-circle p-2 me-3">
                             <i class="bi bi-cpu"></i>
                         </div>
                         <div>
@@ -254,7 +254,7 @@
                             <small class="text-muted">Optimal</small>
                         </div>
                     </div>
-                     <span class="badge bg-success rounded-pill">Normal</span>
+                     <span class="badge bg-secondary rounded-pill">Normal</span>
                 </div>
             </div>
         </div>
@@ -289,9 +289,9 @@
     // Helper to return badge color implementation
      string GetBadgeColor(string action)
     {
-        if (action.Contains("Created") || action.Contains("Added")) return "bg-success-subtle text-success";
-        if (action.Contains("Updated") || action.Contains("Modified")) return "bg-primary-subtle text-primary";
-        if (action.Contains("Deleted") || action.Contains("Removed")) return "bg-danger-subtle text-danger";
+        if (action.Contains("Created") || action.Contains("Added")) return "bg-secondary-subtle text-secondary";
+        if (action.Contains("Updated") || action.Contains("Modified")) return "bg-secondary-subtle text-secondary";
+        if (action.Contains("Deleted") || action.Contains("Removed")) return "bg-secondary-subtle text-secondary";
         return "bg-secondary-subtle text-secondary";
     }
 

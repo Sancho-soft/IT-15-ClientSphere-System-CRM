@@ -1,4 +1,4 @@
-﻿@model ClientSphere.ViewModels.SalesManagerDashboardViewModel
+@model ClientSphere.ViewModels.SalesManagerDashboardViewModel
 
 @{
     ViewData["Title"] = "Sales Manager Dashboard";
@@ -77,7 +77,7 @@
             {
                 <div class="list-group-item border-0 py-3 px-4 d-flex align-items-center">
                     <div class="me-3">
-                        <span class="badge rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">#@person.Rank</span>
+                        <span class="badge rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">#@person.Rank</span>
                     </div>
                     <div class="flex-grow-1">
                         <div class="fw-bold">@person.Name</div>
@@ -90,13 +90,13 @@
                     <div class="text-end" style="width: 80px;">
                         @if(person.Growth > 0)
                         {
-                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">
+                            <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3">
                                 <i class="bi bi-arrow-up-short"></i> @person.Growth%
                             </span>
                         }
                         else
                         {
-                             <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3">
+                             <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3">
                                 <i class="bi bi-arrow-down-short"></i> @Math.Abs(person.Growth)%
                             </span>
                         }
@@ -113,7 +113,7 @@
     <div class="col-md-4 mb-3">
         <div class="card border-0 shadow-sm h-100 hover-card cursor-pointer" onclick="window.location.href='@Url.Action("Index", "Sales")'">
             <div class="card-body">
-                <i class="bi bi-bar-chart-line h3 text-primary mb-3 d-block"></i>
+                <i class="bi bi-bar-chart-line h3 text-secondary mb-3 d-block"></i>
                 <h5 class="fw-bold">View Sales Reports</h5>
                 <p class="text-muted small mb-0">Detailed analytics and pipeline reports</p>
             </div>
@@ -122,7 +122,7 @@
     <div class="col-md-4 mb-3">
         <div class="card border-0 shadow-sm h-100 hover-card cursor-pointer" onclick="window.location.href='@Url.Action("Index", "Customers")'">
             <div class="card-body">
-                <i class="bi bi-people h3 text-success mb-3 d-block"></i>
+                <i class="bi bi-people h3 text-secondary mb-3 d-block"></i>
                 <h5 class="fw-bold">Customer Database</h5>
                 <p class="text-muted small mb-0">Access customer information</p>
             </div>
@@ -131,7 +131,7 @@
     <div class="col-md-4 mb-3">
         <div class="card border-0 shadow-sm h-100 hover-card cursor-pointer" onclick="window.location.href='@Url.Action("AllLeads", "SalesManager")'">
             <div class="card-body">
-                <i class="bi bi-funnel h3 text-purple mb-3 d-block" style="color: #6f42c1;"></i>
+                <i class="bi bi-funnel h3 text-secondary mb-3 d-block"></i>
                 <h5 class="fw-bold">View Team Leads</h5>
                 <p class="text-muted small mb-0">Monitor new and active leads</p>
             </div>

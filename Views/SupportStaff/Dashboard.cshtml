@@ -1,4 +1,4 @@
-﻿@model ClientSphere.ViewModels.SupportStaffViewModel
+@model ClientSphere.ViewModels.SupportStaffViewModel
 
 @{
     ViewData["Title"] = "My Support Dashboard";
@@ -88,19 +88,19 @@
                                 <td>
                                     @if (ticket.Priority == "High" || ticket.Priority == "Critical")
                                     {
-                                        <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2">@ticket.Priority</span>
+                                        <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2">@ticket.Priority</span>
                                     }
                                     else if (ticket.Priority == "Medium")
                                     {
-                                        <span class="badge bg-warning bg-opacity-10 text-dark rounded-pill px-2">@ticket.Priority</span>
+                                        <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2">@ticket.Priority</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2">@ticket.Priority</span>
+                                        <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2">@ticket.Priority</span>
                                     }
                                 </td>
                                 <td>
-                                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2">@ticket.Status</span>
+                                    <span class="badge bg-secondary-subtle text-secondary rounded-pill px-2">@ticket.Status</span>
                                 </td>
                                 <td class="small text-muted">@ticket.LastUpdated.ToString("h:mm tt")</td>
                                 <td class="text-end pe-4">
@@ -111,13 +111,13 @@
                                         </button>
                                         <form asp-action="CloseTicket" asp-route-id="@ticket.Id" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-danger text-white">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
                                                 <i class="bi bi-x-circle"></i> Close
                                             </button>
                                         </form>
                                         <form asp-action="ResolveTicket" asp-route-id="@ticket.Id" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-success text-white">
+                                            <button type="submit" class="btn btn-sm btn-outline-success">
                                                 <i class="bi bi-check2"></i> Resolve
                                             </button>
                                         </form>

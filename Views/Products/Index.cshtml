@@ -68,7 +68,7 @@
                                         }
                                         else
                                         {
-                                            <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center border shadow-sm" style="width: 40px; height: 40px;">
+                                            <div class="bg-transparent rounded me-3 d-flex align-items-center justify-content-center border shadow-sm" style="width: 40px; height: 40px;">
                                                 <i class="bi bi-image text-muted"></i>
                                             </div>
                                         }
@@ -100,10 +100,10 @@
                                     else
                                     {
                                         <div class="btn-group" role="group">
-                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info text-white" title="Details">
+                                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Details">
                                                 <i class="bi bi-eye"></i>
                                             </a>
-                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning text-white" title="Edit">
+                                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="Edit">
                                                 <i class="bi bi-pencil"></i>
                                             </a>
                                             <form asp-action="ArchiveProduct" asp-route-id="@item.Id" method="post" class="d-inline">

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ClientSphere.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Super Admin,Admin,Sales Manager,Sales Staff,Support Staff,Billing Staff")]
     public class OrdersController : Controller
     {
         private readonly IOrderService _orderService;

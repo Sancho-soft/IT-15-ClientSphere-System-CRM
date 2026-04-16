@@ -21,7 +21,7 @@
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
-    <header class="sticky-top shadow-sm" style="z-index: 1030;">
+    <header class="sticky-top shadow-sm gsap-fade-in" style="z-index: 1030;">
         <nav class="navbar navbar-expand-lg navbar-toggleable-lg navbar-light py-2">
             <div class="container d-flex align-items-center">
                 <a class="navbar-brand fw-bold text-primary" asp-area="" asp-controller="Home" asp-action="Index" style="margin-right: 2rem;">
@@ -35,7 +35,7 @@
                     <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
                         <!-- Public Menu -->
                         <li class="nav-item dropdown me-2 d-flex align-items-center">
-                            <span class="position-absolute translate-middle p-1 bg-danger border border-light rounded-circle" style="left: 10px; top: 50%; z-index: 10;">
+                            <span class="position-absolute translate-middle p-1 bg-danger border border-light rounded-circle live-pulse" style="left: 10px; top: 50%; z-index: 10;">
                                 <span class="visually-hidden">Live</span>
                             </span>
                             <a class="nav-link dropdown-toggle fw-bold text-danger position-relative ms-2" href="#" id="campaignsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside">
@@ -83,13 +83,13 @@
             </div>
         </nav>
     </header>
-    <div class="container-fluid p-0 flex-grow-1">
+    <div class="container-fluid p-0 flex-grow-1 gsap-slide-up">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="bg-dark text-white pt-5 pb-4 mt-auto">
+    <footer class="bg-dark text-white pt-5 pb-4 mt-auto gsap-slide-up">
         <div class="container">
             <div class="row">
                 <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
@@ -140,6 +140,8 @@
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" integrity="sha512-onMTRKJBKz8M1TnqqDuGBlowlH0ohFzMXYRNebz+yOcc5Tq/l4503043K4bOowXhDgwH5mGqZk1zEte6xHqYww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

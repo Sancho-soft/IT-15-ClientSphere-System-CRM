@@ -56,7 +56,7 @@ namespace ClientSphere.Controllers
             {
                 TotalOrders = realOrders.Count,
                 ActiveTickets = tickets.Count(t => t.Status != "Closed" && t.Status != "Resolved"),
-                TotalSpent = realOrders.Sum(o => o.TotalAmount),
+                TotalSpent = realOrders.Where(o => o.Status.ToString() != "Cancelled").Sum(o => o.TotalAmount),
                 RecentOrders = realOrders.Take(5).Select(o => new CustomerOrderViewModel 
                 { 
                     OrderId = o.Id.ToString(), 

@@ -156,9 +156,9 @@ namespace ClientSphere.Controllers
         private async Task UpdateInvoiceStatusViaWebhookAsync(string description, string paymentMethod, string? transactionId = null)
         {
             // Description is "Invoice INV-XXXX-XXXX" or "Payment for Invoice INV-XXXX-XXXX"
-            var invoices = await _context.Invoices.Include(i => i.Customer).ToListAsync();
-            var invoice = invoices.FirstOrDefault(i =>
-                !string.IsNullOrEmpty(i.InvoiceNumber) && description.Contains(i.InvoiceNumber, StringComparison.OrdinalIgnoreCase));
+            var invoice = await _context.Invoices
+                .Include(i => i.Customer)
+                .FirstOrDefaultAsync(i => !string.IsNullOrEmpty(i.InvoiceNumber) && description.Contains(i.InvoiceNumber));
 
             if (invoice != null && invoice.Status != "Paid")
             {

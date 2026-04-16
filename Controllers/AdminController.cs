@@ -10,12 +10,14 @@ namespace ClientSphere.Controllers
         private readonly Data.ApplicationDbContext _context;
         private readonly Microsoft.AspNetCore.Identity.UserManager<Models.ApplicationUser> _userManager;
         private readonly Services.ISystemSettingService _systemSettingService;
+        private readonly Services.RateLimitCacheService _rateLimitCacheService;
 
-        public AdminController(Data.ApplicationDbContext context, Microsoft.AspNetCore.Identity.UserManager<Models.ApplicationUser> userManager, Services.ISystemSettingService systemSettingService)
+        public AdminController(Data.ApplicationDbContext context, Microsoft.AspNetCore.Identity.UserManager<Models.ApplicationUser> userManager, Services.ISystemSettingService systemSettingService, Services.RateLimitCacheService rateLimitCacheService)
         {
             _context = context;
             _userManager = userManager;
             _systemSettingService = systemSettingService;
+            _rateLimitCacheService = rateLimitCacheService;
         }
 
         public async Task<IActionResult> Dashboard()
@@ -389,6 +391,9 @@ namespace ClientSphere.Controllers
 
             await _systemSettingService.SetSettingBoolAsync("ApiAccessEnabled", model.ApiAccessEnabled, "API");
             await _systemSettingService.SetSettingIntAsync("ApiRateLimit", model.ApiRateLimit, "API");
+            
+            // Update the in-memory cache directly for immediate Rate Limiting effect
+            _rateLimitCacheService.CurrentApiRateLimit = model.ApiRateLimit;
             
             TempData["SuccessMessage"] = "System settings updated successfully!";
             return RedirectToAction(nameof(SystemSettings));

@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ClientSphere.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Super Admin,Admin,Sales Manager,Billing Staff")]
     public class BillingController : Controller
     {
         private readonly IInvoiceService _invoiceService;

@@ -17,7 +17,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
-    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedAccount = true;
     // Enforce strict password requirements for security
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
@@ -57,6 +57,7 @@ builder.Services.AddScoped<Microsoft.AspNetCore.Identity.UI.Services.IEmailSende
 builder.Services.AddScoped<ClientSphere.Services.ICalendarService, ClientSphere.Services.GraphCalendarService>();
 builder.Services.AddScoped<ClientSphere.Services.ISystemSettingService, ClientSphere.Services.SystemSettingService>();
 builder.Services.AddScoped<ClientSphere.Services.INotificationService, ClientSphere.Services.NotificationService>();
+builder.Services.AddSingleton<ClientSphere.Services.RateLimitCacheService>(); // Dynamic Rate Limiting Cache
 
 builder.Services.AddScoped<ClientSphere.Filters.AuditLogFilter>();
 builder.Services.AddControllersWithViews(options => {
@@ -75,15 +76,18 @@ builder.Services.AddSession(options =>
 builder.Services.AddRateLimiter(options =>
 {
     options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
-        RateLimitPartition.GetFixedWindowLimiter(
+    {
+        var rateLimitCache = httpContext.RequestServices.GetRequiredService<ClientSphere.Services.RateLimitCacheService>();
+        return RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers.Host.ToString(),
             factory: partition => new FixedWindowRateLimiterOptions
             {
                 AutoReplenishment = true,
-                PermitLimit = 100, // Limit to 100 requests
+                PermitLimit = rateLimitCache.CurrentApiRateLimit, // Dynamic Limit
                 QueueLimit = 0,
                 Window = TimeSpan.FromMinutes(1) // per 1 minute per IP
-            }));
+            });
+    });
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 });
 
@@ -107,6 +111,11 @@ using (var scope = app.Services.CreateScope())
         var db = services.GetRequiredService<ApplicationDbContext>();
         await db.Database.MigrateAsync(); // Apply any pending EF migrations automatically
         await DbInitializer.Initialize(services);
+
+        // Initialize Rate Limit Cache
+        var systemSettingsService = services.GetRequiredService<ClientSphere.Services.ISystemSettingService>();
+        var rateLimitCache = services.GetRequiredService<ClientSphere.Services.RateLimitCacheService>();
+        rateLimitCache.CurrentApiRateLimit = await systemSettingsService.GetSettingIntAsync("ApiRateLimit", 100);
     }
     catch (Exception ex)
     {
@@ -137,6 +146,10 @@ app.Use(async (context, next) =>
     await next();
 });
 
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
+});
 app.UseRateLimiter(); // Apply Rate Limiting
 
 app.UseHttpsRedirection();

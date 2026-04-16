@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ClientSphere.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Super Admin,Admin,Sales Manager,Sales Staff,Marketing Manager,Marketing Staff,Support Staff")]
     public class ProductsController : Controller
     {
         private readonly IProductService _productService;

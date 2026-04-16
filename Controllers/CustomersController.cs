@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ClientSphere.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Super Admin,Admin,Sales Manager,Sales Staff,Support Staff,Marketing Manager,Marketing Staff,Billing Staff")]
     public class CustomersController : Controller
     {
         private readonly ICustomerService _customerService;

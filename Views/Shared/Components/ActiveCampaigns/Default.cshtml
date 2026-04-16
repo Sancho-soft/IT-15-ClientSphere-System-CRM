@@ -11,7 +11,9 @@
             <div class="list-group-item p-3 list-group-item-action border-bottom">
                 <div class="d-flex w-100 justify-content-between mb-1">
                     <h6 class="mb-1 fw-bold text-truncate" style="max-width: 200px;" title="@campaign.Name">@campaign.Name</h6>
-                    <small class="text-success fw-bold">&#8369;@campaign.ExpectedRevenue.ToString("N0")</small>
+                    <small class="text-success fw-bold">
+                        &#8369;@(campaign.ExpectedRevenue > 0 ? campaign.ExpectedRevenue.ToString("N0") : (campaign.Budget * 4).ToString("N0"))
+                    </small>
                 </div>
                 <p class="mb-1 small text-muted text-truncate" style="max-width: 280px;" title="@campaign.Description">
                     @(string.IsNullOrEmpty(campaign.Description) ? "Join our latest initiative! Details driving the new community offers." : campaign.Description)

@@ -164,9 +164,9 @@
                             <h6 class="mb-1 text-truncate" style="max-width: 250px;">@ticket.Subject</h6>
                             <div class="d-flex align-items-center mt-2">
                                 @if(ticket.Status == "Resolved") 
-                                { <span class="badge bg-success bg-opacity-10 text-success me-2" style="font-size: 0.7rem;">Resolved</span> }
+                                { <span class="badge bg-secondary-subtle text-secondary me-2" style="font-size: 0.7rem;">Resolved</span> }
                                 else if(ticket.Status == "In Progress")
-                                { <span class="badge bg-warning bg-opacity-10 text-warning me-2" style="font-size: 0.7rem;">In Progress</span> }
+                                { <span class="badge bg-secondary-subtle text-secondary me-2" style="font-size: 0.7rem;">In Progress</span> }
                                 
                                 <span class="text-muted small" style="font-size: 0.75rem;">Priority: @ticket.Priority</span>
                             </div>

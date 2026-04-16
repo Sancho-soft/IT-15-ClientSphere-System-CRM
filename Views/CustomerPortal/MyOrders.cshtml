@@ -47,7 +47,17 @@
                                     }
                                 </td>
                                 <td>@order.OrderItems.Count items</td>
-                                <td class="text-end fw-bold pe-4">&#8369;@order.TotalAmount.ToString("N2")</td>
+                                <td class="text-end fw-bold pe-4">
+                                    @if(order.Status.ToString() == "Cancelled")
+                                    {
+                                        <span class="text-muted text-decoration-line-through me-1">&#8369;@order.TotalAmount.ToString("N2")</span>
+                                        <span class="text-danger">&#8369;0.00</span>
+                                    }
+                                    else
+                                    {
+                                        <span>&#8369;@order.TotalAmount.ToString("N2")</span>
+                                    }
+                                </td>
                             </tr>
                         }
                     </tbody>
