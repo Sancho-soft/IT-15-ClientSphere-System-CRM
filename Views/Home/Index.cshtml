@@ -316,20 +316,70 @@
 
         function csBotRespond(userText) {
             const lower = userText.toLowerCase();
-            if (lower.includes('about') || lower.includes('clientsphere') || lower.includes('what is')) {
-                csAddMsg('ClientSphere is a full-featured CRM platform for managing customers, leads, sales, marketing campaigns, and support — all in one place.', 'bot');
-            } else if (lower.includes('sign up') || lower.includes('register') || lower.includes('account')) {
-                csAddMsg('You can create a customer account here: <a href="/Identity/Account/Register" class="text-primary fw-semibold">Register Now</a>', 'bot');
-            } else if (lower.includes('login') || lower.includes('log in') || lower.includes('sign in')) {
-                csAddMsg('You can log in to your account here: <a href="/Identity/Account/Login" class="text-primary fw-semibold">Sign In</a>', 'bot');
-            } else if (lower.includes('sales') || lower.includes('pricing') || lower.includes('plan')) {
-                csAddMsg('For sales enquiries, please email us at <a href="mailto:sales@clientsphere.com" class="text-primary fw-semibold">sales@clientsphere.com</a> and our team will get back to you shortly.', 'bot');
-            } else if (lower.includes('support') || lower.includes('help') || lower.includes('issue') || lower.includes('problem') || lower.includes('technical')) {
-                csAddMsg('For technical support, please <a href="/Identity/Account/Login" class="text-primary fw-semibold">log in</a> and submit a support ticket, or email <a href="mailto:support@clientsphere.com" class="text-primary fw-semibold">support@clientsphere.com</a>.', 'bot');
-            } else if (lower.includes('feature') || lower.includes('crm') || lower.includes('marketing') || lower.includes('campaign')) {
-                csAddMsg('ClientSphere offers CRM tools, sales tracking, marketing automation, invoicing, and customer support — all in one platform.', 'bot');
+
+            // ── About / General Info ──────────────────────────────────
+            if (lower.includes('about') || lower.includes('what is clientsphere') || lower.includes('tell me about')) {
+                csAddMsg('ClientSphere is a full-featured CRM platform for managing customers, leads, sales, marketing campaigns, billing, and support — all in one place. It supports 9+ user roles and is accessible from any modern browser.', 'bot');
+
+            // ── Account & Registration ────────────────────────────────
+            } else if (lower.includes('sign up') || lower.includes('register') || lower.includes('create account') || lower.includes('new account')) {
+                csAddMsg('You can create a customer account here: <a href="/Identity/Account/Register" class="text-primary fw-semibold">Register Now</a><br><br>Fill in your name, email, phone number, and address to get started. All new accounts are assigned the Customer role by default.', 'bot');
+
+            // ── Login / Sign In ───────────────────────────────────────
+            } else if (lower.includes('login') || lower.includes('log in') || lower.includes('sign in') || lower.includes('cant login') || lower.includes("can't log")) {
+                csAddMsg('You can log in here: <a href="/Identity/Account/Login" class="text-primary fw-semibold">Sign In</a><br><br>If you are having trouble logging in, make sure:<br>• You are using the correct email address<br>• Your Caps Lock is off<br>• You have completed the security check (Cloudflare Turnstile)<br><br>If the problem persists, use <strong>"Forgot Password"</strong> on the login page.', 'bot');
+
+            // ── Password Reset ────────────────────────────────────────
+            } else if (lower.includes('forgot password') || lower.includes('reset password') || lower.includes('change password') || lower.includes('password')) {
+                csAddMsg('To reset your password:<br>1. Go to the <a href="/Identity/Account/Login" class="text-primary fw-semibold">Login page</a><br>2. Click <strong>"Forgot your password?"</strong><br>3. Enter your registered email address<br>4. Check your inbox for a reset link<br><br>If you did not receive the email, check your spam folder or contact <a href="mailto:support@clientsphere.com" class="text-primary fw-semibold">support@clientsphere.com</a>.', 'bot');
+
+            // ── Invoice / Billing ─────────────────────────────────────
+            } else if (lower.includes('invoice') || lower.includes('billing') || lower.includes('bill') || lower.includes('charge') || lower.includes('overcharged')) {
+                csAddMsg('For invoice and billing concerns:<br>• Log in and go to <strong>Invoices</strong> in your Customer Portal<br>• You can view, download, or pay invoices directly from there<br><br>If you believe there is an error on your invoice, please <a href="/Identity/Account/Login" class="text-primary fw-semibold">log in</a> and submit a support ticket, or email <a href="mailto:billing@clientsphere.com" class="text-primary fw-semibold">billing@clientsphere.com</a>.', 'bot');
+
+            // ── Payment Issues ────────────────────────────────────────
+            } else if (lower.includes('payment') || lower.includes('gcash') || lower.includes('paymaya') || lower.includes('card') || lower.includes('pay') || lower.includes('transaction') || lower.includes('declined')) {
+                csAddMsg('If your payment was declined or did not go through:<br>• Ensure your card/GCash/PayMaya account has sufficient balance<br>• Check that your billing details match exactly<br>• Try a different payment method<br><br>If the amount was deducted but the invoice shows as unpaid, please wait up to 5 minutes for the payment to process. If it still does not update, contact us at <a href="mailto:billing@clientsphere.com" class="text-primary fw-semibold">billing@clientsphere.com</a> with your transaction reference.', 'bot');
+
+            // ── Orders ────────────────────────────────────────────────
+            } else if (lower.includes('order') || lower.includes('my order') || lower.includes('track order') || lower.includes('order status')) {
+                csAddMsg('To view or track your orders:<br>1. <a href="/Identity/Account/Login" class="text-primary fw-semibold">Log in</a> to your account<br>2. Go to <strong>My Orders</strong> in your Customer Portal<br><br>If you have a concern about a specific order, please submit a support ticket from your portal and include the Order ID in your message.', 'bot');
+
+            // ── Support Ticket ────────────────────────────────────────
+            } else if (lower.includes('ticket') || lower.includes('support ticket') || lower.includes('open ticket') || lower.includes('track ticket') || lower.includes('my ticket')) {
+                csAddMsg('To create or view your support tickets:<br>1. <a href="/Identity/Account/Login" class="text-primary fw-semibold">Log in</a> to your account<br>2. Navigate to <strong>Support Tickets</strong> in your Customer Portal<br>3. Click <strong>"New Ticket"</strong> to submit a request<br><br>Our support team typically responds within 1 business day.', 'bot');
+
+            // ── Account Locked / Access ───────────────────────────────
+            } else if (lower.includes('locked') || lower.includes('suspended') || lower.includes('blocked') || lower.includes('access denied') || lower.includes('account disabled')) {
+                csAddMsg('If your account appears to be locked or suspended, it may be due to multiple failed login attempts or a security flag.<br><br>Please email us at <a href="mailto:support@clientsphere.com" class="text-primary fw-semibold">support@clientsphere.com</a> with your registered email address and we will review your account promptly.', 'bot');
+
+            // ── Profile / Settings ────────────────────────────────────
+            } else if (lower.includes('profile') || lower.includes('update info') || lower.includes('change email') || lower.includes('change name') || lower.includes('my info')) {
+                csAddMsg('To update your profile information:<br>1. <a href="/Identity/Account/Login" class="text-primary fw-semibold">Log in</a> to your account<br>2. Click on your name in the top-right corner<br>3. Select <strong>Profile Settings</strong><br><br>From there you can update your name, phone number, and profile picture.', 'bot');
+
+            // ── Browser / Compatibility ───────────────────────────────
+            } else if (lower.includes('browser') || lower.includes('not loading') || lower.includes('not working') || lower.includes('page error') || lower.includes('white screen') || lower.includes('blank page')) {
+                csAddMsg('If the system is not loading properly, please try the following:<br>1. <strong>Refresh the page</strong> (Ctrl + R or F5)<br>2. <strong>Clear browser cache</strong> (Ctrl + Shift + Delete)<br>3. Try a different browser (Chrome, Edge, or Firefox are recommended)<br>4. Disable any ad-blocker extensions temporarily<br><br>If the issue persists, email <a href="mailto:support@clientsphere.com" class="text-primary fw-semibold">support@clientsphere.com</a> with a screenshot.', 'bot');
+
+            // ── Security / Data Privacy ───────────────────────────────
+            } else if (lower.includes('security') || lower.includes('data') || lower.includes('privacy') || lower.includes('safe') || lower.includes('hack') || lower.includes('breach')) {
+                csAddMsg('ClientSphere takes data security seriously. Your data is protected by:<br>• HTTPS encryption on all connections<br>• CSRF and bot protection (Cloudflare Turnstile)<br>• Role-based access control with strict permissions<br>• Secure password hashing<br><br>If you suspect unauthorized access to your account, change your password immediately and contact <a href="mailto:support@clientsphere.com" class="text-primary fw-semibold">support@clientsphere.com</a>.', 'bot');
+
+            // ── Notification Issues ───────────────────────────────────
+            } else if (lower.includes('notification') || lower.includes('email not received') || lower.includes('no email') || lower.includes('confirmation email')) {
+                csAddMsg('If you are not receiving email notifications:<br>1. Check your <strong>spam or junk</strong> folder<br>2. Add <strong>noreply@clientsphere.com</strong> to your contacts<br>3. Verify your email address is correct in your profile<br><br>If the issue continues, contact <a href="mailto:support@clientsphere.com" class="text-primary fw-semibold">support@clientsphere.com</a>.', 'bot');
+
+            // ── Sales ─────────────────────────────────────────────────
+            } else if (lower.includes('sales') || lower.includes('pricing') || lower.includes('plan') || lower.includes('subscription') || lower.includes('cost') || lower.includes('price')) {
+                csAddMsg('For pricing and sales enquiries, our team would be happy to assist you. Please email <a href="mailto:sales@clientsphere.com" class="text-primary fw-semibold">sales@clientsphere.com</a> and we will get back to you within 1 business day.', 'bot');
+
+            // ── Features ──────────────────────────────────────────────
+            } else if (lower.includes('feature') || lower.includes('crm') || lower.includes('marketing') || lower.includes('campaign') || lower.includes('what can')) {
+                csAddMsg('ClientSphere includes the following modules:<br>• <strong>CRM</strong> — Manage customers, leads, and contacts<br>• <strong>Sales</strong> — Track opportunities and orders<br>• <strong>Marketing</strong> — Run email campaigns<br>• <strong>Billing</strong> — Generate invoices and accept online payments<br>• <strong>Support</strong> — Ticket management system<br>• <strong>Analytics</strong> — Business performance reports', 'bot');
+
+            // ── Fallback ──────────────────────────────────────────────
             } else {
-                csAddMsg('Thanks for reaching out. For general questions email <a href="mailto:hello@clientsphere.com" class="text-primary fw-semibold">hello@clientsphere.com</a>. If you have an account, <a href="/Identity/Account/Login" class="text-primary fw-semibold">log in here</a> to submit a support ticket.', 'bot');
+                csAddMsg('I am not sure I understood that, but I am here to help! You can ask me about:<br>• Password reset<br>• Login issues<br>• Billing or invoices<br>• Payment problems<br>• Support tickets<br>• Account settings<br><br>Or email us directly at <a href="mailto:support@clientsphere.com" class="text-primary fw-semibold">support@clientsphere.com</a>.', 'bot');
             }
         }
     </script>
