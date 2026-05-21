@@ -41,7 +41,7 @@
                             <label asp-for="Input.Email" class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="bi bi-envelope"></i></span>
-                                <input asp-for="Input.Email" class="form-control" placeholder="your@email.com" autocomplete="username" />
+                                <input asp-for="Input.Email" type="email" class="form-control" placeholder="your@email.com" autocomplete="email" />
                             </div>
                             <span asp-validation-for="Input.Email" class="text-danger"></span>
                         </div>
@@ -123,7 +123,7 @@
                                 <label asp-for="Input.Password" class="form-label fw-bold">Password <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock"></i></span>
-                                    <input asp-for="Input.Password" class="form-control border-start-0 border-end-0" autocomplete="new-password" aria-required="true" placeholder="Password" id="registerPassword" />
+                                    <input asp-for="Input.Password" type="password" class="form-control border-start-0 border-end-0" autocomplete="new-password" aria-required="true" placeholder="Password" id="registerPassword" />
                                     <button class="btn btn-link text-secondary" type="button" id="toggleRegisterPassword" style="text-decoration: none;">
                                         <i class="bi bi-eye" id="toggleRegisterPasswordIcon"></i>
                                     </button>
@@ -135,7 +135,7 @@
                                 <label asp-for="Input.ConfirmPassword" class="form-label fw-bold">Confirm Password <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock-fill"></i></span>
-                                    <input asp-for="Input.ConfirmPassword" class="form-control border-start-0 border-end-0" autocomplete="new-password" aria-required="true" placeholder="Confirm Password" id="confirmPassword" />
+                                    <input asp-for="Input.ConfirmPassword" type="password" class="form-control border-start-0 border-end-0" autocomplete="new-password" aria-required="true" placeholder="Confirm Password" id="confirmPassword" />
                                     <button class="btn btn-link text-secondary" type="button" id="toggleConfirmPassword" style="text-decoration: none;">
                                         <i class="bi bi-eye" id="toggleConfirmPasswordIcon"></i>
                                     </button>
@@ -146,7 +146,7 @@
 
                         <div class="mb-4 form-check">
                              <input type="checkbox" class="form-check-input" id="termsCheck" required>
-                             <label class="form-check-label small" for="termsCheck">I agree to the <a href="#" class="text-decoration-none">Terms of Service</a> and <a href="#" class="text-decoration-none">Privacy Policy</a></label>
+                             <label class="form-check-label small" for="termsCheck">I agree to the <a href="#" id="linkTerms" class="text-decoration-none fw-semibold">Terms of Service</a> and <a href="#" id="linkPrivacy" class="text-decoration-none fw-semibold">Privacy Policy</a></label>
                         </div>
 
                         <div class="d-flex justify-content-center mb-4">
@@ -164,13 +164,96 @@
                     </form>
                 </div>
             </div>
+            <div class="mt-4 text-center text-muted small">
+                <i class="bi bi-shield-check text-success me-1"></i>
+                By creating an account, you agree to our rules. See our <a asp-controller="Home" asp-action="SecurityPolicy" target="_blank" class="fw-semibold text-decoration-none">Security Policy</a>.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Terms & Privacy Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-light border-bottom-0 pb-0">
+                <ul class="nav nav-tabs border-bottom-0 w-100" id="termsTabs">
+                    <li class="nav-item">
+                        <button class="nav-link active fw-bold border-0 px-4 py-3" id="terms-tab" data-bs-toggle="tab" data-bs-target="#terms-pane" type="button" aria-controls="terms-pane">
+                            <i class="bi bi-file-earmark-text me-2"></i>Terms of Service
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link fw-bold border-0 px-4 py-3" id="privacy-tab" data-bs-toggle="tab" data-bs-target="#privacy-pane" type="button" aria-controls="privacy-pane">
+                            <i class="bi bi-shield-lock me-2"></i>Privacy Policy
+                        </button>
+                    </li>
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <div class="tab-content" id="termsTabContent">
+                    <!-- Terms of Service Pane -->
+                    <div class="tab-pane fade show active" id="terms-pane" role="tabpanel" aria-labelledby="terms-tab">
+                        <div class="bg-white rounded-3 p-4 shadow-sm" style="max-height: 400px; overflow-y: auto;">
+                            <h5 class="fw-bold mb-3 text-dark">ClientSphere Terms of Service</h5>
+                            <p class="text-muted small">Last updated: May 2026</p>
+                            
+                            <h6>1. Acceptance of Terms</h6>
+                            <p class="text-muted">By creating an account, accessing, or using the ClientSphere Customer Portal, you agree to comply with and be bound by these Terms of Service. If you do not agree to these terms, you are prohibited from using the system.</p>
+                            
+                            <h6>2. Authorized Usage</h6>
+                            <p class="text-muted">You agree to use this platform solely for legitimate business purposes associated with your customer relationship with ClientSphere. You must not attempt to breach security, perform unauthorized SQL injections, bypass rate limit systems, or abuse system backup mechanisms.</p>
+                            
+                            <h6>3. Account Credentials and Multi-Factor Authentication (MFA)</h6>
+                            <p class="text-muted">You are responsible for maintaining the confidentiality of your account password. Multi-factor authentication is strongly encouraged to secure your account. Any attempt to brute-force authentication will result in a temporary lock of your account for 15 minutes.</p>
+
+                            <h6>4. Service Limitations & Liability</h6>
+                            <p class="text-muted">ClientSphere provides the system "as is" and "as available". We do not warrant that service will be completely uninterrupted, secure, or free from minor errors. Under no circumstances shall ClientSphere be liable for any indirect or consequential damages arising from the use or inability to use this platform.</p>
+                        </div>
+                    </div>
+                    <!-- Privacy Policy Pane -->
+                    <div class="tab-pane fade" id="privacy-pane" role="tabpanel" aria-labelledby="privacy-tab">
+                        <div class="bg-white rounded-3 p-4 shadow-sm" style="max-height: 400px; overflow-y: auto;">
+                            <h5 class="fw-bold mb-3 text-dark">ClientSphere Privacy Policy</h5>
+                            <p class="text-muted small">Last updated: May 2026</p>
+                            
+                            <h6>1. Data Collection</h6>
+                            <p class="text-muted">We collect data necessary to provide and manage our CRM services, including your name, email address, phone number, and transaction logs. When you update your profile or complete payments using PayMongo, details are encrypted and securely stored.</p>
+                            
+                            <h6>2. Cookies & Session Storage</h6>
+                            <p class="text-muted">We utilize cookies to maintain secure sessions and retain your theme choices (light or dark mode). These cookies are essential for the operation of the portal and do not contain personal tracking data outside the scope of session management.</p>
+                            
+                            <h6>3. Cloudflare Turnstile Integration</h6>
+                            <p class="text-muted">To secure our authentication portals, we use Cloudflare Turnstile to run automated bot defense verification on registration, login, and forgot-password flows. The validation operates under Cloudflare's Privacy Policy.</p>
+                            
+                            <h6>4. Data Sharing and Third Parties</h6>
+                            <p class="text-muted">We share transaction details with payment providers like PayMongo to process invoices, and media files with Cloudinary for secure avatar hosting. We do not sell or lease customer information to third-party marketing services.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light border-top-0 d-flex justify-content-between align-items-center p-4">
+                <button type="button" class="btn btn-outline-secondary px-4 fw-semibold" data-bs-dismiss="modal">Close</button>
+                <div class="d-flex align-items-center gap-3">
+                    <div id="modal-agree-wrapper" style="display: none;">
+                        <div class="form-check m-0">
+                            <input class="form-check-input border-secondary" type="checkbox" id="modalAgreeCheck" style="transform: scale(1.15);">
+                            <label class="form-check-label small fw-semibold text-dark" for="modalAgreeCheck">
+                                I read & agree to these policies
+                            </label>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary px-5 fw-bold" id="btnAcceptTerms">Next <i class="bi bi-arrow-right ms-1"></i></button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer crossorigin="anonymous"></script>
     <script>
         // Toggle password visibility for Password field
         document.getElementById('toggleRegisterPassword').addEventListener('click', function () {
@@ -203,10 +286,100 @@
                 icon.classList.add('bi-eye');
             }
         });
+
+        // Terms and Privacy Modal logic
+        const termsModalEl = document.getElementById('termsModal');
+        const termsModalObj = new bootstrap.Modal(termsModalEl);
+        const btnAcceptTerms = document.getElementById('btnAcceptTerms');
+        const modalAgreeCheck = document.getElementById('modalAgreeCheck');
+        const modalAgreeWrapper = document.getElementById('modal-agree-wrapper');
+        const parentTermsCheck = document.getElementById('termsCheck');
+        let modalAccepted = false;
+
+        function updateModalFooterState(activeTabId) {
+            if (activeTabId === 'privacy-tab' || activeTabId === 'privacy-pane') {
+                modalAgreeWrapper.style.display = 'block';
+                btnAcceptTerms.innerHTML = 'I Agree';
+                btnAcceptTerms.disabled = !modalAgreeCheck.checked;
+            } else {
+                modalAgreeWrapper.style.display = 'none';
+                btnAcceptTerms.innerHTML = 'Next <i class="bi bi-arrow-right ms-1"></i>';
+                btnAcceptTerms.disabled = false;
+            }
+        }
+
+        // Listen for tab changes
+        const tabElList = [document.getElementById('terms-tab'), document.getElementById('privacy-tab')];
+        tabElList.forEach(tabEl => {
+            tabEl.addEventListener('shown.bs.tab', function (event) {
+                updateModalFooterState(event.target.id);
+            });
+        });
+
+        // Open modal to Terms of Service
+        document.getElementById('linkTerms').addEventListener('click', function(e) {
+            e.preventDefault();
+            const termsTab = new bootstrap.Tab(document.getElementById('terms-tab'));
+            termsTab.show();
+            modalAgreeCheck.checked = false; // Reset checkbox on fresh open
+            updateModalFooterState('terms-tab');
+            termsModalObj.show();
+        });
+
+        // Open modal to Privacy Policy
+        document.getElementById('linkPrivacy').addEventListener('click', function(e) {
+            e.preventDefault();
+            const privacyTab = new bootstrap.Tab(document.getElementById('privacy-tab'));
+            privacyTab.show();
+            modalAgreeCheck.checked = false; // Reset checkbox on fresh open
+            updateModalFooterState('privacy-tab');
+            termsModalObj.show();
+        });
+
+        // Checkbox change inside modal
+        modalAgreeCheck.addEventListener('change', function() {
+            const isPrivacyActive = document.getElementById('privacy-tab').classList.contains('active');
+            if (isPrivacyActive) {
+                btnAcceptTerms.disabled = !this.checked;
+            }
+        });
+
+        // Primary button action
+        btnAcceptTerms.addEventListener('click', function() {
+            const isPrivacyActive = document.getElementById('privacy-tab').classList.contains('active');
+            if (!isPrivacyActive) {
+                // Navigate to Privacy tab
+                const privacyTab = new bootstrap.Tab(document.getElementById('privacy-tab'));
+                privacyTab.show();
+            } else {
+                // Check parent checkbox and hide modal
+                modalAccepted = true;
+                parentTermsCheck.checked = true;
+                termsModalObj.hide();
+            }
+        });
+
+        // Intercept parent checkbox clicks to enforce modal review
+        parentTermsCheck.addEventListener('click', function(e) {
+            if (this.checked) {
+                if (!modalAccepted) {
+                    e.preventDefault();
+                    this.checked = false;
+                    // Open modal to Terms of Service first
+                    const termsTab = new bootstrap.Tab(document.getElementById('terms-tab'));
+                    termsTab.show();
+                    modalAgreeCheck.checked = false;
+                    updateModalFooterState('terms-tab');
+                    termsModalObj.show();
+                }
+            } else {
+                modalAccepted = false;
+            }
+        });
     </script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const apiBase = "https://psgc.gitlab.io/api";
+            const apiBase = "/api/geographic";
             const regionSelect = document.getElementById("region-select");
             const provinceSelect = document.getElementById("province-select");
             const citySelect = document.getElementById("city-select");
@@ -214,27 +387,45 @@
 
             // Define custom order and mappings for Metro Manila
             const ncrCode = "130000000";
+            const selectedRegion = '@(Model.Input?.Region ?? "")';
+            const selectedProvince = '@(Model.Input?.Province ?? "")';
+            const selectedCity = '@(Model.Input?.City ?? "")';
+            const selectedBarangay = '@(Model.Input?.Barangay ?? "")';
 
-            // Initialize Regions
-            fetch(`${apiBase}/regions/`)
-                .then(response => response.json())
-                .then(data => {
-                    data.sort((a, b) => {
-                        if (a.code === ncrCode) return -1;
-                        if (b.code === ncrCode) return 1;
-                        return a.name.localeCompare(b.name);
-                    });
-                    
-                    data.forEach(region => {
-                        const option = document.createElement("option");
-                        // Format specifically for NCR to be readable
-                        const displayName = region.code === ncrCode ? "Metro Manila (NCR)" : region.name;
-                        option.value = displayName; // The actual value submitted to backend
-                        option.textContent = displayName;
-                        option.dataset.code = region.code;
-                        regionSelect.appendChild(option);
-                    });
-                });
+            // Initialize Regions locally for maximum reliability (avoids external API call)
+            const regionsList = [
+                { code: "130000000", name: "Metro Manila (NCR)" },
+                { code: "140000000", name: "Cordillera Administrative Region (CAR)" },
+                { code: "010000000", name: "Ilocos Region" },
+                { code: "020000000", name: "Cagayan Valley" },
+                { code: "030000000", name: "Central Luzon" },
+                { code: "040000000", name: "CALABARZON" },
+                { code: "170000000", name: "MIMAROPA Region" },
+                { code: "050000000", name: "Bicol Region" },
+                { code: "060000000", name: "Western Visayas" },
+                { code: "070000000", name: "Central Visayas" },
+                { code: "080000000", name: "Eastern Visayas" },
+                { code: "090000000", name: "Zamboanga Peninsula" },
+                { code: "100000000", name: "Northern Mindanao" },
+                { code: "110000000", name: "Davao Region" },
+                { code: "120000000", name: "SOCCSKSARGEN" },
+                { code: "160000000", name: "Caraga" },
+                { code: "150000000", name: "BARMM" }
+            ];
+
+            regionSelect.innerHTML = '<option value="">Select Region</option>';
+            regionsList.forEach(region => {
+                const option = document.createElement("option");
+                option.value = region.name;
+                option.textContent = region.name;
+                option.dataset.code = region.code;
+                if (region.name === selectedRegion) option.selected = true;
+                regionSelect.appendChild(option);
+            });
+            
+            if (selectedRegion) {
+                regionSelect.dispatchEvent(new Event('change'));
+            }
 
             regionSelect.addEventListener("change", function () {
                 provinceSelect.innerHTML = '<option value="">Select Province</option>';
@@ -252,6 +443,7 @@
                         // For NCR, jump straight to cities
                         provinceSelect.innerHTML = '<option value="Metro Manila">Metro Manila</option>';
                         provinceSelect.disabled = false;
+                        if (selectedProvince === "Metro Manila") provinceSelect.value = "Metro Manila";
                         
                         fetch(`${apiBase}/regions/${regionCode}/cities-municipalities/`)
                             .then(response => response.json())
@@ -262,9 +454,11 @@
                                     option.value = city.name;
                                     option.textContent = city.name;
                                     option.dataset.code = city.code;
+                                    if (city.name === selectedCity) option.selected = true;
                                     citySelect.appendChild(option);
                                 });
                                 citySelect.disabled = false;
+                                if (selectedCity) citySelect.dispatchEvent(new Event('change'));
                             });
                     } else {
                         // Normal province flow
@@ -277,9 +471,11 @@
                                     option.value = province.name;
                                     option.textContent = province.name;
                                     option.dataset.code = province.code;
+                                    if (province.name === selectedProvince) option.selected = true;
                                     provinceSelect.appendChild(option);
                                 });
                                 provinceSelect.disabled = false;
+                                if (selectedProvince) provinceSelect.dispatchEvent(new Event('change'));
                             });
                     }
                 }
@@ -305,9 +501,11 @@
                                 option.value = city.name;
                                 option.textContent = city.name;
                                 option.dataset.code = city.code;
+                                if (city.name === selectedCity) option.selected = true;
                                 citySelect.appendChild(option);
                             });
                             citySelect.disabled = false;
+                            if (selectedCity) citySelect.dispatchEvent(new Event('change'));
                         });
                 }
             });

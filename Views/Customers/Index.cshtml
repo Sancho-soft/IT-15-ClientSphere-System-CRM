@@ -183,7 +183,13 @@
                             <div class="d-flex gap-2">
                                 <form asp-action="ToggleActive" asp-route-id="@item.Id" method="post" class="d-inline">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-light btn-sm text-muted" title="@(item.IsActive ? "Set Inactive" : "Set Active")">
+                                    <button type="submit" class="btn btn-light btn-sm text-muted" title="@(item.IsActive ? "Set Inactive" : "Set Active")"
+                                            data-confirm="true"
+                                            data-confirm-title="@(item.IsActive ? "Deactivate " + item.CompanyName + "?" : "Activate " + item.CompanyName + "?")"
+                                            data-confirm-text="@(item.IsActive ? "This customer will be marked as inactive." : "This customer will be marked as active.")"
+                                            data-confirm-icon="@(item.IsActive ? "warning" : "question")"
+                                            data-confirm-ok="@(item.IsActive ? "Yes, deactivate" : "Yes, activate")"
+                                            data-confirm-ok-color="@(item.IsActive ? "#dc3545" : "#198754")">
                                         <i class="bi @(item.IsActive ? "bi-pause-circle" : "bi-play-circle")"></i>
                                     </button>
                                 </form>

@@ -111,13 +111,25 @@
                                         </button>
                                         <form asp-action="CloseTicket" asp-route-id="@ticket.Id" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                                    data-confirm="true"
+                                                    data-confirm-title="Close Ticket @ticket.TicketId?"
+                                                    data-confirm-text="The ticket will be marked as Closed."
+                                                    data-confirm-icon="warning"
+                                                    data-confirm-ok="Yes, close"
+                                                    data-confirm-ok-color="#dc3545">
                                                 <i class="bi bi-x-circle"></i> Close
                                             </button>
                                         </form>
                                         <form asp-action="ResolveTicket" asp-route-id="@ticket.Id" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-outline-success">
+                                            <button type="submit" class="btn btn-sm btn-outline-success"
+                                                    data-confirm="true"
+                                                    data-confirm-title="Resolve Ticket @ticket.TicketId?"
+                                                    data-confirm-text="The ticket will be marked as Resolved."
+                                                    data-confirm-icon="question"
+                                                    data-confirm-ok="Yes, resolve"
+                                                    data-confirm-ok-color="#198754">
                                                 <i class="bi bi-check2"></i> Resolve
                                             </button>
                                         </form>

@@ -244,7 +244,12 @@
                                             {
                                                 <form asp-action="ArchiveInvoice" asp-route-id="@invoice.Id" method="post" class="d-inline">
                                                     @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" style="font-size:0.75rem;" title="Archive">
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" style="font-size:0.75rem;" title="Archive"
+                                                            data-confirm="true"
+                                                            data-confirm-title="Archive Invoice @invoice.InvoiceId?"
+                                                            data-confirm-text="This invoice will be moved to the archived list."
+                                                            data-confirm-icon="warning"
+                                                            data-confirm-ok="Yes, archive">
                                                         <i class="bi bi-archive"></i>
                                                     </button>
                                                 </form>
@@ -253,7 +258,13 @@
                                             {
                                                 <form asp-action="UnarchiveInvoice" asp-route-id="@invoice.Id" method="post" class="d-inline">
                                                     @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2 py-0" style="font-size:0.75rem;" title="Restore">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2 py-0" style="font-size:0.75rem;" title="Restore"
+                                                            data-confirm="true"
+                                                            data-confirm-title="Restore Invoice @invoice.InvoiceId?"
+                                                            data-confirm-text="This invoice will be moved back to the active list."
+                                                            data-confirm-icon="question"
+                                                            data-confirm-ok="Yes, restore"
+                                                            data-confirm-ok-color="#198754">
                                                         <i class="bi bi-arrow-counterclockwise"></i> Restore
                                                     </button>
                                                 </form>

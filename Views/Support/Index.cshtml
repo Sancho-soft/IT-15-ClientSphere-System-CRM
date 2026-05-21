@@ -166,7 +166,13 @@
                     {
                         <form asp-action="CloseTicket" asp-route-id="@ticket.Id" method="post" class="d-inline">
                             @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-link p-0 text-decoration-none small fw-bold text-success border-0">
+                            <button type="submit" class="btn btn-link p-0 text-decoration-none small fw-bold text-success border-0"
+                                    data-confirm="true"
+                                    data-confirm-title="Close Ticket @ticket.TicketId?"
+                                    data-confirm-text="The ticket will be marked as Closed and no further updates will be expected."
+                                    data-confirm-icon="question"
+                                    data-confirm-ok="Yes, close ticket"
+                                    data-confirm-ok-color="#198754">
                                 <i class="bi bi-check2-circle me-1"></i> Mark as Closed
                             </button>
                         </form>

@@ -51,8 +51,8 @@
     <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
     <div class="row g-4">
-        <!-- Personal Information -->
-        <div class="col-12">
+        <div class="col-lg-7 d-flex flex-column gap-4">
+            <!-- Personal Information -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header border-0 py-3 d-flex align-items-center gap-2">
                     <div class="rounded-2 p-2" style="background: rgba(13,110,253,0.12);">
@@ -99,10 +99,8 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Account Info (read-only) -->
-        <div class="col-12">
+            <!-- Account Info (read-only) -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header border-0 py-3 d-flex align-items-center gap-2">
                     <div class="rounded-2 p-2" style="background: rgba(25,135,84,0.12);">
@@ -123,6 +121,45 @@
                             <label class="form-label fw-semibold small text-muted text-uppercase" style="letter-spacing:.05em;">Member Since</label>
                             <div class="fw-semibold">@Model.CreatedAt.ToString("MMMM dd, yyyy")</div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <!-- Security Settings -->
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header border-0 py-3 d-flex align-items-center gap-2">
+                    <div class="rounded-2 p-2" style="background: rgba(220,53,69,0.12);">
+                        <i class="bi bi-shield-lock-fill text-danger"></i>
+                    </div>
+                    <h6 class="fw-bold mb-0">Security Settings</h6>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-4">Manage your account security, passwords, and two-factor authentication.</p>
+                    
+                    <div class="d-flex flex-column gap-3">
+                        <a href="/Identity/Account/Manage/ChangePassword" class="btn btn-outline-secondary d-flex align-items-center justify-content-between p-3 rounded-3" style="text-decoration: none;">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="bi bi-key fs-4 text-warning"></i>
+                                <div class="text-start">
+                                    <div class="fw-bold text-dark mb-1">Change Password</div>
+                                    <div class="small text-muted" style="line-height: 1;">Update your account password</div>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right text-muted"></i>
+                        </a>
+
+                        <a href="/Identity/Account/Manage/TwoFactorAuthentication" class="btn btn-outline-secondary d-flex align-items-center justify-content-between p-3 rounded-3" style="text-decoration: none;">
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="bi bi-shield-check fs-4 text-success"></i>
+                                <div class="text-start">
+                                    <div class="fw-bold text-dark mb-1">Two-Factor Auth (2FA)</div>
+                                    <div class="small text-muted" style="line-height: 1;">Enable extra security via Email</div>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right text-muted"></i>
+                        </a>
                     </div>
                 </div>
             </div>

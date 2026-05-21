@@ -13,17 +13,23 @@ namespace ClientSphere.Areas.Identity.Pages.Account
         private readonly ILogger<LoginModel> _logger;
         private readonly ClientSphere.Services.ITurnstileService _turnstileService;
         private readonly Microsoft.AspNetCore.Identity.UI.Services.IEmailSender _emailSender;
+        private readonly ClientSphere.Data.ApplicationDbContext _context;
+        private readonly ClientSphere.Services.IIpGeolocationService _ipGeolocationService;
 
         public LoginModel(
             SignInManager<ApplicationUser> signInManager, 
             ILogger<LoginModel> logger,
             ClientSphere.Services.ITurnstileService turnstileService,
-            Microsoft.AspNetCore.Identity.UI.Services.IEmailSender emailSender)
+            Microsoft.AspNetCore.Identity.UI.Services.IEmailSender emailSender,
+            ClientSphere.Data.ApplicationDbContext context,
+            ClientSphere.Services.IIpGeolocationService ipGeolocationService)
         {
             _signInManager = signInManager;
             _logger = logger;
             _turnstileService = turnstileService;
             _emailSender = emailSender;
+            _context = context;
+            _ipGeolocationService = ipGeolocationService;
         }
 
         [BindProperty]
@@ -82,12 +88,22 @@ namespace ClientSphere.Areas.Identity.Pages.Account
                 if (!isHuman)
                 {
                     ModelState.AddModelError(string.Empty, "Cloudflare Turnstile verification failed. Please try again.");
+                    _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
+                    {
+                        Action = "Login Failed — Turnstile",
+                        Description = $"Turnstile verification failed for {Input.Email}",
+                        UserId = "Anonymous",
+                        UserName = Input.Email,
+                        Timestamp = DateTime.UtcNow,
+                        IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"
+                    });
+                    await _context.SaveChangesAsync();
                     return Page();
                 }
 
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
@@ -101,13 +117,10 @@ namespace ClientSphere.Areas.Identity.Pages.Account
                         {
                             try
                             {
-                                using var httpClient = new HttpClient();
-                                var response = await httpClient.GetFromJsonAsync<System.Text.Json.JsonElement>($"http://ip-api.com/json/{ipAddress}");
-                                if (response.GetProperty("status").GetString() == "success")
+                                var location = await _ipGeolocationService.GetLocationAsync(ipAddress);
+                                if (location != null)
                                 {
-                                    string city = response.GetProperty("city").GetString() ?? "Unknown";
-                                    string country = response.GetProperty("country").GetString() ?? "Unknown";
-                                    string currentLocation = $"{city}, {country}";
+                                    string currentLocation = location;
 
                                     if (!string.IsNullOrEmpty(user.LastLoginLocation) && user.LastLoginLocation != currentLocation)
                                     {
@@ -162,11 +175,32 @@ namespace ClientSphere.Areas.Identity.Pages.Account
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning("User account locked out.");
+                    _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
+                    {
+                        Action = "Login Failed — Account Locked",
+                        Description = $"Account locked after repeated failures for {Input.Email}",
+                        UserId = "Anonymous",
+                        UserName = Input.Email,
+                        Timestamp = DateTime.UtcNow,
+                        IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"
+                    });
+                    await _context.SaveChangesAsync();
                     return RedirectToPage("./Lockout");
                 }
                 else
                 {
+                    _logger.LogWarning("Failed login attempt for user {Email}", Input.Email);
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
+                    {
+                        Action = "Login Failed — Invalid Credentials",
+                        Description = $"Failed login attempt for {Input.Email}",
+                        UserId = "Anonymous",
+                        UserName = Input.Email,
+                        Timestamp = DateTime.UtcNow,
+                        IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"
+                    });
+                    await _context.SaveChangesAsync();
                     return Page();
                 }
             }

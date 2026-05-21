@@ -92,7 +92,13 @@
                                     {
                                         <form asp-action="UnarchiveProduct" asp-route-id="@item.Id" method="post" class="d-inline">
                                             @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Restore">
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="Restore"
+                                                    data-confirm="true"
+                                                    data-confirm-title="Restore @item.Name?"
+                                                    data-confirm-text="This product will be moved back to the active list."
+                                                    data-confirm-icon="question"
+                                                    data-confirm-ok="Yes, restore"
+                                                    data-confirm-ok-color="#198754">
                                                 <i class="bi bi-arrow-counterclockwise me-1"></i>Restore
                                             </button>
                                         </form>
@@ -108,7 +114,12 @@
                                             </a>
                                             <form asp-action="ArchiveProduct" asp-route-id="@item.Id" method="post" class="d-inline">
                                                 @Html.AntiForgeryToken()
-                                                <button type="submit" class="btn btn-sm btn-secondary" title="Archive" onclick="return confirm('Archive this product?')">
+                                                <button type="submit" class="btn btn-sm btn-secondary" title="Archive"
+                                                        data-confirm="true"
+                                                        data-confirm-title="Archive @item.Name?"
+                                                        data-confirm-text="This product will be hidden from the active list."
+                                                        data-confirm-icon="warning"
+                                                        data-confirm-ok="Yes, archive">
                                                     <i class="bi bi-archive"></i>
                                                 </button>
                                             </form>

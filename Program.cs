@@ -25,11 +25,20 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options => {
     options.Password.RequireUppercase = true;
     options.Password.RequiredLength = 8;
     options.Password.RequiredUniqueChars = 1;
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.AllowedForNewUsers = true;
 })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultUI()
     .AddDefaultTokenProviders()
     .AddPasswordValidator<ClientSphere.Services.PwnedPasswordValidator<ApplicationUser>>();
+
+// Set password reset token lifespan to 24 hours
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    options.TokenLifespan = TimeSpan.FromHours(24);
+});
 
 builder.Services.AddHttpClient<ClientSphere.Services.PwnedPasswordValidator<ApplicationUser>>();
 
@@ -48,12 +57,15 @@ builder.Services.AddScoped<ClientSphere.Services.ICampaignService, ClientSphere.
 builder.Services.AddScoped<ClientSphere.Services.IInvoiceService, ClientSphere.Services.InvoiceService>();
 
 // API Integration Services
-builder.Services.AddHttpClient<ClientSphere.Services.IIpGeolocationService, ClientSphere.Services.IpGeolocationService>();
+builder.Services.AddHttpClient<ClientSphere.Services.IIpGeolocationService, ClientSphere.Services.IpGeolocationService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(3);
+});
 builder.Services.AddHttpClient<ClientSphere.Services.ITurnstileService, ClientSphere.Services.TurnstileService>();
 builder.Services.AddScoped<ClientSphere.Services.IPaymongoService, ClientSphere.Services.PaymongoService>();
 builder.Services.AddScoped<ClientSphere.Services.ICloudinaryService, ClientSphere.Services.CloudinaryService>();
-builder.Services.AddScoped<ClientSphere.Services.IEmailService, ClientSphere.Services.SendGridEmailService>();
-builder.Services.AddScoped<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, ClientSphere.Services.SendGridEmailService>();
+builder.Services.AddScoped<ClientSphere.Services.IEmailService, ClientSphere.Services.GmailSmtpEmailService>();
+builder.Services.AddScoped<Microsoft.AspNetCore.Identity.UI.Services.IEmailSender, ClientSphere.Services.GmailSmtpEmailService>();
 builder.Services.AddScoped<ClientSphere.Services.ICalendarService, ClientSphere.Services.GraphCalendarService>();
 builder.Services.AddScoped<ClientSphere.Services.ISystemSettingService, ClientSphere.Services.SystemSettingService>();
 builder.Services.AddScoped<ClientSphere.Services.INotificationService, ClientSphere.Services.NotificationService>();
@@ -116,6 +128,14 @@ using (var scope = app.Services.CreateScope())
         var systemSettingsService = services.GetRequiredService<ClientSphere.Services.ISystemSettingService>();
         var rateLimitCache = services.GetRequiredService<ClientSphere.Services.RateLimitCacheService>();
         rateLimitCache.CurrentApiRateLimit = await systemSettingsService.GetSettingIntAsync("ApiRateLimit", 100);
+
+        // Apply Session Timeout (Requirement 1)
+        var sessionOptions = services.GetRequiredService<Microsoft.Extensions.Options.IOptions<SessionOptions>>().Value;
+        sessionOptions.IdleTimeout = TimeSpan.FromMinutes(await systemSettingsService.GetSettingIntAsync("SessionTimeoutMinutes", 30));
+
+        // Apply Minimum Password Length (Requirement 2)
+        var identityOptions = services.GetRequiredService<Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Identity.IdentityOptions>>().Value;
+        identityOptions.Password.RequiredLength = await systemSettingsService.GetSettingIntAsync("MinimumPasswordLength", 8);
     }
     catch (Exception ex)
     {
@@ -143,12 +163,32 @@ app.Use(async (context, next) =>
     context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
     context.Response.Headers.Append("X-Frame-Options", "DENY");
     context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.Append("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https://res.cloudinary.com; frame-src https://challenges.cloudflare.com; connect-src 'self'");
+    context.Response.Headers.Append("Permissions-Policy", "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()");
+    
+    if (!app.Environment.IsDevelopment())
+    {
+        context.Response.Headers.Append("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    }
+    
     await next();
 });
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
+});
+
+// Audit logging for authorization failures
+app.UseStatusCodePages(async statusCodeContext =>
+{
+    if (statusCodeContext.HttpContext.Response.StatusCode == 401 || statusCodeContext.HttpContext.Response.StatusCode == 403)
+    {
+        var logger = statusCodeContext.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+        var path = statusCodeContext.HttpContext.Request.Path;
+        var user = statusCodeContext.HttpContext.User.Identity?.Name ?? "Anonymous";
+        logger.LogWarning("Authorization failure: User '{User}' was denied access to '{Path}' with status {StatusCode}.", user, path, statusCodeContext.HttpContext.Response.StatusCode);
+    }
 });
 app.UseRateLimiter(); // Apply Rate Limiting
 
@@ -168,4 +208,4 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
-app.Run();
+await app.RunAsync();

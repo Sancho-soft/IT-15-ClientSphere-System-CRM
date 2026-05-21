@@ -9,6 +9,7 @@ namespace ClientSphere.Services
     public interface IIpGeolocationService
     {
         Task LogIpLocationAsync(string ipAddress, string userEmail);
+        Task<string?> GetLocationAsync(string ipAddress);
     }
 
     public class IpGeolocationService : IIpGeolocationService
@@ -19,6 +20,7 @@ namespace ClientSphere.Services
         public IpGeolocationService(HttpClient httpClient, ILogger<IpGeolocationService> logger)
         {
             _httpClient = httpClient;
+            _httpClient.Timeout = TimeSpan.FromSeconds(3); // Security: Add timeout for external API call
             _logger = logger;
         }
 
@@ -53,6 +55,35 @@ namespace ClientSphere.Services
             {
                 _logger.LogError(ex, "Failed to resolve IP Geolocation for {Ip}", ipAddress);
             }
+        }
+
+        public async Task<string?> GetLocationAsync(string ipAddress)
+        {
+            if (string.IsNullOrEmpty(ipAddress) || ipAddress == "::1" || ipAddress == "127.0.0.1")
+                return null;
+
+            try
+            {
+                var response = await _httpClient.GetAsync($"http://ip-api.com/json/{ipAddress}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var data = JsonSerializer.Deserialize<IpApiResponse>(json);
+
+                    if (data?.Status == "success")
+                    {
+                        string city = data.City ?? "Unknown";
+                        string country = data.Country ?? "Unknown";
+                        return $"{city}, {country}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to resolve IP location for {Ip}", ipAddress);
+            }
+
+            return null;
         }
 
         private class IpApiResponse

@@ -105,7 +105,14 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <div class="avatar-circle me-3 bg-secondary text-white fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">@user.Initials</div>
+                                    @if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+                                    {
+                                        <img src="@user.ProfilePictureUrl" alt="@user.Initials" class="rounded-circle me-3 object-fit-cover" style="width: 40px; height: 40px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3 bg-secondary bg-opacity-10 text-secondary fw-bold" style="width: 40px; height: 40px; font-size: 0.9rem;">@user.Initials</div>
+                                    }
                                     <div>
                                         <div class="fw-bold">@user.FullName</div>
                                         <div class="text-muted small" style="font-size: 0.75rem;">@user.Email</div>
@@ -113,16 +120,50 @@
                                 </div>
                             </td>
                             <td><span class="badge bg-secondary bg-opacity-10 text-body rounded-pill px-3 py-2 fw-normal" style="font-size: 0.8rem;">@user.Role</span></td>
-                            <td><span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-normal" style="font-size: 0.8rem;">@user.Status</span></td>
+                            <td>
+                                @if (user.Status == "Active")
+                                {
+                                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 fw-normal" style="font-size: 0.8rem;">Active</span>
+                                }
+                                else if (user.Status == "Locked Out")
+                                {
+                                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2 fw-normal" style="font-size: 0.8rem;">Locked Out</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3 py-2 fw-normal" style="font-size: 0.8rem;">@user.Status</span>
+                                }
+                            </td>
                             <td class="text-muted small" style="font-size: 0.85rem;">@user.LastActiveDisplay</td>
                             <td class="text-end">
                                 <a asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-sm btn-link text-primary text-decoration-none px-2" title="Edit User"><i class="bi bi-pencil-square"></i></a>
                                 <a asp-action="ResetPassword" asp-route-userId="@user.Id" class="btn btn-sm btn-link text-warning text-decoration-none px-2" title="Reset Password"><i class="bi bi-key"></i></a>
-                                @if (user.Status == "Active")
+                                @if (user.IsLockedOut)
+                                {
+                                    <form asp-action="UnlockUser" asp-route-id="@user.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-link text-success text-decoration-none px-2" title="Unlock User"
+                                                data-confirm="true"
+                                                data-confirm-title="Unlock @user.FullName?"
+                                                data-confirm-text="This will lift the temporary account lockout."
+                                                data-confirm-icon="question"
+                                                data-confirm-ok="Yes, unlock"
+                                                data-confirm-ok-color="#198754">
+                                            <i class="bi bi-unlock"></i>
+                                        </button>
+                                    </form>
+                                }
+                                @if (user.Status == "Active" || user.Status == "Locked Out")
                                 {
                                     <form asp-action="DeactivateUser" asp-route-id="@user.Id" method="post" class="d-inline">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-link text-danger text-decoration-none px-2" title="Deactivate User" onclick="return confirm('Deactivate this user? They will be locked out.')">
+                                        <button type="submit" class="btn btn-sm btn-link text-danger text-decoration-none px-2" title="Deactivate User"
+                                                data-confirm="true"
+                                                data-confirm-title="Deactivate @user.FullName?"
+                                                data-confirm-text="They will be locked out immediately and cannot log in."
+                                                data-confirm-icon="warning"
+                                                data-confirm-ok="Yes, deactivate"
+                                                data-confirm-ok-color="#dc3545">
                                             <i class="bi bi-person-slash"></i>
                                         </button>
                                     </form>
@@ -131,7 +172,13 @@
                                 {
                                     <form asp-action="ReactivateUser" asp-route-id="@user.Id" method="post" class="d-inline">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-link text-success text-decoration-none px-2" title="Reactivate User">
+                                        <button type="submit" class="btn btn-sm btn-link text-success text-decoration-none px-2" title="Reactivate User"
+                                                data-confirm="true"
+                                                data-confirm-title="Reactivate @user.FullName?"
+                                                data-confirm-text="This will restore their login access."
+                                                data-confirm-icon="question"
+                                                data-confirm-ok="Yes, reactivate"
+                                                data-confirm-ok-color="#198754">
                                             <i class="bi bi-person-check"></i>
                                         </button>
                                     </form>

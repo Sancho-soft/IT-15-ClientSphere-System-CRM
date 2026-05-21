@@ -55,11 +55,21 @@ namespace ClientSphere.Services
                 {
                     attributes = new
                     {
-                        // Amount is required to be in centavos logically (e.g., 1000 = 10.00 PHP). 
-                        // Paymongo accepts amount as integer in cents/centavos.
-                        amount = (int)(invoice.Amount * 100), 
+                        // Amount in centavos (e.g. 100000 = ₱1,000.00)
+                        amount = (int)(invoice.Amount * 100),
                         description = $"Invoice {invoice.InvoiceNumber}",
                         remarks = $"Payment for Invoice {invoice.InvoiceNumber}",
+                        payment_method_allowed = new[]
+                        {
+                            "gcash",
+                            "paymaya",
+                            "card",
+                            "qrph",
+                            "grab_pay",
+                            "billease",
+                            "dob",
+                            "dob_ubp"
+                        },
                         redirect = new
                         {
                             success = successUrl,

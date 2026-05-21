@@ -31,6 +31,19 @@ namespace ClientSphere.Services
         {
             if (file == null || file.Length == 0) return null;
 
+            // Security: Enforce 5MB size limit
+            if (file.Length > 5 * 1024 * 1024)
+            {
+                throw new Exception("File size exceeds the 5MB limit.");
+            }
+
+            // Security: Enforce MIME type whitelist
+            var allowedTypes = new[] { "image/jpeg", "image/png", "image/gif", "image/webp" };
+            if (!System.Linq.Enumerable.Contains(allowedTypes, file.ContentType.ToLower()))
+            {
+                throw new Exception("Invalid file type. Only JPG, PNG, GIF, and WEBP images are allowed.");
+            }
+
             // If keys are not set, simulate an upload for development
             if (_cloudinary.Api.Account.Cloud == "YOUR_CLOUDINARY_CLOUD_NAME" || string.IsNullOrEmpty(_cloudinary.Api.Account.Cloud))
             {

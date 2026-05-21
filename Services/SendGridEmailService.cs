@@ -96,12 +96,31 @@ namespace ClientSphere.Services
         }
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            var client = new SendGridClient(_apiKey);
-            var from = new EmailAddress(_senderEmail, _senderName);
-            var to = new EmailAddress(email);
-            // Identity usually sends HTML payloads, so we inject the plain text equivalent where appropriate, or just fallback to htmlMessage.
-            var msg = MailHelper.CreateSingleEmail(from, to, subject, htmlMessage, htmlMessage);
-            await client.SendEmailAsync(msg);
+            try
+            {
+                var client = new SendGridClient(_apiKey);
+                var from = new EmailAddress(_senderEmail, _senderName);
+                var to = new EmailAddress(email);
+                // Identity usually sends HTML payloads, so we inject the plain text equivalent where appropriate, or just fallback to htmlMessage.
+                var msg = MailHelper.CreateSingleEmail(from, to, subject, htmlMessage, htmlMessage);
+                var response = await client.SendEmailAsync(msg);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var body = await response.Body.ReadAsStringAsync();
+                    Console.WriteLine($"[SendGrid] Failed to send email to {email}. Status: {response.StatusCode}. Body: {body}");
+                    throw new InvalidOperationException($"SendGrid returned {response.StatusCode} when sending to {email}. Check sender verification and API key.");
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                throw; // re-throw our own descriptive error
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[SendGrid] Exception sending email to {email}: {ex.Message}");
+                throw new InvalidOperationException($"Failed to send email to {email}. See logs for details.", ex);
+            }
         }
     }
 }

@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using ClientSphere.Services;
+using ClientSphere.Data;
 
 namespace ClientSphere.Areas.Identity.Pages.Account
 {
@@ -21,11 +23,22 @@ namespace ClientSphere.Areas.Identity.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
+        private readonly ITurnstileService _turnstileService;
+        private readonly ApplicationDbContext _context;
+        private readonly ILogger<ForgotPasswordModel> _logger;
 
-        public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender)
+        public ForgotPasswordModel(
+            UserManager<ApplicationUser> userManager,
+            IEmailSender emailSender,
+            ITurnstileService turnstileService,
+            ApplicationDbContext context,
+            ILogger<ForgotPasswordModel> logger)
         {
             _userManager = userManager;
             _emailSender = emailSender;
+            _turnstileService = turnstileService;
+            _context = context;
+            _logger = logger;
         }
 
         /// <summary>
@@ -50,14 +63,47 @@ namespace ClientSphere.Areas.Identity.Pages.Account
             public string Email { get; set; }
         }
 
+        [BindProperty(Name = "cf-turnstile-response")]
+        public string TurnstileToken { get; set; }
+
         public async Task<IActionResult> OnPostAsync()
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByEmailAsync(Input.Email);
-                if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
+                // Verify Turnstile CAPTCHA to prevent bot abuse
+                var isHuman = await _turnstileService.VerifyTokenAsync(TurnstileToken);
+                if (!isHuman)
                 {
-                    // Don't reveal that the user does not exist or is not confirmed
+                    ModelState.AddModelError(string.Empty, "Security verification failed. Please complete the CAPTCHA and try again.");
+                    _logger.LogWarning("Turnstile verification failed for forgot password request: {Email}", Input.Email);
+                    _context.AuditLogs.Add(new AuditLog
+                    {
+                        Action = "Forgot Password — Turnstile Failed",
+                        Description = $"Turnstile verification failed for forgot password request: {Input.Email}",
+                        UserId = "Anonymous",
+                        UserName = Input.Email,
+                        Timestamp = DateTime.UtcNow,
+                        IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"
+                    });
+                    await _context.SaveChangesAsync();
+                    return Page();
+                }
+
+                var user = await _userManager.FindByEmailAsync(Input.Email);
+                if (user == null)
+                {
+                    // Don't reveal that the user does not exist — always redirect to confirmation
+                    _logger.LogInformation("Password reset requested for non-existent email: {Email}", Input.Email);
+                    _context.AuditLogs.Add(new AuditLog
+                    {
+                        Action = "Forgot Password — User Not Found",
+                        Description = $"Password reset requested for non-existent email: {Input.Email}",
+                        UserId = "Anonymous",
+                        UserName = Input.Email,
+                        Timestamp = DateTime.UtcNow,
+                        IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"
+                    });
+                    await _context.SaveChangesAsync();
                     return RedirectToPage("./ForgotPasswordConfirmation");
                 }
 
@@ -75,6 +121,18 @@ namespace ClientSphere.Areas.Identity.Pages.Account
                     Input.Email,
                     "Reset Password",
                     $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                _logger.LogInformation("Password reset email sent to {Email}", Input.Email);
+                _context.AuditLogs.Add(new AuditLog
+                {
+                    Action = "Forgot Password — Email Sent",
+                    Description = $"Password reset email sent to: {Input.Email}",
+                    UserId = user.Id,
+                    UserName = user.Email,
+                    Timestamp = DateTime.UtcNow,
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"
+                });
+                await _context.SaveChangesAsync();
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

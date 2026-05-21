@@ -11,5 +11,6 @@ namespace ClientSphere.Services
         Task DeleteCustomerAsync(int id);
         Task<IEnumerable<Customer>> SearchCustomersAsync(string query);
         Task<bool> CustomerExistsAsync(int id);
+        Task<IEnumerable<Customer>> GetCustomersByStatusAsync(bool isActive);
     }
 }

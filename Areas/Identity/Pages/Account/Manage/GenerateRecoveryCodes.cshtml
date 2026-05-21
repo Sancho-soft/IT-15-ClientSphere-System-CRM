@@ -1,0 +1,32 @@
+@page
+@model GenerateRecoveryCodesModel
+@{
+    ViewData["Title"] = "Generate Recovery Codes";
+    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+}
+
+<partial name="_StatusMessage" for="StatusMessage" />
+
+<h3 class="mb-4">@ViewData["Title"]</h3>
+
+<div class="alert alert-warning border-0 shadow-sm d-flex align-items-center" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-3" style="font-size: 1.5rem;"></i>
+    <div>
+        <strong>This will invalidate your existing recovery codes.</strong>
+        <p class="mb-0 small">If you have previously generated recovery codes, they will no longer be valid. You must save the new codes in a secure location.</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <p class="mb-3">Generate new recovery codes to use when you can't access your email or authenticator app.</p>
+        <form method="post">
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-arrow-repeat me-1"></i>Generate New Codes
+                </button>
+                <a asp-page="./TwoFactorAuthentication" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

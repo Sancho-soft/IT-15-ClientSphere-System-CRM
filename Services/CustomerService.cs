@@ -49,5 +49,10 @@ namespace ClientSphere.Services
         {
             return await _repository.SearchAsync(query);
         }
+
+        public async Task<IEnumerable<Customer>> GetCustomersByStatusAsync(bool isActive)
+        {
+            return await _repository.GetByStatusAsync(isActive);
+        }
     }
 }

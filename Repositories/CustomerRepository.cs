@@ -66,5 +66,13 @@ namespace ClientSphere.Repositories
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Customer>> GetByStatusAsync(bool isActive)
+        {
+            return await _context.Customers
+                .Where(c => c.IsActive == isActive)
+                .OrderByDescending(c => c.CreatedAt)
+                .ToListAsync();
+        }
     }
 }

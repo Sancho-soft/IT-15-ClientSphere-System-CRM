@@ -219,7 +219,7 @@ namespace ClientSphere.Controllers
                     await _invoiceService.UpdateInvoiceAsync(invoice);
                     return RedirectToAction(nameof(Index));
                 }
-                catch (Exception)
+                catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
                 {
                     if (await _invoiceService.GetInvoiceByIdAsync(id) == null)
                     {

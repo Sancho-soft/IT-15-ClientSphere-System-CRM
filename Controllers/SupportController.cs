@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ClientSphere.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Super Admin,Admin,Support Staff")]
     public class SupportController : Controller
     {
         private readonly ISupportService _supportService;
@@ -75,6 +75,16 @@ namespace ClientSphere.Controllers
                 
                 if (attachment != null && attachment.Length > 0)
                 {
+                    if (!ClientSphere.Helpers.FileUploadValidator.IsValidImageType(attachment))
+                    {
+                        TempData["Error"] = "Only image files (JPEG, PNG, GIF, WebP) are allowed.";
+                        return View(ticket);
+                    }
+                    if (!ClientSphere.Helpers.FileUploadValidator.IsWithinSizeLimit(attachment))
+                    {
+                        TempData["Error"] = "File size must not exceed 5 MB.";
+                        return View(ticket);
+                    }
                     try
                     {
                         string imageUrl = await _cloudinaryService.UploadImageAsync(attachment, "support_tickets");
@@ -82,7 +92,6 @@ namespace ClientSphere.Controllers
                     }
                     catch (Exception ex)
                     {
-                        // Log error or display message
                         TempData["Error"] = $"Image upload failed: {ex.Message}";
                     }
                 }

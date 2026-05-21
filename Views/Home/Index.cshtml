@@ -5,7 +5,7 @@
 
 <div class="container py-5">
     <div class="row align-items-center g-5 py-5">
-        <div class="col-lg-6">
+        <div class="col-lg-6 hero-text-anim">
             <h1 class="display-4 fw-bold lh-1 mb-3 text-primary">ClientSphere - A Friendly Customer Management</h1>
             <p class="lead">
                 A comprehensive CRM platform designed for sales and service-oriented businesses. Manage customer interactions, track sales, handle support tickets, run marketing campaigns, and integrate billing &mdash; all in one centralized system.
@@ -57,7 +57,7 @@
                 <a asp-controller="Home" asp-action="Privacy" class="btn btn-outline-secondary btn-lg px-4">About Clientsphere</a>
             </div>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-6 hero-carousel-anim">
             <div id="heroCarousel" class="carousel slide shadow rounded-3 overflow-hidden" data-bs-ride="carousel" data-bs-interval="3000">
                 <div class="carousel-indicators">
                     <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -87,8 +87,8 @@
         </div>
     </div>
 
-    <div class="row text-center mt-5" id="features-crm">
-        <div class="col-lg-4">
+    <div class="row text-center mt-5 gsap-stagger-container" id="features-crm">
+        <div class="col-lg-4 gsap-stagger-item">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
                     <div class="feature-icon bg-primary bg-gradient text-white rounded-3 mb-3 d-inline-block p-3">
@@ -99,7 +99,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-4" id="features-sales">
+        <div class="col-lg-4 gsap-stagger-item" id="features-sales">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
                     <div class="feature-icon bg-primary bg-gradient text-white rounded-3 mb-3 d-inline-block p-3">
@@ -110,7 +110,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-4" id="features-marketing">
+        <div class="col-lg-4 gsap-stagger-item" id="features-marketing">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
                     <div class="feature-icon bg-primary bg-gradient text-white rounded-3 mb-3 d-inline-block p-3">
@@ -125,7 +125,7 @@
 </div>
 
 <!-- Solutions Section -->
-<section id="solutions-smb" class="py-5">
+<section id="solutions-smb" class="py-5 gsap-slide-up">
     <div class="container">
         <div class="row align-items-center g-5">
             <div class="col-lg-6">
@@ -134,17 +134,17 @@
                 <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary mt-2">Start Free <i class="bi bi-arrow-right ms-1"></i></a>
             </div>
             <div class="col-lg-6 text-center">
-                <i class="bi bi-shop text-primary" style="font-size: 6rem;"></i>
+                <i class="bi bi-shop text-primary landing-float-icon" style="font-size: 6rem;"></i>
             </div>
         </div>
     </div>
 </section>
 
-<section id="solutions-enterprise" class="py-5">
+<section id="solutions-enterprise" class="py-5 gsap-slide-up">
     <div class="container">
         <div class="row align-items-center g-5">
             <div class="col-lg-6 text-center order-lg-1">
-                <i class="bi bi-building text-primary" style="font-size: 6rem;"></i>
+                <i class="bi bi-building text-primary landing-float-icon" style="font-size: 6rem;"></i>
             </div>
             <div class="col-lg-6 order-lg-2">
                 <h2 class="fw-bold mb-3">Enterprise-Grade Control</h2>
@@ -156,20 +156,20 @@
 </section>
 
 <!-- About Section -->
-<section id="about" class="py-5">
+<section id="about" class="py-5 gsap-fade-in">
     <div class="container text-center" style="max-width: 700px;">
         <h2 class="fw-bold mb-3">Our Story</h2>
         <p class="text-muted lead">ClientSphere was built to solve a simple problem: growing businesses drowning in spreadsheets. Our team of developers and business consultants created a unified CRM that's powerful yet easy to use &mdash; giving every team member the right tools for their role.</p>
-        <div class="row mt-4 text-center">
-            <div class="col-4"><h3 class="fw-bold text-primary">9+</h3><small class="text-muted">User Roles</small></div>
-            <div class="col-4"><h3 class="fw-bold text-primary">5+</h3><small class="text-muted">Core Modules</small></div>
-            <div class="col-4"><h3 class="fw-bold text-primary">100%</h3><small class="text-muted">Role-Based Access</small></div>
+        <div class="row mt-4 text-center gsap-stagger-container">
+            <div class="col-4 gsap-stagger-item"><h3 class="fw-bold text-primary counter-anim" data-target="9" data-suffix="+">0</h3><small class="text-muted">User Roles</small></div>
+            <div class="col-4 gsap-stagger-item"><h3 class="fw-bold text-primary counter-anim" data-target="5" data-suffix="+">0</h3><small class="text-muted">Core Modules</small></div>
+            <div class="col-4 gsap-stagger-item"><h3 class="fw-bold text-primary counter-anim" data-target="100" data-suffix="%">0</h3><small class="text-muted">Role-Based Access</small></div>
         </div>
     </div>
 </section>
 
 <!-- Contact Section -->
-<section id="contact" class="py-5">
+<section id="contact" class="py-5 gsap-slide-up">
     <div class="container text-center" style="max-width: 600px;">
         <h2 class="fw-bold mb-3">Get In Touch</h2>
         <p class="text-muted">Have questions about ClientSphere? Reach out to our team and we'll get back to you within 24 hours.</p>
@@ -181,6 +181,30 @@
 </section>
 
 @section Scripts {
+    <style>
+        .landing-float-icon {
+            display: inline-block;
+            animation: floatUpDown 3s ease-in-out infinite;
+        }
+        @@keyframes floatUpDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .feature-icon {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover .feature-icon {
+            transform: scale(1.15) rotate(-5deg);
+            box-shadow: 0 8px 25px rgba(13, 110, 253, 0.3);
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12) !important;
+        }
+    </style>
     <style>
         #cs-chat-launcher {
             position: fixed; bottom: 28px; right: 28px; z-index: 9999;
@@ -219,6 +243,25 @@
         .cs-msg.bot .cs-msg-bubble { background: #fff; color: #111827; border-bottom-left-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
         .cs-msg.user .cs-msg-bubble { background: #1a56db; color: #fff; border-bottom-right-radius: 4px; }
         .cs-msg-time { font-size: 0.68rem; opacity: 0.5; margin-top: 4px; }
+        /* Typing indicator */
+        .cs-typing-bubble { display: flex; gap: 8px; align-self: flex-start; }
+        .cs-typing-dots {
+            background: #fff; border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+            padding: 12px 16px; border-radius: 14px;
+            display: flex; align-items: center; gap: 5px; height: 38px;
+        }
+        .cs-typing-dots span {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #9ca3af; display: inline-block;
+            animation: cs-bounce 1.2s infinite ease-in-out;
+        }
+        .cs-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .cs-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+        @@keyframes cs-bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-6px); }
+        }
         .cs-quick-actions { padding: 0 16px 10px; display: flex; flex-wrap: wrap; gap: 8px; background: #f8faff; }
         .cs-quick-btn { font-size: 0.78rem; padding: 5px 12px; border-radius: 20px; border: 1px solid #1a56db; background: transparent; color: #1a56db; cursor: pointer; transition: background 0.15s, color 0.15s; }
         .cs-quick-btn:hover { background: #1a56db; color: #fff; }
@@ -227,6 +270,7 @@
         #cs-chat-input:focus { border-color: #1a56db; }
         #cs-chat-send { width: 36px; height: 36px; border-radius: 50%; background: #1a56db; border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s; }
         #cs-chat-send:hover { background: #1648c0; }
+        #cs-chat-send:disabled { background: #9ca3af; cursor: not-allowed; }
         .cs-chat-footer { text-align: center; font-size: 0.65rem; color: #9ca3af; padding: 6px 0 8px; background: #fff; }
         @@media (max-width: 480px) { #cs-chat-panel { width: calc(100vw - 32px); right: 16px; } #cs-chat-launcher { bottom: 20px; right: 20px; } }
     </style>
@@ -303,16 +347,47 @@
             msgs.scrollTop = msgs.scrollHeight;
         }
 
-        function csQuickAction(text) { csAddMsg(text, 'user'); setTimeout(() => csBotRespond(text), 500); }
+        function csShowTyping() {
+            const msgs = document.getElementById('cs-chat-messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'cs-typing-bubble';
+            typingDiv.id = 'cs-typing-indicator';
+            typingDiv.innerHTML = `<div class="cs-msg-avatar"><i class="bi bi-robot"></i></div><div class="cs-typing-dots"><span></span><span></span><span></span></div>`;
+            msgs.appendChild(typingDiv);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function csHideTyping() {
+            const el = document.getElementById('cs-typing-indicator');
+            if (el) el.remove();
+        }
+
+        function csQuickAction(text) { csAddMsg(text, 'user'); csTriggerTyping(text); }
         function csSendMessage() {
             const inp = document.getElementById('cs-chat-input');
             const text = inp.value.trim();
             if (!text) return;
             inp.value = '';
             csAddMsg(text, 'user');
-            setTimeout(() => csBotRespond(text), 500);
+            csTriggerTyping(text);
         }
         function csChatKeydown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); csSendMessage(); } }
+
+        function csTriggerTyping(userText) {
+            const sendBtn = document.getElementById('cs-chat-send');
+            const inp = document.getElementById('cs-chat-input');
+            if (sendBtn) sendBtn.disabled = true;
+            if (inp) inp.disabled = true;
+            csShowTyping();
+            // Random delay 1.0 - 1.8s for natural feel
+            const delay = 1000 + Math.random() * 800;
+            setTimeout(() => {
+                csHideTyping();
+                csBotRespond(userText);
+                if (sendBtn) sendBtn.disabled = false;
+                if (inp) { inp.disabled = false; inp.focus(); }
+            }, delay);
+        }
 
         function csBotRespond(userText) {
             const lower = userText.toLowerCase();
@@ -382,5 +457,57 @@
                 csAddMsg('I am not sure I understood that, but I am here to help! You can ask me about:<br>• Password reset<br>• Login issues<br>• Billing or invoices<br>• Payment problems<br>• Support tickets<br>• Account settings<br><br>Or email us directly at <a href="mailto:support@clientsphere.com" class="text-primary fw-semibold">support@clientsphere.com</a>.', 'bot');
             }
         }
+    </script>
+
+    <script>
+        // Landing page custom GSAP animations
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof gsap === 'undefined') return;
+
+            // Register ScrollTrigger plugin
+            if (typeof ScrollTrigger !== 'undefined') {
+                gsap.registerPlugin(ScrollTrigger);
+            }
+
+            // Hero text slide from left
+            gsap.from('.hero-text-anim', {
+                x: -80, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.2
+            });
+
+            // Hero carousel slide from right
+            gsap.from('.hero-carousel-anim', {
+                x: 80, opacity: 0, duration: 1, ease: 'power3.out', delay: 0.4
+            });
+
+            // Counter animation on scroll
+            document.querySelectorAll('.counter-anim').forEach(function (el) {
+                var target = parseInt(el.dataset.target);
+                var suffix = el.dataset.suffix || '';
+                var triggered = false;
+
+                if (typeof ScrollTrigger !== 'undefined') {
+                    ScrollTrigger.create({
+                        trigger: el,
+                        start: 'top 85%',
+                        onEnter: function () {
+                            if (triggered) return;
+                            triggered = true;
+                            var obj = { val: 0 };
+                            gsap.to(obj, {
+                                val: target,
+                                duration: 1.5,
+                                ease: 'power2.out',
+                                onUpdate: function () {
+                                    el.textContent = Math.round(obj.val) + suffix;
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    // Fallback if ScrollTrigger is not loaded
+                    el.textContent = target + suffix;
+                }
+            });
+        });
     </script>
 }

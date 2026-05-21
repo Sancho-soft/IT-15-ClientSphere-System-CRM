@@ -11,5 +11,6 @@ namespace ClientSphere.Repositories
         Task DeleteAsync(int id);
         Task<IEnumerable<Customer>> SearchAsync(string query);
         Task<bool> ExistsAsync(int id);
+        Task<IEnumerable<Customer>> GetByStatusAsync(bool isActive);
     }
 }

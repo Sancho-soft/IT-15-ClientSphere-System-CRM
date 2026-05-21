@@ -48,7 +48,13 @@
                                 {
                                     <form asp-controller="SalesStaff" asp-action="ConvertToOpportunity" asp-route-id="@lead.Id" method="post" style="display:inline;">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Convert to Opportunity" onclick="return confirm('Are you sure you want to convert this Lead to an Opportunity?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Convert to Opportunity"
+                                                data-confirm="true"
+                                                data-confirm-title="Convert to Opportunity?"
+                                                data-confirm-text="This lead will be converted to an Opportunity and removed from the leads list."
+                                                data-confirm-icon="question"
+                                                data-confirm-ok="Yes, convert"
+                                                data-confirm-ok-color="#198754">
                                             <i class="bi bi-arrow-right-circle"></i> Convert
                                         </button>
                                     </form>

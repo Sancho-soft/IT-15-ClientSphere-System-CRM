@@ -52,6 +52,16 @@ namespace ClientSphere.Controllers
             {
                 if (productImage != null && productImage.Length > 0)
                 {
+                    if (!ClientSphere.Helpers.FileUploadValidator.IsValidImageType(productImage))
+                    {
+                        ModelState.AddModelError("", "Only image files (JPEG, PNG, GIF, WebP) are allowed.");
+                        return View(product);
+                    }
+                    if (!ClientSphere.Helpers.FileUploadValidator.IsWithinSizeLimit(productImage))
+                    {
+                        ModelState.AddModelError("", "Product image must not exceed 5 MB.");
+                        return View(product);
+                    }
                     try
                     {
                         string? url = await _cloudinaryService.UploadImageAsync(productImage, "products");
@@ -91,6 +101,16 @@ namespace ClientSphere.Controllers
                 { 
                     if (productImage != null && productImage.Length > 0)
                     {
+                        if (!ClientSphere.Helpers.FileUploadValidator.IsValidImageType(productImage))
+                        {
+                            ModelState.AddModelError("", "Only image files (JPEG, PNG, GIF, WebP) are allowed.");
+                            return View(product);
+                        }
+                        if (!ClientSphere.Helpers.FileUploadValidator.IsWithinSizeLimit(productImage))
+                        {
+                            ModelState.AddModelError("", "Product image must not exceed 5 MB.");
+                            return View(product);
+                        }
                         string? url = await _cloudinaryService.UploadImageAsync(productImage, "products");
                         if (!string.IsNullOrEmpty(url)) product.ImageUrl = url;
                     }
@@ -103,7 +123,7 @@ namespace ClientSphere.Controllers
 
                     await _productService.UpdateProductAsync(product); 
                 }
-                catch (Exception)
+                catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
                 {
                     if (await _productService.GetProductByIdAsync(id) == null) return NotFound();
                     else throw;

@@ -1,68 +1,92 @@
 @page
 @model EnableAuthenticatorModel
 @{
-    ViewData["Title"] = "Configure authenticator app";
+    ViewData["Title"] = "Configure Authenticator App";
     ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
 }
 
 <partial name="_StatusMessage" for="StatusMessage" />
-<h3>@ViewData["Title"]</h3>
-<div>
-    <p>To use an authenticator app go through the following steps:</p>
-    <ol class="list">
-        <li>
-            <p>
-                Download a two-factor authenticator app like Microsoft Authenticator for
-                <a href="https://go.microsoft.com/fwlink/?Linkid=825072">Android</a> and
-                <a href="https://go.microsoft.com/fwlink/?Linkid=825073">iOS</a> or
-                Google Authenticator for
-                <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&amp;hl=en">Android</a> and
-                <a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8">iOS</a>.
-            </p>
-        </li>
-        <li>
-            <p>Scan the QR Code or enter this key <kbd>@Model.SharedKey</kbd> into your two factor authenticator app. Spaces and casing do not matter.</p>
-            <div class="alert alert-info border-0 shadow-sm"><i class="bi bi-qr-code-scan me-2"></i>Scan the QR Code below with your authenticator app.</div>
-            <div id="qrCode" class="mb-3 d-flex justify-content-center p-3 bg-white border rounded shadow-sm" style="max-width: 200px;"></div>
-            <div id="qrCodeData" data-url="@Model.AuthenticatorUri"></div>
-        </li>
-        <li>
-            <p>
-                Once you have scanned the QR code or input the key above, your two factor authentication app will provide you
-                with a unique code. Enter the code in the confirmation box below.
-            </p>
-            <div class="row">
-                <div class="col-md-6">
-                    <form id="send-code" method="post">
-                        <div class="form-floating mb-3">
-                            <input asp-for="Input.Code" class="form-control" autocomplete="off" placeholder="Please enter the code."/>
-                            <label asp-for="Input.Code" class="control-label form-label">Verification Code</label>
-                            <span asp-validation-for="Input.Code" class="text-danger"></span>
-                        </div>
-                        <button type="submit" class="w-100 btn btn-lg btn-primary">Verify</button>
-                        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-                    </form>
-                </div>
+
+<div class="d-flex align-items-center mb-4">
+    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px;">
+        <i class="bi bi-phone fs-4"></i>
+    </div>
+    <div>
+        <h4 class="fw-bold mb-0">@ViewData["Title"]</h4>
+        <p class="text-muted small mb-0">Enhance your account security with a time-based authenticator.</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <h6 class="fw-bold mb-3"><span class="badge bg-primary me-2">Step 1</span> Download an Authenticator App</h6>
+        <p class="text-muted small mb-0">
+            Download a two-factor authenticator app like Microsoft Authenticator for
+            <a href="https://go.microsoft.com/fwlink/?Linkid=825072" class="text-decoration-none fw-semibold" target="_blank">Android</a> and
+            <a href="https://go.microsoft.com/fwlink/?Linkid=825073" class="text-decoration-none fw-semibold" target="_blank">iOS</a> or
+            Google Authenticator for
+            <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&amp;hl=en" class="text-decoration-none fw-semibold" target="_blank">Android</a> and
+            <a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8" class="text-decoration-none fw-semibold" target="_blank">iOS</a>.
+        </p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+        <h6 class="fw-bold mb-3"><span class="badge bg-primary me-2">Step 2</span> Scan the QR Code</h6>
+        <p class="text-muted small mb-3">Scan the QR Code below with your authenticator app. If you can't scan it, enter this setup key manually: <kbd class="bg-dark px-2 py-1 fs-6">@Model.SharedKey</kbd></p>
+        
+        <div class="d-flex justify-content-center mb-3">
+            <div id="qrCode" class="p-3 bg-white border rounded-3 shadow-sm d-flex align-items-center justify-content-center" style="width: 180px; height: 180px;"></div>
+            <div id="qrCodeData" data-url="@Html.Raw(Model.AuthenticatorUri)"></div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <h6 class="fw-bold mb-3"><span class="badge bg-primary me-2">Step 3</span> Verify the Code</h6>
+        <p class="text-muted small mb-4">
+            Once you have scanned the QR code or input the key above, your authenticator app will provide you
+            with a unique 6-digit code. Enter it below to verify and complete the setup.
+        </p>
+        
+        <div class="row">
+            <div class="col-md-8 col-lg-6">
+                <form id="send-code" method="post">
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Code" class="form-control fw-bold fs-5 text-center tracking-widest" autocomplete="off" placeholder="123456" maxlength="6" />
+                        <label asp-for="Input.Code">6-Digit Verification Code</label>
+                        <span asp-validation-for="Input.Code" class="text-danger small"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                        <i class="bi bi-shield-check me-2"></i>Verify and Enable
+                    </button>
+                    <div asp-validation-summary="ModelOnly" class="text-danger mt-2 small" role="alert"></div>
+                </form>
             </div>
-        </li>
-    </ol>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0uVDtk0s3243IGfGq/f/gR0yQ0lS60p9r//6A6sA7T0Z+Dmt60aQQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        window.addEventListener("load", () => {
-            const uri = document.getElementById("qrCodeData").getAttribute('data-url');
-            if (uri) {
-                new QRCode(document.getElementById("qrCode"), {
-                    text: uri,
-                    width: 150,
-                    height: 150,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
-                });
+        document.addEventListener("DOMContentLoaded", function () {
+            const qrCodeDataElement = document.getElementById("qrCodeData");
+            if (qrCodeDataElement) {
+                const uri = qrCodeDataElement.getAttribute('data-url');
+                if (uri) {
+                    new QRCode(document.getElementById("qrCode"), {
+                        text: uri,
+                        width: 150,
+                        height: 150,
+                        colorDark : "#0d6efd", // Primary color for a cohesive look
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.H
+                    });
+                }
             }
         });
     </script>

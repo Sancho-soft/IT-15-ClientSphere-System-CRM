@@ -9,11 +9,13 @@ namespace ClientSphere.Models
 
         [Required]
         [Display(Name = "Subject")]
+        [StringLength(200, ErrorMessage = "Subject cannot exceed 200 characters.")]
         public string Subject { get; set; }
 
         [Required]
         [Display(Name = "Description")]
         [DataType(DataType.MultilineText)]
+        [StringLength(2000, ErrorMessage = "Description cannot exceed 2000 characters.")]
         public string Description { get; set; }
 
         public string Status { get; set; } // Open, In Progress, Resolved, Closed

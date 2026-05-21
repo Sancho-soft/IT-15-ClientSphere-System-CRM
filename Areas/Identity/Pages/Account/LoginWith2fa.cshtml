@@ -1,0 +1,97 @@
+@page
+@model LoginWith2faModel
+
+@{
+    ViewData["Title"] = "Two-Factor Verification";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="mb-3">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-10" style="width: 64px; height: 64px;">
+                                <i class="bi bi-shield-lock-fill text-primary" style="font-size: 28px;"></i>
+                            </span>
+                        </div>
+                        <h2 class="fw-bold mb-2">Verify Your Identity</h2>
+                        <p class="text-muted">A 6-digit verification code has been sent to <strong>@Model.MaskedEmail</strong></p>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.StatusMessage))
+                    {
+                        <div class="alert alert-info alert-dismissible fade show border-0 shadow-sm" role="alert">
+                            <i class="bi bi-info-circle-fill me-2"></i>@Model.StatusMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form method="post" id="verify-form">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+                        <input type="hidden" asp-for="RememberMe" />
+                        <input type="hidden" asp-for="ReturnUrl" />
+                        <input type="hidden" asp-for="EncryptedOtp" />
+
+                        <div class="mb-3">
+                            <label asp-for="Input.TwoFactorCode" class="form-label fw-bold">Verification Code</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-key"></i></span>
+                                <input asp-for="Input.TwoFactorCode" class="form-control border-start-0 ps-0 text-center fw-bold"
+                                       autocomplete="off" placeholder="Enter 6-digit code"
+                                       style="letter-spacing: 6px; font-size: 1.2rem;"
+                                       maxlength="7" inputmode="numeric" autofocus />
+                            </div>
+                            <span asp-validation-for="Input.TwoFactorCode" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" asp-for="Input.RememberMachine" />
+                            <label class="form-check-label" asp-for="Input.RememberMachine">
+                                Remember this device
+                            </label>
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold" id="verify-code-btn">
+                                <i class="bi bi-shield-check me-2"></i>Verify Code
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center">
+                        <form method="post" asp-page-handler="ResendCode" class="d-inline">
+                            <input type="hidden" asp-for="RememberMe" />
+                            <input type="hidden" asp-for="ReturnUrl" />
+                            <button type="submit" class="btn btn-link text-decoration-none p-0" id="resend-code-btn">
+                                <i class="bi bi-arrow-clockwise me-1"></i>Resend Code
+                            </button>
+                        </form>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="text-center">
+                        <small class="text-muted">
+                            Don't have access to your email?
+                            <a asp-page="./LoginWithRecoveryCode" asp-route-returnUrl="@Model.ReturnUrl" class="text-decoration-none fw-bold">
+                                Use a recovery code
+                            </a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center text-muted small">
+                <i class="bi bi-shield-check text-success me-1"></i>
+                Protecting your account with MFA. Read our <a asp-controller="Home" asp-action="SecurityPolicy" target="_blank" class="fw-semibold text-decoration-none">Security Policy</a>.
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="icon" type="image/png" href="~/images/logo.png?v=2" />
+    <link rel="shortcut icon" type="image/png" href="~/images/logo.png?v=2" />
     <script>
         (function () {
             const saved = localStorage.getItem('clientsphere-theme');
@@ -116,9 +118,12 @@
                         <li id="notifEmpty" class="text-center text-muted py-4 small">No new notifications</li>
                     </ul>
                 </div>
-                <a asp-controller="CustomerPortal" asp-action="CreateTicket" class="btn btn-primary rounded-pill d-none d-md-inline-block">
-                    <i class="bi bi-plus-lg me-1"></i> New Ticket
-                </a>
+                @if (ViewData["CurrentPage"] as string == "Support Tickets")
+                {
+                    <a asp-controller="CustomerPortal" asp-action="CreateTicket" class="btn btn-primary rounded-pill d-none d-md-inline-block">
+                        <i class="bi bi-plus-lg me-1"></i> New Ticket
+                    </a>
+                }
                 
                 @{
                     var drpFullName = ctxAppUser != null && !string.IsNullOrWhiteSpace(ctxAppUser?.FirstName) ? $"{ctxAppUser.FirstName} {ctxAppUser.LastName}" : User.Identity?.Name;
@@ -370,6 +375,44 @@
         #cs-chat-send:hover { background: #1648c0; }
         .cs-chat-footer { text-align: center; font-size: 0.65rem; color: var(--bs-secondary-color); padding: 6px 0 8px; }
 
+        /* Bouncing Dots Typing Indicator */
+        .cs-typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+        }
+        .cs-typing-indicator span {
+            width: 6px;
+            height: 6px;
+            background-color: var(--bs-body-color);
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: csBounce 1.4s infinite both;
+        }
+        .cs-typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .cs-typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @@keyframes csBounce {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+        /* Dynamic table styles inside bot chat bubble */
+        .cs-chat-table {
+            width: 100%;
+            font-size: 0.76rem;
+            margin-top: 8px;
+            border-collapse: collapse;
+        }
+        .cs-chat-table th, .cs-chat-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--bs-border-color);
+            text-align: left;
+        }
+        .cs-chat-table th {
+            font-weight: 600;
+            background: var(--bs-secondary-bg);
+        }
+
         @@media (max-width: 480px) {
             #cs-chat-panel { width: calc(100vw - 32px); right: 16px; }
             #cs-chat-launcher { bottom: 20px; right: 20px; }
@@ -475,9 +518,36 @@
             msgs.scrollTop = msgs.scrollHeight;
         }
 
+        function csShowTypingIndicator() {
+            const msgs = document.getElementById('cs-chat-messages');
+            const indicator = document.getElementById('cs-typing-indicator');
+            if (indicator) return;
+
+            const div = document.createElement('div');
+            div.id = 'cs-typing-indicator';
+            div.className = 'cs-msg bot';
+            div.innerHTML = `
+                <div class="cs-msg-avatar"><i class="bi bi-robot"></i></div>
+                <div>
+                    <div class="cs-msg-bubble">
+                        <div class="cs-typing-indicator">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                </div>`;
+            msgs.appendChild(div);
+            msgs.scrollTop = msgs.scrollHeight;
+        }
+
+        function csHideTypingIndicator() {
+            const indicator = document.getElementById('cs-typing-indicator');
+            if (indicator) indicator.remove();
+        }
+
         function csQuickAction(text) {
             csAddMsg(text, 'user');
-            setTimeout(() => csBotRespond(text), 500);
+            csShowTypingIndicator();
+            setTimeout(() => csBotRespond(text), 1000);
         }
 
         function csSendMessage() {
@@ -486,7 +556,8 @@
             if (!text) return;
             inp.value = '';
             csAddMsg(text, 'user');
-            setTimeout(() => csBotRespond(text), 500);
+            csShowTypingIndicator();
+            setTimeout(() => csBotRespond(text), 1000);
         }
 
         function csChatKeydown(e) {
@@ -494,7 +565,8 @@
         }
 
         function csBotRespond(userText) {
-            const lower = userText.toLowerCase();
+            csHideTypingIndicator();
+            const lower = userText.toLowerCase().trim();
 
             if (csChatStep === 'awaiting_subject') {
                 csChatSubject = userText;
@@ -506,7 +578,7 @@
             if (csChatStep === 'awaiting_desc') {
                 csChatStep = 'submitting';
                 csAddMsg('⏳ Submitting your ticket...', 'bot');
-                // Submit ticket via AJAX
+                
                 const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
                 fetch('/CustomerPortal/CreateTicket', {
                     method: 'POST',
@@ -526,21 +598,120 @@
                 return;
             }
 
-            // Keyword-based bot responses
-            if (lower.includes('ticket') || lower.includes('my ticket')) {
-                csAddMsg('You can view all your support tickets here: <a href="/CustomerPortal/MyTickets" class="text-primary fw-semibold">View My Tickets →</a>', 'bot');
-            } else if (lower.includes('order')) {
-                csAddMsg('For order-related concerns, would you like to <strong>create a support ticket</strong>? I can help you right here. Type <strong>"yes"</strong> to proceed, or visit <a href="/CustomerPortal/MyOrders" class="text-primary fw-semibold">My Orders</a>.', 'bot');
+            // Commands & queries
+            if (lower.includes('order')) {
+                csShowTypingIndicator();
+                fetch('/CustomerPortal/GetChatbotSummary')
+                    .then(r => r.json())
+                    .then(data => {
+                        csHideTypingIndicator();
+                        if (!data.orders || data.orders.length === 0) {
+                            csAddMsg('📦 You don\'t have any orders yet. Visit our portal features or contact support to place your first order!', 'bot');
+                        } else {
+                            let tableHtml = `Here are your recent orders:<br>
+                                <table class="cs-chat-table">
+                                    <thead>
+                                        <tr><th>ID</th><th>Date</th><th>Status</th><th>Total</th></tr>
+                                    </thead>
+                                    <tbody>`;
+                            data.orders.forEach(o => {
+                                let badgeClass = o.status === 'Completed' ? 'text-success' : (o.status === 'Cancelled' ? 'text-danger' : 'text-warning');
+                                tableHtml += `<tr>
+                                    <td>#${o.id}</td>
+                                    <td>${o.orderDate}</td>
+                                    <td><strong class="${badgeClass}">${o.status}</strong></td>
+                                    <td>$${o.totalAmount.toFixed(2)}</td>
+                                </tr>`;
+                            });
+                            tableHtml += `</tbody></table><br>Go to <a href="/CustomerPortal/MyOrders" class="text-primary fw-semibold">My Orders →</a> for more details.`;
+                            csAddMsg(tableHtml, 'bot');
+                        }
+                    })
+                    .catch(() => {
+                        csHideTypingIndicator();
+                        csAddMsg('⚠️ Failed to fetch your orders. Please check <a href="/CustomerPortal/MyOrders" class="text-primary fw-semibold">My Orders</a> directly.', 'bot');
+                    });
             } else if (lower.includes('invoice') || lower.includes('billing') || lower.includes('payment')) {
-                csAddMsg('For invoice or billing concerns, you can view your invoices here: <a href="/CustomerPortal/MyInvoices" class="text-primary fw-semibold">My Invoices →</a><br>Or would you like to create a support ticket? Type <strong>"yes"</strong>.', 'bot');
+                csShowTypingIndicator();
+                fetch('/CustomerPortal/GetChatbotSummary')
+                    .then(r => r.json())
+                    .then(data => {
+                        csHideTypingIndicator();
+                        if (!data.invoices || data.invoices.length === 0) {
+                            csAddMsg('🧾 You don\'t have any invoices on record.', 'bot');
+                        } else {
+                            let tableHtml = `Here are your recent invoices:<br>
+                                <table class="cs-chat-table">
+                                    <thead>
+                                        <tr><th>ID</th><th>Date</th><th>Status</th><th>Amount</th></tr>
+                                    </thead>
+                                    <tbody>`;
+                            data.invoices.forEach(i => {
+                                let badgeClass = i.status === 'Paid' ? 'text-success' : (i.status === 'Cancelled' ? 'text-danger' : 'text-warning');
+                                tableHtml += `<tr>
+                                    <td>#${i.id}</td>
+                                    <td>${i.issueDate}</td>
+                                    <td><strong class="${badgeClass}">${i.status}</strong></td>
+                                    <td>$${i.totalAmount.toFixed(2)}</td>
+                                </tr>`;
+                            });
+                            tableHtml += `</tbody></table><br>Manage payments in <a href="/CustomerPortal/MyInvoices" class="text-primary fw-semibold">Invoices →</a>.`;
+                            csAddMsg(tableHtml, 'bot');
+                        }
+                    })
+                    .catch(() => {
+                        csHideTypingIndicator();
+                        csAddMsg('⚠️ Failed to fetch your billing summary. Please view <a href="/CustomerPortal/MyInvoices" class="text-primary fw-semibold">Invoices</a>.', 'bot');
+                    });
+            } else if (lower.includes('ticket') || lower.includes('support')) {
+                csShowTypingIndicator();
+                fetch('/CustomerPortal/GetChatbotSummary')
+                    .then(r => r.json())
+                    .then(data => {
+                        csHideTypingIndicator();
+                        if (!data.tickets || data.tickets.length === 0) {
+                            csAddMsg('🎫 You have no support tickets. Type <strong>"create ticket"</strong> to create one now!', 'bot');
+                        } else {
+                            let listHtml = `Here are your recent support tickets:<br>
+                                <table class="cs-chat-table">
+                                    <thead>
+                                        <tr><th>Subject</th><th>Status</th><th>Priority</th></tr>
+                                    </thead>
+                                    <tbody>`;
+                            data.tickets.forEach(t => {
+                                let badgeClass = t.status === 'Open' ? 'text-primary' : (t.status === 'Closed' || t.status === 'Resolved' ? 'text-success' : 'text-warning');
+                                listHtml += `<tr>
+                                    <td>${t.subject}</td>
+                                    <td><strong class="${badgeClass}">${t.status}</strong></td>
+                                    <td>${t.priority}</td>
+                                </tr>`;
+                            });
+                            listHtml += `</tbody></table><br>Manage tickets at <a href="/CustomerPortal/MyTickets" class="text-primary fw-semibold">Support Tickets →</a>.`;
+                            csAddMsg(listHtml, 'bot');
+                        }
+                    })
+                    .catch(() => {
+                        csHideTypingIndicator();
+                        csAddMsg('⚠️ Failed to load your tickets. Please open <a href="/CustomerPortal/MyTickets" class="text-primary fw-semibold">Support Tickets</a> directly.', 'bot');
+                    });
             } else if (lower === 'yes' || lower === 'yes please' || lower === 'sure') {
                 csChatStep = 'awaiting_subject';
                 csAddMsg('Sure! Let\'s create a ticket for you. First, what is the <strong>subject</strong> of your issue? (e.g. "Incorrect invoice amount")', 'bot');
-            } else if (lower.includes('create') || lower.includes('submit') || lower.includes('ticket') || lower.includes('issue') || lower.includes('help') || lower.includes('problem')) {
+            } else if (lower.includes('create') || lower.includes('submit') || lower.includes('new ticket') || lower.includes('issue') || lower.includes('problem')) {
                 csChatStep = 'awaiting_subject';
                 csAddMsg('I\'ll help you create a support ticket! What is the <strong>subject</strong> of your issue?', 'bot');
+            } else if (lower.includes('security') || lower.includes('rules') || lower.includes('policy')) {
+                csAddMsg('You can review our system guidelines, rules and security compliance details on our official <a href="/Home/SecurityPolicy" class="text-primary fw-semibold" target="_blank">Trust Center & Security Policy page</a>.', 'bot');
+            } else if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey') || lower.includes('help') || lower.includes('menu')) {
+                csAddMsg(`👋 Hello! I am your interactive assistant. Here is what I can do for you:<br><br>
+                    • 📦 <strong>Orders</strong>: Ask me to "Show my orders"<br>
+                    • 🧾 <strong>Billing</strong>: Ask me to "Show my invoices"<br>
+                    • 🎫 <strong>Tickets</strong>: Ask me to "Show my tickets"<br>
+                    • ➕ <strong>Support</strong>: Type "create ticket" to launch the support wizard<br>
+                    • 🛡️ <strong>Rules</strong>: Ask me about "security policy"<br><br>
+                    What can I help you with?`, 'bot');
             } else {
-                csAddMsg('I\'m here to help! You can:<br>• Create a support ticket<br>• View existing tickets<br>• Check your orders or invoices<br><br>Type your question or click one of the quick options above. A human agent will follow up on your ticket within 1 business day.', 'bot');
+                csAddMsg('I\'m here to help! You can:<br>• Create a support ticket<br>• View existing tickets<br>• Check your orders or invoices<br>• Check our security policies<br><br>Type your question or click one of the quick options. A human agent will follow up on any tickets submitted.', 'bot');
             }
         }
     </script>
@@ -549,7 +720,10 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrdoE2GanKeocly/VxeLvIqwvCdk7qScg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" integrity="sha512-onMTRKJBKz8M1TnqqDuGBlowlH0ohFzMXYRNebz+yOcc5Tq/l4503043K4bOowXhDgwH5mGqZk1zEte6xHqYww==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/confirm.js" asp-append-version="true"></script>
     <script>
         $(document).ready(function () {
             $('#sidebarToggle, #sidebarOverlay').on('click', function () {

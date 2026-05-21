@@ -41,5 +41,6 @@ namespace ClientSphere.Data
         public DbSet<SystemSetting> SystemSettings { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<PaymentRecord> PaymentRecords { get; set; }
+        public DbSet<BackupHistory> BackupHistories { get; set; }
     }
 }

@@ -23,35 +23,21 @@ namespace ClientSphere.Controllers
         {
             ViewData["CurrentFilter"] = searchString;
 
-            // Auto-sync Customer role users into the Customers table
-            var customerUsers = await _userManager.GetUsersInRoleAsync("Customer");
-            var existingCustomers = await _customerService.GetAllCustomersAsync();
-            foreach (var user in customerUsers)
-            {
-                // Check if this user already has a Customer record (by email)
-                if (!existingCustomers.Any(c => c.Email == user.Email))
-                {
-                    await _customerService.CreateCustomerAsync(new Customer
-                    {
-                        CompanyName = $"{user.FirstName} {user.LastName}",
-                        ContactName = $"{user.FirstName} {user.LastName}",
-                        Email = user.Email ?? "",
-                        Phone = user.PhoneNumber ?? "",
-                        IsActive = true
-                    });
-                }
-            }
+            // Customer auto-sync removed from Index (Finding #5).
+            // Sync is now handled at startup via DbInitializer.
 
             IEnumerable<Customer> customers;
             if (!string.IsNullOrEmpty(searchString))
             {
                 customers = await _customerService.SearchCustomersAsync(searchString);
+                // For search results, still need to filter by status in memory
+                // since SearchAsync doesn't have a status parameter
                 customers = customers.Where(c => archived ? !c.IsActive : c.IsActive);
             }
             else
             {
-                customers = await _customerService.GetAllCustomersAsync();
-                customers = customers.Where(c => archived ? !c.IsActive : c.IsActive);
+                // DB-level filtering by status (Finding #6)
+                customers = await _customerService.GetCustomersByStatusAsync(!archived);
             }
 
             return View(customers);
@@ -125,7 +111,7 @@ namespace ClientSphere.Controllers
                 {
                     await _customerService.UpdateCustomerAsync(customer);
                 }
-                catch (Exception) // Catching generic exception for now, ideally specific concurrency exception
+                catch (Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
                 {
                     if (!await _customerService.CustomerExistsAsync(customer.Id))
                     {

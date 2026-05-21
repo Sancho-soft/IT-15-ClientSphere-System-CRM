@@ -13,6 +13,10 @@ namespace ClientSphere.Controllers
     [Authorize(Roles = "Customer, Admin, Super Admin")]
     public class CustomerPortalController : Controller
     {
+        private const string SuccessMessageKey = "SuccessMessage";
+        private const string ErrorMessageKey = "ErrorMessage";
+        private const string CurrentPageKey = "CurrentPage";
+
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ISupportService _supportService;
@@ -33,23 +37,16 @@ namespace ClientSphere.Controllers
             var userId = _userManager.GetUserId(User);
             var tickets = await _supportService.GetTicketsByCustomerIdAsync(userId);
             
-            var userName = User.Identity?.Name;
-            
-            // Find the Customer entity linked to this user's email
-            // Note: In a production app, we should link ApplicationUser.Id to Customer.UserId more explicitly,
-            // but for now, matching by Email is a safe fallback given the DbInitializer logic.
-            var customer = !string.IsNullOrEmpty(userName) 
-                ? _context.Customers.FirstOrDefault(c => c.Email == userName) 
-                : null;
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.UserId == userId);
 
             var realOrders = new List<Order>();
             if (customer != null)
             {
-                 realOrders = _context.Orders
+                 realOrders = await _context.Orders
                     .Include(o => o.OrderItems)
                     .Where(o => o.CustomerId == customer.Id)
                     .OrderByDescending(o => o.OrderDate)
-                    .ToList();
+                    .ToListAsync();
             }
 
             var viewModel = new CustomerDashboardViewModel
@@ -88,6 +85,11 @@ namespace ClientSphere.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateTicket(string subject, string description)
         {
+            if (!ModelState.IsValid)
+            {
+                return View();
+            }
+
             if (string.IsNullOrWhiteSpace(subject) || string.IsNullOrWhiteSpace(description))
             {
                 ModelState.AddModelError("", "Subject and description are required.");
@@ -108,29 +110,27 @@ namespace ClientSphere.Controllers
 
             await _supportService.CreateTicketAsync(ticket);
 
-            TempData["SuccessMessage"] = "Your support ticket has been submitted successfully.";
+            TempData[SuccessMessageKey] = "Your support ticket has been submitted successfully.";
             return RedirectToAction(nameof(Dashboard));
         }
 
         // GET: CustomerPortal/MyOrders
-        public IActionResult MyOrders()
+        public async Task<IActionResult> MyOrders()
         {
-            var userName = User.Identity?.Name;
-            var customer = !string.IsNullOrEmpty(userName) 
-                ? _context.Customers.FirstOrDefault(c => c.Email == userName) 
-                : null;
+            var userId = _userManager.GetUserId(User);
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.UserId == userId);
 
             var orders = new List<Order>();
             if (customer != null)
             {
-                orders = _context.Orders
+                orders = await _context.Orders
                     .Include(o => o.OrderItems)
                     .Where(o => o.CustomerId == customer.Id)
                     .OrderByDescending(o => o.OrderDate)
-                    .ToList();
+                    .ToListAsync();
             }
 
-            ViewData["CurrentPage"] = "My Orders";
+            ViewData[CurrentPageKey] = "My Orders";
             return View(orders);
         }
 
@@ -145,28 +145,26 @@ namespace ClientSphere.Controllers
 
             var tickets = await _supportService.GetTicketsByCustomerIdAsync(userId);
             
-            ViewData["CurrentPage"] = "Support Tickets";
+            ViewData[CurrentPageKey] = "Support Tickets";
             return View(tickets);
         }
 
         // GET: CustomerPortal/MyInvoices
-        public IActionResult MyInvoices()
+        public async Task<IActionResult> MyInvoices()
         {
-            var userName = User.Identity?.Name;
-            var customer = !string.IsNullOrEmpty(userName) 
-                ? _context.Customers.FirstOrDefault(c => c.Email == userName) 
-                : null;
+            var userId = _userManager.GetUserId(User);
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.UserId == userId);
 
             var invoices = new List<Invoice>();
             if (customer != null)
             {
-                invoices = _context.Invoices
+                invoices = await _context.Invoices
                     .Where(i => i.CustomerId == customer.Id)
                     .OrderByDescending(i => i.IssueDate)
-                    .ToList();
+                    .ToListAsync();
             }
 
-            ViewData["CurrentPage"] = "Invoices";
+            ViewData[CurrentPageKey] = "Invoices";
             return View(invoices);
         }
 
@@ -174,6 +172,8 @@ namespace ClientSphere.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ArchiveTicket(int id)
         {
+            if (!ModelState.IsValid) return BadRequest();
+
             var userId = _userManager.GetUserId(User);
             if (string.IsNullOrEmpty(userId)) return NotFound();
 
@@ -183,7 +183,7 @@ namespace ClientSphere.Controllers
                 ticket.Status = "Closed";
                 ticket.LastUpdated = DateTime.UtcNow;
                 await _supportService.UpdateTicketAsync(ticket);
-                TempData["SuccessMessage"] = "Ticket successfully archived (Closed).";
+                TempData[SuccessMessageKey] = "Ticket successfully archived (Closed).";
             }
             return RedirectToAction(nameof(MyTickets));
         }
@@ -192,8 +192,10 @@ namespace ClientSphere.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ArchiveInvoice(int id)
         {
-            var userName = User.Identity?.Name;
-            var customer = !string.IsNullOrEmpty(userName) ? _context.Customers.FirstOrDefault(c => c.Email == userName) : null;
+            if (!ModelState.IsValid) return BadRequest();
+
+            var userId = _userManager.GetUserId(User);
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.UserId == userId);
             if (customer == null) return NotFound();
 
             var invoice = await _context.Invoices.FindAsync(id);
@@ -202,7 +204,7 @@ namespace ClientSphere.Controllers
             {
                 invoice.Status = "Paid"; 
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Invoice successfully archived (Paid)."; 
+                TempData[SuccessMessageKey] = "Invoice successfully archived (Paid)."; 
             }
             return RedirectToAction(nameof(MyInvoices));
         }
@@ -212,12 +214,12 @@ namespace ClientSphere.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> PayWithPaymongo(int id)
         {
+            if (!ModelState.IsValid) return BadRequest();
+
             try
             {
-                var userName = User.Identity?.Name;
-                var customer = !string.IsNullOrEmpty(userName)
-                    ? _context.Customers.FirstOrDefault(c => c.Email == userName)
-                    : null;
+                var userId = _userManager.GetUserId(User);
+                var customer = await _context.Customers.FirstOrDefaultAsync(c => c.UserId == userId);
                 if (customer == null) return NotFound();
 
                 var invoice = await _context.Invoices
@@ -229,7 +231,7 @@ namespace ClientSphere.Controllers
                 // Only allow payment of non-paid invoices
                 if (invoice.Status == "Paid" || invoice.Status == "Cancelled")
                 {
-                    TempData["ErrorMessage"] = "This invoice has already been settled.";
+                    TempData[ErrorMessageKey] = "This invoice has already been settled.";
                     return RedirectToAction(nameof(MyInvoices));
                 }
 
@@ -242,7 +244,7 @@ namespace ClientSphere.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = $"Payment could not be initiated: {ex.Message}";
+                TempData[ErrorMessageKey] = $"Payment could not be initiated: {ex.Message}";
                 return RedirectToAction(nameof(MyInvoices));
             }
         }
@@ -250,12 +252,12 @@ namespace ClientSphere.Controllers
         // GET: CustomerPortal/PaymentSuccess
         public async Task<IActionResult> PaymentSuccess(int? invoiceId)
         {
+            if (!ModelState.IsValid) return BadRequest();
+
             if (invoiceId.HasValue)
             {
-                var userName = User.Identity?.Name;
-                var customer = !string.IsNullOrEmpty(userName)
-                    ? _context.Customers.FirstOrDefault(c => c.Email == userName)
-                    : null;
+                var userId = _userManager.GetUserId(User);
+                var customer = await _context.Customers.FirstOrDefaultAsync(c => c.UserId == userId);
 
                 if (customer != null)
                 {
@@ -275,14 +277,14 @@ namespace ClientSphere.Controllers
                 }
             }
 
-            TempData["SuccessMessage"] = "Payment submitted! Your invoice is being reviewed by our billing team.";
+            TempData[SuccessMessageKey] = "Payment submitted! Your invoice is being reviewed by our billing team.";
             return RedirectToAction(nameof(MyInvoices));
         }
 
         // GET: CustomerPortal/PaymentCancelled
         public IActionResult PaymentCancelled()
         {
-            TempData["ErrorMessage"] = "Payment was cancelled. Please try again if needed.";
+            TempData[ErrorMessageKey] = "Payment was cancelled. Please try again if needed.";
             return RedirectToAction(nameof(MyInvoices));
         }
 
@@ -301,7 +303,7 @@ namespace ClientSphere.Controllers
                 return NotFound();
             }
             
-            ViewData["CurrentPage"] = "My Profile";
+            ViewData[CurrentPageKey] = "My Profile";
             return View(user);
         }
 
@@ -322,12 +324,28 @@ namespace ClientSphere.Controllers
                 return NotFound();
             }
 
+            if (!ModelState.IsValid)
+            {
+                ViewData[CurrentPageKey] = "My Profile";
+                return View(user);
+            }
+
             user.FirstName = firstName;
             user.LastName = lastName;
             user.PhoneNumber = phoneNumber;
 
             if (profilePicture != null && profilePicture.Length > 0)
             {
+                if (!ClientSphere.Helpers.FileUploadValidator.IsValidImageType(profilePicture))
+                {
+                    TempData[ErrorMessageKey] = "Only image files (JPEG, PNG, GIF, WebP) are allowed.";
+                    return RedirectToAction(nameof(MyProfile));
+                }
+                if (!ClientSphere.Helpers.FileUploadValidator.IsWithinSizeLimit(profilePicture))
+                {
+                    TempData[ErrorMessageKey] = "Profile picture must not exceed 5 MB.";
+                    return RedirectToAction(nameof(MyProfile));
+                }
                 try
                 {
                     string? imageUrl = await _cloudinaryService.UploadImageAsync(profilePicture, "profile_pictures");
@@ -336,7 +354,7 @@ namespace ClientSphere.Controllers
                 }
                 catch (Exception ex)
                 {
-                    TempData["ErrorMessage"] = "Failed to upload profile picture: " + ex.Message;
+                    TempData[ErrorMessageKey] = "Failed to upload profile picture: " + ex.Message;
                     return RedirectToAction(nameof(MyProfile));
                 }
             }
@@ -344,7 +362,7 @@ namespace ClientSphere.Controllers
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
             {
-                TempData["SuccessMessage"] = "Profile updated successfully!";
+                TempData[SuccessMessageKey] = "Profile updated successfully!";
                 return RedirectToAction(nameof(MyProfile));
             }
 
@@ -353,7 +371,42 @@ namespace ClientSphere.Controllers
                 ModelState.AddModelError("", error.Description);
             }
 
+            ViewData[CurrentPageKey] = "My Profile";
             return View(user);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetChatbotSummary()
+        {
+            var userId = _userManager.GetUserId(User);
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            var tickets = await _supportService.GetTicketsByCustomerIdAsync(userId);
+            var customer = await _context.Customers.FirstOrDefaultAsync(c => c.UserId == userId);
+
+            var orders = new List<Order>();
+            var invoices = new List<Invoice>();
+            if (customer != null)
+            {
+                orders = await _context.Orders
+                    .Where(o => o.CustomerId == customer.Id)
+                    .OrderByDescending(o => o.OrderDate)
+                    .Take(5)
+                    .ToListAsync();
+
+                invoices = await _context.Invoices
+                    .Where(i => i.CustomerId == customer.Id)
+                    .OrderByDescending(i => i.IssueDate)
+                    .Take(5)
+                    .ToListAsync();
+            }
+
+            return Json(new
+            {
+                tickets = tickets.Select(t => new { id = t.Id, subject = t.Subject, status = t.Status, priority = t.Priority }),
+                orders = orders.Select(o => new { id = o.Id, orderDate = o.OrderDate.ToString("yyyy-MM-dd"), status = o.Status.ToString(), totalAmount = o.TotalAmount }),
+                invoices = invoices.Select(i => new { id = i.Id, issueDate = i.IssueDate.ToString("yyyy-MM-dd"), status = i.Status, totalAmount = i.Amount })
+            });
         }
     }
 }

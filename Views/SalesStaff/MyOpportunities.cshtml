@@ -52,7 +52,13 @@
                                 {
                                     <form asp-controller="SalesStaff" asp-action="WinDeal" asp-route-id="@opp.Id" method="post" style="display:inline;">
                                         @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Mark as Closed Won" onclick="return confirm('Win this deal? This marks the opportunity as Closed Won!');">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Mark as Closed Won"
+                                                data-confirm="true"
+                                                data-confirm-title="Win this deal?"
+                                                data-confirm-text="This will mark the opportunity as Closed Won. This cannot be undone."
+                                                data-confirm-icon="question"
+                                                data-confirm-ok="Yes, win deal"
+                                                data-confirm-ok-color="#198754">
                                             <i class="bi bi-trophy"></i> Win Deal
                                         </button>
                                     </form>

@@ -20,7 +20,9 @@ namespace ClientSphere.ViewModels
         public string Initials { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public string Status { get; set; } = "Active";
+        public bool IsLockedOut { get; set; }
         public DateTime? LastActive { get; set; }
         public string LastActiveDisplay { get; set; } = "Never";
+        public string? ProfilePictureUrl { get; set; }
     }
 }

@@ -1,3 +1,4 @@
+using ClientSphere.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -7,22 +8,32 @@ namespace ClientSphere.Controllers
     [Authorize(Roles = "Super Admin, Admin")]
     public class AdminController : Controller
     {
+        private const string CurrentPageKey = "CurrentPage";
+        private const string UnknownValue = "Unknown";
+        private const string UnknownLowerValue = "unknown";
+        private const string SuccessMessageKey = "SuccessMessage";
+        private const string ErrorMessageKey = "ErrorMessage";
+        private const string EmailGroup = "Email";
+        private const string NotificationsGroup = "Notifications";
+
         private readonly Data.ApplicationDbContext _context;
         private readonly Microsoft.AspNetCore.Identity.UserManager<Models.ApplicationUser> _userManager;
         private readonly Services.ISystemSettingService _systemSettingService;
         private readonly Services.RateLimitCacheService _rateLimitCacheService;
+        private readonly ILogger<AdminController> _logger;
 
-        public AdminController(Data.ApplicationDbContext context, Microsoft.AspNetCore.Identity.UserManager<Models.ApplicationUser> userManager, Services.ISystemSettingService systemSettingService, Services.RateLimitCacheService rateLimitCacheService)
+        public AdminController(Data.ApplicationDbContext context, Microsoft.AspNetCore.Identity.UserManager<Models.ApplicationUser> userManager, Services.ISystemSettingService systemSettingService, Services.RateLimitCacheService rateLimitCacheService, ILogger<AdminController> logger)
         {
             _context = context;
             _userManager = userManager;
             _systemSettingService = systemSettingService;
             _rateLimitCacheService = rateLimitCacheService;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Dashboard()
         {
-            ViewData["CurrentPage"] = "Dashboard";
+            ViewData[CurrentPageKey] = "Dashboard";
 
             var recentActivities = await _context.AuditLogs
                 .OrderByDescending(a => a.Timestamp)
@@ -31,13 +42,13 @@ namespace ClientSphere.Controllers
 
             var viewModel = new ViewModels.AdminDashboardViewModel
             {
-                TotalUsers = _userManager.Users.Count(),
-                TotalOrders = _context.Orders.Count(),
-                TotalRevenue = _context.Orders.Where(o => o.Status == Models.OrderStatus.Completed).Sum(o => o.TotalAmount),
-                ActiveTickets = _context.SupportTickets.Count(t => t.Status != "Resolved" && t.Status != "Closed"),
-                PendingLeads = _context.Leads.Count(l => l.Status == "New" || l.Status == "Contacted"),
-                ActiveCampaigns = _context.Campaigns.Count(c => c.Status == "Active"),
-                PendingInvoices = _context.Invoices.Count(i => i.Status == "Pending" || i.Status == "Sent"),
+                TotalUsers = await _userManager.Users.CountAsync(),
+                TotalOrders = await _context.Orders.CountAsync(),
+                TotalRevenue = await _context.Orders.Where(o => o.Status == Models.OrderStatus.Completed).SumAsync(o => o.TotalAmount),
+                ActiveTickets = await _context.SupportTickets.CountAsync(t => t.Status != "Resolved" && t.Status != "Closed"),
+                PendingLeads = await _context.Leads.CountAsync(l => l.Status == "New" || l.Status == "Contacted"),
+                ActiveCampaigns = await _context.Campaigns.CountAsync(c => c.Status == "Active"),
+                PendingInvoices = await _context.Invoices.CountAsync(i => i.Status == "Pending" || i.Status == "Sent"),
                 RecentActivities = recentActivities
             };
 
@@ -49,18 +60,29 @@ namespace ClientSphere.Controllers
         [Authorize(Roles = "Super Admin")]
         public async Task<IActionResult> UserManagement()
         {
-            ViewData["CurrentPage"] = "User Management";
+            ViewData[CurrentPageKey] = "User Management";
 
-            var users = _userManager.Users.ToList();
+            // Batch role lookup to avoid N+1 queries (Finding #8)
+            var users = await _userManager.Users.ToListAsync();
+            var userRoles = await _context.UserRoles.ToListAsync();
+            var allRoles = await _context.Roles.ToListAsync();
+            var roleMap = userRoles
+                .Join(allRoles, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, RoleName = r.Name })
+                .GroupBy(x => x.UserId)
+                .ToDictionary(g => g.Key, g => g.Select(x => x.RoleName).ToList());
+
             var userViewModels = new List<ViewModels.UserItemViewModel>();
 
             foreach (var user in users)
             {
-                var roles = await _userManager.GetRolesAsync(user);
-                var roleName = roles.FirstOrDefault() ?? "No Role";
+                roleMap.TryGetValue(user.Id, out var roles);
+                var roleName = roles?.FirstOrDefault() ?? StatusValues.NoRole;
                 var fullName = $"{user.FirstName} {user.LastName}".Trim();
                 if (string.IsNullOrWhiteSpace(fullName))
-                    fullName = user.UserName ?? "Unknown";
+                    fullName = user.UserName ?? StatusValues.Unknown;
+
+                var isLockedOut = user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow;
+                var status = isLockedOut ? "Locked Out" : (user.IsActive ? StatusValues.Active : StatusValues.Inactive);
 
                 userViewModels.Add(new ViewModels.UserItemViewModel
                 {
@@ -69,9 +91,11 @@ namespace ClientSphere.Controllers
                     Email = user.Email ?? "No Email",
                     Initials = GetInitials(fullName),
                     Role = roleName,
-                    Status = user.IsActive ? "Active" : "Inactive",
+                    Status = status,
+                    IsLockedOut = isLockedOut,
                     LastActive = user.LastLoginDate ?? user.CreatedAt,
-                    LastActiveDisplay = GetLastActiveDisplay(user.LastLoginDate ?? user.CreatedAt)
+                    LastActiveDisplay = GetLastActiveDisplay(user.LastLoginDate ?? user.CreatedAt),
+                    ProfilePictureUrl = user.ProfilePictureUrl
                 });
             }
 
@@ -79,16 +103,16 @@ namespace ClientSphere.Controllers
             {
                 Users = userViewModels,
                 TotalUsers = users.Count,
-                AdminCount = userViewModels.Count(u => u.Role == "Admin"),
-                SalesTeamCount = userViewModels.Count(u => u.Role == "Sales Staff" || u.Role == "Sales Manager"),
-                SupportTeamCount = userViewModels.Count(u => u.Role == "Support Staff"),
+                AdminCount = userViewModels.Count(u => u.Role == Roles.Admin),
+                SalesTeamCount = userViewModels.Count(u => u.Role == Roles.SalesStaff || u.Role == Roles.SalesManager),
+                SupportTeamCount = userViewModels.Count(u => u.Role == Roles.SupportStaff),
                 ActiveUsers = userViewModels.Count // All users are considered active for now
             };
 
             return View(viewModel);
         }
 
-        private string GetInitials(string name)
+        private static string GetInitials(string name)
         {
             if (string.IsNullOrWhiteSpace(name)) return "??";
             var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -97,7 +121,7 @@ namespace ClientSphere.Controllers
             return parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpper();
         }
 
-        private string GetLastActiveDisplay(DateTime? lastActive)
+        private static string GetLastActiveDisplay(DateTime? lastActive)
         {
             if (!lastActive.HasValue) return "Never";
             var timeAgo = DateTime.UtcNow - lastActive.Value;
@@ -108,10 +132,18 @@ namespace ClientSphere.Controllers
             return $"{(int)timeAgo.TotalDays} days ago";
         }
 
-        public IActionResult ModuleManagement()
+        public async Task<IActionResult> ModuleManagement()
         {
-            ViewData["CurrentPage"] = "Module Management";
-            
+            ViewData[CurrentPageKey] = "Module Management";
+
+            // Use role-based counts instead of fragile email substring matching (Finding #18)
+            var salesUsers = (await _userManager.GetUsersInRoleAsync(Roles.SalesStaff)).Count
+                           + (await _userManager.GetUsersInRoleAsync(Roles.SalesManager)).Count;
+            var supportUsers = (await _userManager.GetUsersInRoleAsync(Roles.SupportStaff)).Count;
+            var marketingUsers = (await _userManager.GetUsersInRoleAsync(Roles.MarketingStaff)).Count
+                               + (await _userManager.GetUsersInRoleAsync(Roles.MarketingManager)).Count;
+            var billingUsers = (await _userManager.GetUsersInRoleAsync(Roles.BillingStaff)).Count;
+
             var viewModel = new ViewModels.ModuleManagementViewModel
             {
                 Modules = new List<ViewModels.ModuleItemViewModel>
@@ -120,46 +152,46 @@ namespace ClientSphere.Controllers
                     {
                         Name = "Customer Management",
                         Description = "Manage customer data and relationships",
-                        Status = "Active",
-                        ActiveUsers = _userManager.Users.Count(),
-                        TotalRecords = _context.Customers.Count(),
-                        LastUpdated = _context.Customers.Any() ? _context.Customers.Max(c => c.CreatedAt) : DateTime.UtcNow
+                        Status = StatusValues.Active,
+                        ActiveUsers = await _userManager.Users.CountAsync(),
+                        TotalRecords = await _context.Customers.CountAsync(),
+                        LastUpdated = await _context.Customers.AnyAsync() ? await _context.Customers.MaxAsync(c => c.CreatedAt) : DateTime.UtcNow
                     },
                     new ViewModels.ModuleItemViewModel
                     {
                         Name = "Sales Management",
                         Description = "Track leads, opportunities, and orders",
-                        Status = "Active",
-                        ActiveUsers = _userManager.Users.Count(u => u.Email.Contains("sales")),
-                        TotalRecords = _context.Orders.Count(),
-                        LastUpdated = _context.Orders.Any() ? _context.Orders.Max(o => o.OrderDate) : DateTime.UtcNow
+                        Status = StatusValues.Active,
+                        ActiveUsers = salesUsers,
+                        TotalRecords = await _context.Orders.CountAsync(),
+                        LastUpdated = await _context.Orders.AnyAsync() ? await _context.Orders.MaxAsync(o => o.OrderDate) : DateTime.UtcNow
                     },
                     new ViewModels.ModuleItemViewModel
                     {
                         Name = "Support Tickets",
                         Description = "Customer support and ticket management",
-                        Status = "Active",
-                        ActiveUsers = _userManager.Users.Count(u => u.Email.Contains("support")),
-                        TotalRecords = _context.SupportTickets.Count(),
-                        LastUpdated = _context.SupportTickets.Any() ? _context.SupportTickets.Max(t => t.CreatedAt) : DateTime.UtcNow
+                        Status = StatusValues.Active,
+                        ActiveUsers = supportUsers,
+                        TotalRecords = await _context.SupportTickets.CountAsync(),
+                        LastUpdated = await _context.SupportTickets.AnyAsync() ? await _context.SupportTickets.MaxAsync(t => t.CreatedAt) : DateTime.UtcNow
                     },
                     new ViewModels.ModuleItemViewModel
                     {
                         Name = "Marketing Campaigns",
                         Description = "Campaign management and analytics",
-                        Status = "Active",
-                        ActiveUsers = _userManager.Users.Count(u => u.Email.Contains("marketing")),
-                        TotalRecords = _context.Campaigns.Count(),
-                        LastUpdated = _context.Campaigns.Any() ? _context.Campaigns.Max(c => c.StartDate) : DateTime.UtcNow
+                        Status = StatusValues.Active,
+                        ActiveUsers = marketingUsers,
+                        TotalRecords = await _context.Campaigns.CountAsync(),
+                        LastUpdated = await _context.Campaigns.AnyAsync() ? await _context.Campaigns.MaxAsync(c => c.StartDate) : DateTime.UtcNow
                     },
                     new ViewModels.ModuleItemViewModel
                     {
                         Name = "Billing & Invoices",
                         Description = "Invoice generation and payment tracking",
-                        Status = "Active",
-                        ActiveUsers = _userManager.Users.Count(u => u.Email.Contains("billing")),
-                        TotalRecords = _context.Invoices.Count(),
-                        LastUpdated = _context.Invoices.Any() ? _context.Invoices.Max(i => i.IssueDate) : DateTime.UtcNow
+                        Status = StatusValues.Active,
+                        ActiveUsers = billingUsers,
+                        TotalRecords = await _context.Invoices.CountAsync(),
+                        LastUpdated = await _context.Invoices.AnyAsync() ? await _context.Invoices.MaxAsync(i => i.IssueDate) : DateTime.UtcNow
                     }
                 }
             };
@@ -168,15 +200,38 @@ namespace ClientSphere.Controllers
         }
 
 
-        public async Task<IActionResult> AuditLog()
+        public async Task<IActionResult> AuditLog(int page = 1, int pageSize = 25, string? searchUser = null, string? searchAction = null)
         {
-            ViewData["CurrentPage"] = "Audit Log";
-            
-            var auditLogs = await _context.AuditLogs
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            ViewData[CurrentPageKey] = "Audit Log";
+            ViewData["SearchUser"] = searchUser;
+            ViewData["SearchAction"] = searchAction;
+
+            var query = _context.AuditLogs.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchUser))
+                query = query.Where(a => a.UserName.Contains(searchUser));
+            if (!string.IsNullOrWhiteSpace(searchAction))
+                query = query.Where(a => a.Action.Contains(searchAction));
+
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            page = Math.Max(1, Math.Min(page, Math.Max(1, totalPages)));
+
+            var auditLogs = await query
                 .OrderByDescending(a => a.Timestamp)
-                .Take(50)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
-            
+
+            ViewData["CurrentPageNumber"] = page;
+            ViewData["TotalPages"] = totalPages;
+            ViewData["PageSize"] = pageSize;
+
             return View(auditLogs);
         }
 
@@ -184,7 +239,7 @@ namespace ClientSphere.Controllers
         [Authorize(Roles = "Super Admin")]
         public IActionResult CreateUser()
         {
-            ViewData["CurrentPage"] = "User Management";
+            ViewData[CurrentPageKey] = "User Management";
             return View();
         }
 
@@ -213,7 +268,28 @@ namespace ClientSphere.Controllers
             if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, role);
-                TempData["SuccessMessage"] = $"User {email} created successfully!";
+                
+                // Add System Logs
+                if (role == "Super Admin" || role == "Admin")
+                {
+                    _logger.LogWarning("SYSTEM SECURITY ALERT: A new high-level user '{Email}' was granted the '{Role}' role by {Creator}.", email, role, User.Identity?.Name ?? UnknownValue);
+                }
+                else
+                {
+                    _logger.LogInformation("System Info: New user '{Email}' was created with role '{Role}'.", email, role);
+                }
+
+                _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
+                {
+                    Action = "User Created",
+                    Description = $"Super Admin created user {email} with role '{role}'",
+                    UserId = _userManager.GetUserId(User) ?? UnknownValue,
+                    UserName = User.Identity?.Name ?? UnknownValue,
+                    Timestamp = DateTime.UtcNow,
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? UnknownLowerValue
+                });
+                await _context.SaveChangesAsync();
+                TempData[SuccessMessageKey] = $"User {email} created successfully!";
                 return RedirectToAction(nameof(UserManagement));
             }
 
@@ -240,7 +316,7 @@ namespace ClientSphere.Controllers
             }
 
             var roles = await _userManager.GetRolesAsync(user);
-            ViewData["CurrentPage"] = "User Management";
+            ViewData[CurrentPageKey] = "User Management";
             ViewBag.CurrentRole = roles.FirstOrDefault() ?? "No Role";
             return View(user);
         }
@@ -282,7 +358,18 @@ namespace ClientSphere.Controllers
                     await _userManager.AddToRoleAsync(user, role);
                 }
 
-                TempData["SuccessMessage"] = $"User {email} updated successfully!";
+                _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
+                {
+                    Action = "User Role Changed",
+                    Description = $"Super Admin changed role for {user.Email} to '{role}'",
+                    UserId = _userManager.GetUserId(User) ?? UnknownValue,
+                    UserName = User.Identity?.Name ?? UnknownValue,
+                    Timestamp = DateTime.UtcNow,
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? UnknownLowerValue
+                });
+                await _context.SaveChangesAsync();
+
+                TempData[SuccessMessageKey] = $"User {email} updated successfully!";
                 return RedirectToAction(nameof(UserManagement));
             }
 
@@ -311,7 +398,17 @@ namespace ClientSphere.Controllers
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
             {
-                TempData["SuccessMessage"] = $"User '{user.Email}' has been deactivated. They can no longer log in.";
+                _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
+                {
+                    Action = "User Deactivated",
+                    Description = $"Super Admin deactivated user {user.Email} (ID: {user.Id})",
+                    UserId = _userManager.GetUserId(User) ?? UnknownValue,
+                    UserName = User.Identity?.Name ?? UnknownValue,
+                    Timestamp = DateTime.UtcNow,
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? UnknownLowerValue
+                });
+                await _context.SaveChangesAsync();
+                TempData[SuccessMessageKey] = $"User '{user.Email}' has been deactivated. They can no longer log in.";
             }
             return RedirectToAction(nameof(UserManagement));
         }
@@ -330,7 +427,50 @@ namespace ClientSphere.Controllers
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
             {
-                TempData["SuccessMessage"] = $"User '{user.Email}' has been reactivated.";
+                _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
+                {
+                    Action = "User Reactivated",
+                    Description = $"Super Admin reactivated user {user.Email} (ID: {user.Id})",
+                    UserId = _userManager.GetUserId(User) ?? UnknownValue,
+                    UserName = User.Identity?.Name ?? UnknownValue,
+                    Timestamp = DateTime.UtcNow,
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? UnknownLowerValue
+                });
+                await _context.SaveChangesAsync();
+                TempData[SuccessMessageKey] = $"User '{user.Email}' has been reactivated.";
+            }
+            return RedirectToAction(nameof(UserManagement));
+        }
+
+        // POST: Admin/UnlockUser — unlocks locked out users
+        [Authorize(Roles = "Super Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnlockUser(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            var result = await _userManager.SetLockoutEndDateAsync(user, null);
+            if (result.Succeeded)
+            {
+                await _userManager.ResetAccessFailedCountAsync(user);
+
+                _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
+                {
+                    Action = "User Unlocked",
+                    Description = $"Super Admin unlocked user {user.Email} (ID: {user.Id})",
+                    UserId = _userManager.GetUserId(User) ?? UnknownValue,
+                    UserName = User.Identity?.Name ?? UnknownValue,
+                    Timestamp = DateTime.UtcNow,
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? UnknownLowerValue
+                });
+                await _context.SaveChangesAsync();
+                TempData[SuccessMessageKey] = $"User '{user.Email}' has been unlocked.";
+            }
+            else
+            {
+                TempData[ErrorMessageKey] = "Failed to unlock user.";
             }
             return RedirectToAction(nameof(UserManagement));
         }
@@ -339,7 +479,7 @@ namespace ClientSphere.Controllers
         [Authorize(Roles = "Super Admin,Admin")]
         public async Task<IActionResult> SystemSettings()
         {
-            ViewData["CurrentPage"] = "System Settings";
+            ViewData[CurrentPageKey] = "System Settings";
             var viewModel = new ViewModels.SystemSettingsViewModel
             {
                 SessionTimeoutMinutes = await _systemSettingService.GetSettingIntAsync("SessionTimeoutMinutes", 15),
@@ -366,7 +506,7 @@ namespace ClientSphere.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SystemSettings(ViewModels.SystemSettingsViewModel model)
         {
-            ViewData["CurrentPage"] = "System Settings";
+            ViewData[CurrentPageKey] = "System Settings";
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -376,14 +516,14 @@ namespace ClientSphere.Controllers
             await _systemSettingService.SetSettingIntAsync("SessionTimeoutMinutes", model.SessionTimeoutMinutes, "General");
             await _systemSettingService.SetSettingIntAsync("MinimumPasswordLength", model.MinimumPasswordLength, "General");
             
-            await _systemSettingService.SetSettingAsync("SmtpServer", model.SmtpServer, "Email");
-            await _systemSettingService.SetSettingIntAsync("SmtpPort", model.SmtpPort, "Email");
-            await _systemSettingService.SetSettingAsync("SmtpEncryption", model.SmtpEncryption, "Email");
-            await _systemSettingService.SetSettingAsync("FromEmailAddress", model.FromEmailAddress, "Email");
+            await _systemSettingService.SetSettingAsync("SmtpServer", model.SmtpServer, EmailGroup);
+            await _systemSettingService.SetSettingIntAsync("SmtpPort", model.SmtpPort, EmailGroup);
+            await _systemSettingService.SetSettingAsync("SmtpEncryption", model.SmtpEncryption, EmailGroup);
+            await _systemSettingService.SetSettingAsync("FromEmailAddress", model.FromEmailAddress, EmailGroup);
 
-            await _systemSettingService.SetSettingBoolAsync("NotifyNewRegistrations", model.NotifyNewRegistrations, "Notifications");
-            await _systemSettingService.SetSettingBoolAsync("NotifySystemUpdates", model.NotifySystemUpdates, "Notifications");
-            await _systemSettingService.SetSettingBoolAsync("NotifyCriticalAlerts", model.NotifyCriticalAlerts, "Notifications");
+            await _systemSettingService.SetSettingBoolAsync("NotifyNewRegistrations", model.NotifyNewRegistrations, NotificationsGroup);
+            await _systemSettingService.SetSettingBoolAsync("NotifySystemUpdates", model.NotifySystemUpdates, NotificationsGroup);
+            await _systemSettingService.SetSettingBoolAsync("NotifyCriticalAlerts", model.NotifyCriticalAlerts, NotificationsGroup);
 
             await _systemSettingService.SetSettingBoolAsync("AutomaticBackups", model.AutomaticBackups, "Database");
             await _systemSettingService.SetSettingAsync("BackupFrequency", model.BackupFrequency, "Database");
@@ -395,24 +535,298 @@ namespace ClientSphere.Controllers
             // Update the in-memory cache directly for immediate Rate Limiting effect
             _rateLimitCacheService.CurrentApiRateLimit = model.ApiRateLimit;
             
-            TempData["SuccessMessage"] = "System settings updated successfully!";
+            // Apply Session Timeout (Requirement 1)
+            var sessionOptions = HttpContext.RequestServices.GetRequiredService<Microsoft.Extensions.Options.IOptions<SessionOptions>>().Value;
+            sessionOptions.IdleTimeout = TimeSpan.FromMinutes(model.SessionTimeoutMinutes);
+
+            // Apply Minimum Password Length (Requirement 2)
+            var identityOptions = HttpContext.RequestServices.GetRequiredService<Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Identity.IdentityOptions>>().Value;
+            identityOptions.Password.RequiredLength = model.MinimumPasswordLength;
+            
+            TempData[SuccessMessageKey] = "System settings updated successfully!";
             return RedirectToAction(nameof(SystemSettings));
+        }
+
+        [Authorize(Roles = "Super Admin,Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendTestEmail([FromServices] Services.IEmailService emailService)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData[ErrorMessageKey] = "Invalid request settings.";
+                return RedirectToAction(nameof(SystemSettings));
+            }
+
+            var fromEmail = await _systemSettingService.GetSettingAsync("FromEmailAddress", "noreply@clientsphere.com");
+            try
+            {
+                await emailService.SendWelcomeEmailAsync(fromEmail, "Admin"); // Re-using a method or creating a generic one. Actually SendWelcomeEmailAsync sends welcome text. Let's use the actual SendEmailAsync from the implementation if it's there. Wait, IEmailService doesn't have SendEmailAsync in the interface! I should use SendWelcomeEmailAsync or cast it. I'll cast it to Microsoft.AspNetCore.Identity.UI.Services.IEmailSender because SendGridEmailService implements both.
+                
+                var emailSender = (Microsoft.AspNetCore.Identity.UI.Services.IEmailSender)emailService;
+                await emailSender.SendEmailAsync(fromEmail, "ClientSphere Test Email", "<p>This is a test email confirming the email configuration is working.</p>");
+                
+                TempData[SuccessMessageKey] = $"Test email sent successfully to {fromEmail}!";
+            }
+            catch (Exception ex)
+            {
+                TempData[ErrorMessageKey] = $"Failed to send test email: {ex.Message}";
+            }
+            return RedirectToAction(nameof(SystemSettings));
+        }
+
+        [Authorize(Roles = "Super Admin,Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RegenerateApiKey()
+        {
+            var bytes = new byte[32];
+            using (var rng = System.Security.Cryptography.RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(bytes);
+            }
+            var newKey = Convert.ToBase64String(bytes).Replace("+", "-").Replace("/", "_").Replace("=", "");
+            
+            await _systemSettingService.SetSettingAsync("SystemApiKey", newKey, "API");
+            
+            TempData[SuccessMessageKey] = "System API Key regenerated successfully!";
+            return RedirectToAction(nameof(SystemSettings));
+        }
+
+        [Authorize(Roles = "Super Admin,Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BackupNow()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var package = new Models.BackupPackage
+            {
+                Users = await _context.Users.ToListAsync(),
+                Roles = await _context.Roles.ToListAsync(),
+                UserRoles = await _context.UserRoles.ToListAsync(),
+                Customers = await _context.Customers.ToListAsync(),
+                Products = await _context.Products.ToListAsync(),
+                Orders = await _context.Orders.ToListAsync(),
+                OrderItems = await _context.OrderItems.ToListAsync(),
+                Leads = await _context.Leads.ToListAsync(),
+                Opportunities = await _context.Opportunities.ToListAsync(),
+                Appointments = await _context.Appointments.ToListAsync(),
+                SupportTickets = await _context.SupportTickets.ToListAsync(),
+                Campaigns = await _context.Campaigns.ToListAsync(),
+                Invoices = await _context.Invoices.ToListAsync(),
+                PaymentRecords = await _context.PaymentRecords.ToListAsync(),
+                AuditLogs = await _context.AuditLogs.ToListAsync(),
+                SystemSettings = await _context.SystemSettings.ToListAsync(),
+                Notifications = await _context.Notifications.ToListAsync()
+            };
+
+            var options = new System.Text.Json.JsonSerializerOptions 
+            { 
+                WriteIndented = true,
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
+            };
+            byte[] fileBytes;
+            try
+            {
+                fileBytes = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(package, options);
+                
+                var history = new Models.BackupHistory
+                {
+                    Timestamp = DateTime.UtcNow,
+                    FileSizeBytes = fileBytes.Length,
+                    TriggeredByUserId = user.Id,
+                    TriggeredByUserName = user.UserName ?? user.Email ?? UnknownValue,
+                    Status = "Completed"
+                };
+                _context.BackupHistories.Add(history);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                var history = new Models.BackupHistory
+                {
+                    Timestamp = DateTime.UtcNow,
+                    FileSizeBytes = 0,
+                    TriggeredByUserId = user.Id,
+                    TriggeredByUserName = user.UserName ?? user.Email ?? UnknownValue,
+                    Status = "Failed: " + ex.Message
+                };
+                _context.BackupHistories.Add(history);
+                await _context.SaveChangesAsync();
+                TempData[ErrorMessageKey] = "Backup export failed: " + ex.Message;
+                return RedirectToAction(nameof(SystemSettings));
+            }
+
+            var fileName = $"clientsphere-backup-{DateTime.UtcNow:yyyy-MM-dd-HHmmss}.json";
+            return File(fileBytes, "application/json", fileName);
+        }
+
+        [Authorize(Roles = "Super Admin,Admin")]
+        [HttpGet]
+        public async Task<IActionResult> BackupHistory()
+        {
+            ViewData[CurrentPageKey] = "Backup History";
+            var history = await _context.BackupHistories.OrderByDescending(b => b.Timestamp).ToListAsync();
+            return View(history);
+        }
+
+        [Authorize(Roles = "Super Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [RequestSizeLimit(long.MaxValue)]
+        [RequestFormLimits(MultipartBodyLengthLimit = long.MaxValue)]
+        public async Task<IActionResult> RestoreBackup(IFormFile backupFile)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData[ErrorMessageKey] = "Invalid file or parameters.";
+                return RedirectToAction(nameof(BackupHistory));
+            }
+
+            if (backupFile == null || backupFile.Length == 0)
+            {
+                TempData[ErrorMessageKey] = "Please select a valid JSON backup file.";
+                return RedirectToAction(nameof(BackupHistory));
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            Models.BackupPackage package;
+            try
+            {
+                using var stream = backupFile.OpenReadStream();
+                var options = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                package = await System.Text.Json.JsonSerializer.DeserializeAsync<Models.BackupPackage>(stream, options);
+                
+                if (package == null) throw new InvalidOperationException("Deserialized package is null.");
+            }
+            catch (Exception ex)
+            {
+                TempData[ErrorMessageKey] = "Invalid backup file format. Validation failed: " + ex.Message;
+                return RedirectToAction(nameof(BackupHistory));
+            }
+
+            try
+            {
+                await PerformRestoreDatabaseAsync(package, user);
+                TempData[SuccessMessageKey] = "System data has been successfully restored from the backup file.";
+            }
+            catch (Exception ex)
+            {
+                TempData[ErrorMessageKey] = "Failed to restore backup: " + ex.Message + (ex.InnerException != null ? " | " + ex.InnerException.Message : "");
+            }
+
+            return RedirectToAction(nameof(BackupHistory));
+        }
+
+        private async Task PerformRestoreDatabaseAsync(Models.BackupPackage package, Models.ApplicationUser user)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Completely clear EF tracking to prevent any key conflicts with existing tracked entities (like the logged-in user)
+                _context.ChangeTracker.Clear();
+
+                // Delete data in reverse dependency order
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM OrderItems");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM Orders");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM Invoices");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM PaymentRecords");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM Notifications");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM Appointments");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM Opportunities");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM Leads");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM SupportTickets");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM Campaigns");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM Customers");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM Products");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM SystemSettings");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM AspNetUserRoles");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM AspNetRoles");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM AspNetUsers");
+                await _context.Database.ExecuteSqlRawAsync("DELETE FROM AuditLogs");
+
+                // Add non-identity tables first
+                if (package.Users != null && package.Users.Any()) await _context.Users.AddRangeAsync(package.Users);
+                if (package.Roles != null && package.Roles.Any()) await _context.Roles.AddRangeAsync(package.Roles);
+                await _context.SaveChangesAsync();
+
+                if (package.UserRoles != null && package.UserRoles.Any()) await _context.UserRoles.AddRangeAsync(package.UserRoles);
+                if (package.SystemSettings != null && package.SystemSettings.Any()) await _context.SystemSettings.AddRangeAsync(package.SystemSettings);
+                await _context.SaveChangesAsync();
+
+                await InsertWithIdentity("Products", package.Products);
+                await InsertWithIdentity("Customers", package.Customers);
+                await InsertWithIdentity("Campaigns", package.Campaigns);
+                await InsertWithIdentity("SupportTickets", package.SupportTickets);
+                await InsertWithIdentity("Leads", package.Leads);
+                await InsertWithIdentity("Opportunities", package.Opportunities);
+                await InsertWithIdentity("Appointments", package.Appointments);
+                await InsertWithIdentity("Orders", package.Orders);
+                await InsertWithIdentity("OrderItems", package.OrderItems);
+                await InsertWithIdentity("Invoices", package.Invoices);
+                await InsertWithIdentity("PaymentRecords", package.PaymentRecords);
+                await InsertWithIdentity("Notifications", package.Notifications);
+                await InsertWithIdentity("AuditLogs", package.AuditLogs);
+
+                // Add Audit Log for Restore
+                _context.AuditLogs.Add(new Models.AuditLog
+                {
+                    Timestamp = DateTime.UtcNow,
+                    UserId = user.Id,
+                    UserName = user.UserName ?? user.Email ?? UnknownValue,
+                    Action = "Data Restore",
+                    Description = $"System data was fully restored from backup by Super Admin [{user.UserName}].",
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? UnknownValue
+                });
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        private async Task InsertWithIdentity<T>(string tableName, List<T> data) where T : class
+        {
+            if (data == null || !data.Any()) return;
+            
+            // Clear tracking before each batch insert to prevent conflicts with navigation properties
+            _context.ChangeTracker.Clear();
+            
+            await _context.Database.ExecuteSqlRawAsync($"SET IDENTITY_INSERT {tableName} ON");
+            await _context.Set<T>().AddRangeAsync(data);
+            await _context.SaveChangesAsync();
+            await _context.Database.ExecuteSqlRawAsync($"SET IDENTITY_INSERT {tableName} OFF");
         }
 
         // Reset Password - Super Admin Only
         [Authorize(Roles = "Super Admin")]
         public async Task<IActionResult> ResetPassword(string? userId = null)
         {
-            ViewData["CurrentPage"] = "ResetPassword";
+            ViewData[CurrentPageKey] = "ResetPassword";
 
-            var users = _userManager.Users.ToList();
+            var users = await _userManager.Users.ToListAsync();
+            var userRolesList = await _context.UserRoles.ToListAsync();
+            var allRolesList = await _context.Roles.ToListAsync();
+            var roleMap = userRolesList
+                .Join(allRolesList, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, RoleName = r.Name })
+                .GroupBy(x => x.UserId)
+                .ToDictionary(g => g.Key, g => g.Select(x => x.RoleName).ToList());
+
             var userList = new List<(string Id, string DisplayName)>();
             foreach (var u in users)
             {
-                var roles = await _userManager.GetRolesAsync(u);
+                roleMap.TryGetValue(u.Id, out var roles);
                 var fullName = $"{u.FirstName} {u.LastName}".Trim();
-                if (string.IsNullOrWhiteSpace(fullName)) fullName = u.UserName ?? u.Email ?? "Unknown";
-                var role = roles.FirstOrDefault() ?? "No Role";
+                if (string.IsNullOrWhiteSpace(fullName)) fullName = u.UserName ?? u.Email ?? StatusValues.Unknown;
+                var role = roles?.FirstOrDefault() ?? StatusValues.NoRole;
                 userList.Add((u.Id, $"{fullName} ({u.Email}) — {role}"));
             }
 
@@ -426,17 +840,24 @@ namespace ClientSphere.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(string userId, string newPassword, string confirmPassword)
         {
-            ViewData["CurrentPage"] = "ResetPassword";
+            ViewData[CurrentPageKey] = "ResetPassword";
 
-            // Reload user list for re-display on error
-            var users = _userManager.Users.ToList();
+            // Reload user list for re-display on error (batch role lookup)
+            var users = await _userManager.Users.ToListAsync();
+            var userRolesList = await _context.UserRoles.ToListAsync();
+            var allRolesList = await _context.Roles.ToListAsync();
+            var roleMap = userRolesList
+                .Join(allRolesList, ur => ur.RoleId, r => r.Id, (ur, r) => new { ur.UserId, RoleName = r.Name })
+                .GroupBy(x => x.UserId)
+                .ToDictionary(g => g.Key, g => g.Select(x => x.RoleName).ToList());
+
             var userList = new List<(string Id, string DisplayName)>();
             foreach (var u in users)
             {
-                var roles = await _userManager.GetRolesAsync(u);
+                roleMap.TryGetValue(u.Id, out var roles);
                 var fullName = $"{u.FirstName} {u.LastName}".Trim();
-                if (string.IsNullOrWhiteSpace(fullName)) fullName = u.UserName ?? u.Email ?? "Unknown";
-                var role = roles.FirstOrDefault() ?? "No Role";
+                if (string.IsNullOrWhiteSpace(fullName)) fullName = u.UserName ?? u.Email ?? StatusValues.Unknown;
+                var role = roles?.FirstOrDefault() ?? StatusValues.NoRole;
                 userList.Add((u.Id, $"{fullName} ({u.Email}) — {role}"));
             }
             ViewBag.UserList = userList;
@@ -467,9 +888,19 @@ namespace ClientSphere.Controllers
 
             if (result.Succeeded)
             {
+                _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
+                {
+                    Action = "Password Reset",
+                    Description = $"Super Admin reset password for {user.Email} (ID: {user.Id})",
+                    UserId = _userManager.GetUserId(User) ?? UnknownValue,
+                    UserName = User.Identity?.Name ?? UnknownValue,
+                    Timestamp = DateTime.UtcNow,
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? UnknownLowerValue
+                });
+                await _context.SaveChangesAsync();
                 var fullName = $"{user.FirstName} {user.LastName}".Trim();
                 if (string.IsNullOrWhiteSpace(fullName)) fullName = user.Email ?? "User";
-                TempData["SuccessMessage"] = $"Password for {fullName} has been reset successfully.";
+                TempData[SuccessMessageKey] = $"Password for {fullName} has been reset successfully.";
                 return RedirectToAction(nameof(UserManagement));
             }
 

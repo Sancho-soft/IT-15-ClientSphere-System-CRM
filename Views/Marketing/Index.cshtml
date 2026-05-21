@@ -204,7 +204,13 @@
                             {
                                 <form asp-action="UnarchiveCampaign" asp-route-id="@campaign.Id" method="post" class="d-inline">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3">
+                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3"
+                                            data-confirm="true"
+                                            data-confirm-title="Restore @campaign.Name?"
+                                            data-confirm-text="This campaign will be moved back to the active list."
+                                            data-confirm-icon="question"
+                                            data-confirm-ok="Yes, restore"
+                                            data-confirm-ok-color="#198754">
                                         <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
                                     </button>
                                 </form>
@@ -213,7 +219,12 @@
                             {
                                 <form asp-action="ArchiveCampaign" asp-route-id="@campaign.Id" method="post" class="d-inline">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="return confirm('Archive this campaign?')">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                            data-confirm="true"
+                                            data-confirm-title="Archive @campaign.Name?"
+                                            data-confirm-text="This campaign will be hidden from the active list."
+                                            data-confirm-icon="warning"
+                                            data-confirm-ok="Yes, archive">
                                         <i class="bi bi-archive me-1"></i> Archive
                                     </button>
                                 </form>

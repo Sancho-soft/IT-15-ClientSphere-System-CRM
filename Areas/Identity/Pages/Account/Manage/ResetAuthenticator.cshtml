@@ -1,0 +1,32 @@
+@page
+@model ResetAuthenticatorModel
+@{
+    ViewData["Title"] = "Reset Authenticator Key";
+    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+}
+
+<partial name="_StatusMessage" for="StatusMessage" />
+
+<h3 class="mb-4">@ViewData["Title"]</h3>
+
+<div class="alert alert-danger border-0 shadow-sm d-flex align-items-center" role="alert">
+    <i class="bi bi-exclamation-triangle-fill me-3" style="font-size: 1.5rem;"></i>
+    <div>
+        <strong>This process disables 2FA and clears your authenticator key.</strong>
+        <p class="mb-0 small">If you reset your authenticator key your authenticator app will not work until you reconfigure it. This process also disables 2FA until you verify your new authenticator app.</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <p class="mb-3">Are you sure you want to reset your authenticator key? You will need to reconfigure your authenticator app.</p>
+        <form method="post">
+            <div class="d-flex gap-2">
+                <button class="btn btn-danger" type="submit">
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>Reset Authenticator Key
+                </button>
+                <a asp-page="./TwoFactorAuthentication" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

@@ -13,11 +13,13 @@ namespace ClientSphere.Models
 
         [Display(Name = "Expected Value")]
         [Column(TypeName = "decimal(18, 2)")]
+        [Range(0, double.MaxValue, ErrorMessage = "Estimated value must be 0 or greater.")]
         public decimal EstimatedValue { get; set; }
 
         public string? Stage { get; set; } // Prospecting, Qualification, Proposal, Negotiation, Closed Won, Closed Lost
         
         [Display(Name = "Probability (%)")]
+        [Range(0, 100, ErrorMessage = "Probability must be between 0 and 100.")]
         public int Probability { get; set; }
 
         [Display(Name = "Expected Close Date")]

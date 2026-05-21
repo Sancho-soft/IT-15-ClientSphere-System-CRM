@@ -9,22 +9,43 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.13.1" />
-    <PackageReference Include="CloudinaryDotNet" Version="1.28.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2">
+    <!-- Exclude the test project subfolder from the main web project compilation -->
+    <Compile Remove="ClientSphere.Tests\**" />
+    <Content Remove="ClientSphere.Tests\**" />
+    <EmbeddedResource Remove="ClientSphere.Tests\**" />
+    <None Remove="ClientSphere.Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.21.0" />
+    <PackageReference Include="CloudinaryDotNet" Version="1.29.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.15" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.15">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Graph" Version="5.102.0" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.82.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Identity.Client" Version="4.84.1" />
+    <PackageReference Include="Microsoft.Kiota.Abstractions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="RestSharp" Version="113.1.0" />
+    <PackageReference Include="NuGet.Packaging" Version="7.6.0" />
+    <PackageReference Include="NuGet.Protocol" Version="7.6.0" />
+    <PackageReference Include="RestSharp" Version="114.0.0" />
     <PackageReference Include="SendGrid" Version="9.29.3" />
-    <PackageReference Include="Stripe.net" Version="50.4.1" />
+    <PackageReference Include="Stripe.net" Version="51.1.0" />
+  </ItemGroup>
+
+  <!-- Explicit version overrides to resolve transitive vulnerability advisories -->
+  <ItemGroup>
+    <!-- Use packages that NuGet resolved during restore to avoid missing version issues -->
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.0" />
+    <PackageReference Include="System.Formats.Asn1" Version="9.0.0" />
   </ItemGroup>
 
 </Project>

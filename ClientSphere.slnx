@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="ClientSphere.csproj" />
+  <Project Path="ClientSphere.Tests/ClientSphere.Tests.csproj" />
 </Solution>

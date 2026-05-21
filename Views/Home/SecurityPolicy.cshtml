@@ -1,0 +1,189 @@
+@{
+    ViewData["Title"] = "Security Policy & Rules";
+    ViewData["HideTopNavTitle"] = true;
+}
+
+<div class="container py-5" style="max-width: 960px;">
+    <!-- Page Header -->
+    <div class="text-center mb-5 gsap-fade-in">
+        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill fw-bold mb-3">
+            <i class="bi bi-shield-lock-fill me-1"></i> ClientSphere Trust Center
+        </span>
+        <h1 class="fw-bold display-5 text-dark">Security Policy &amp; Rules</h1>
+        <p class="text-muted lead mx-auto" style="max-width: 650px;">
+            To ensure the integrity, confidentiality, and availability of our CRM platform, all user accounts must comply with the following security guidelines.
+        </p>
+        <div class="small text-muted mt-2">
+            Last Updated: May 2026 &nbsp;|&nbsp; Version 2.1
+        </div>
+        <hr class="w-25 mx-auto mt-4" />
+    </div>
+
+    <!-- Security Sections Grid -->
+    <div class="row g-4 gsap-stagger-container">
+        <!-- 1. Password Policy -->
+        <div class="col-md-6 gsap-stagger-item">
+            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-3 bg-primary bg-opacity-10 text-primary rounded-3 me-3">
+                            <i class="bi bi-key-fill fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0">Password &amp; Complexity</h5>
+                    </div>
+                    <p class="text-muted small">
+                        All passwords must meet minimum complexity guidelines to prevent brute force and dictionary attacks:
+                    </p>
+                    <ul class="small text-muted ps-3 mb-0">
+                        <li class="mb-2"><strong>Minimum Length:</strong> Must be at least <strong>8 characters</strong>.</li>
+                        <li class="mb-2"><strong>Characters:</strong> Must include uppercase, lowercase, numbers, and special symbols (e.g., <code>!@@#$%^&amp;*</code>).</li>
+                        <li class="mb-2"><strong>Pwned Check:</strong> Passwords are checked against known data breaches (HaveIBeenPwned API) and will be rejected if compromised.</li>
+                        <li><strong>Token Expiration:</strong> Password reset tokens are valid for <strong>24 hours</strong> only.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Account Lockout -->
+        <div class="col-md-6 gsap-stagger-item">
+            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-3 bg-danger bg-opacity-10 text-danger rounded-3 me-3">
+                            <i class="bi bi-shield-exclamation fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0">Brute Force Protection</h5>
+                    </div>
+                    <p class="text-muted small">
+                        To defend against unauthorized dictionary or programmatic guessing attempts, automated rate-limiting is enforced:
+                    </p>
+                    <ul class="small text-muted ps-3 mb-0">
+                        <li class="mb-2"><strong>Lockout Threshold:</strong> Accounts are locked after <strong>5 consecutive failed attempts</strong>.</li>
+                        <li class="mb-2"><strong>Lockout Duration:</strong> The lockout duration is set to <strong>15 minutes</strong>.</li>
+                        <li class="mb-2"><strong>Unlocking:</strong> Accounts automatically unlock after the period expires, or can be manually unlocked by a Super Admin.</li>
+                        <li><strong>Notification:</strong> Lockouts generate system security logs for administrative review.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Multi-Factor Authentication -->
+        <div class="col-md-6 gsap-stagger-item">
+            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-3 bg-success bg-opacity-10 text-success rounded-3 me-3">
+                            <i class="bi bi-shield-lock-fill fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0">Multi-Factor Auth (MFA)</h5>
+                    </div>
+                    <p class="text-muted small">
+                        2FA ensures that even if login credentials are stolen, account access remains protected:
+                    </p>
+                    <ul class="small text-muted ps-3 mb-0">
+                        <li class="mb-2"><strong>Email OTP:</strong> A unique verification code is sent via email during each login process.</li>
+                        <li class="mb-2"><strong>Expiration:</strong> Verification codes expire exactly after <strong>5 minutes</strong>.</li>
+                        <li class="mb-2"><strong>Recovery Codes:</strong> Users are issued one-time recovery codes to bypass MFA in case of lost access. Each code is single-use.</li>
+                        <li><strong>Trust Devices:</strong> Option to "Remember this device" skips MFA verification on that specific device for 30 days.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Session & Inactivity -->
+        <div class="col-md-6 gsap-stagger-item">
+            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-3 me-3">
+                            <i class="bi bi-clock-fill fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0">Session &amp; Idle Timeout</h5>
+                    </div>
+                    <p class="text-muted small">
+                        Inactive sessions are closed to prevent unauthorized physical access to workstations left unattended:
+                    </p>
+                    <ul class="small text-muted ps-3 mb-0">
+                        <li class="mb-2"><strong>Timeout Period:</strong> Active sessions expire after <strong>30 minutes</strong> of complete inactivity.</li>
+                        <li class="mb-2"><strong>Termination:</strong> Upon timeout, user credentials must be re-entered to resume CRM access.</li>
+                        <li class="mb-2"><strong>Device Verification:</strong> Logins from unfamiliar geographic regions or IPs trigger automatic alert emails.</li>
+                        <li><strong>Secure Cookies:</strong> Session tokens are stored using HTTP-only, secure cookies to prevent XSS-based hijacking.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. Audit Logging -->
+        <div class="col-md-6 gsap-stagger-item">
+            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-3 bg-info bg-opacity-10 text-info rounded-3 me-3">
+                            <i class="bi bi-journal-text fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0">Security Audit Logs</h5>
+                    </div>
+                    <p class="text-muted small">
+                        All sensitive operations and administrative actions are logged in a tamper-resistant database table:
+                    </p>
+                    <ul class="small text-muted ps-3 mb-0">
+                        <li class="mb-2"><strong>Logged Events:</strong> Logins (success/failure), password changes, profile edits, API access, and role modifications.</li>
+                        <li class="mb-2"><strong>Metadata Collected:</strong> Timestamp (UTC), IP address, Username, and detailed description.</li>
+                        <li class="mb-2"><strong>Access Control:</strong> Audit logs can only be viewed by authorized Administrative users.</li>
+                        <li><strong>Policy Compliance:</strong> Under no circumstances are passwords or highly sensitive PII saved in raw text within audit records.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. Bot Prevention & CAPTCHA -->
+        <div class="col-md-6 gsap-stagger-item">
+            <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-3 bg-secondary bg-opacity-10 text-secondary rounded-3 me-3">
+                            <i class="bi bi-robot fs-4"></i>
+                        </div>
+                        <h5 class="fw-bold mb-0">Bot &amp; Abuse Prevention</h5>
+                    </div>
+                    <p class="text-muted small">
+                        Integrations to verify human interactions and protect resources from automated web scrapers or scanners:
+                    </p>
+                    <ul class="small text-muted ps-3 mb-0">
+                        <li class="mb-2"><strong>Cloudflare Turnstile:</strong> Integrated directly into Login, Forgot Password, and Registration flows.</li>
+                        <li class="mb-2"><strong>API Rate Limits:</strong> Maximum API requests allowed per client are strictly enforced via our system settings.</li>
+                        <li class="mb-2"><strong>IP Threat Intelligence:</strong> Malicious or blacklisted IP ranges are blocked from communicating with the server.</li>
+                        <li><strong>DDoS Mitigation:</strong> Protected by global web application firewalls.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact & Action Footer -->
+    <div class="mt-5 text-center gsap-slide-up">
+        <p class="text-muted small">
+            For questions, incident reporting, or access requests, please contact the <a href="mailto:security@clientsphere.com" class="fw-bold text-primary text-decoration-none">ClientSphere Security Operations Center</a>.
+        </p>
+        <div class="d-flex justify-content-center gap-3 mt-4">
+            <a href="javascript:window.history.back();" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i> Go Back
+            </a>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-house-door me-1"></i> Return Home
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        .hover-lift {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+        }
+    </style>
+}

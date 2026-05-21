@@ -43,22 +43,18 @@ namespace ClientSphere.Controllers
             {
                 var salesStaffRole = await _userManager.GetUsersInRoleAsync("Sales Staff");
                 
-                // Fetch all closed won opportunities first to ensure grouping works in memory
-                var wonOpps = await _context.Opportunities
+                var salesData = await _context.Opportunities
                     .Where(o => o.Stage == "Closed Won")
+                    .GroupBy(o => o.AssignedToUserId)
+                    .Select(g => new
+                    {
+                        UserId = g.Key,
+                        TotalSales = g.Sum(x => x.EstimatedValue),
+                        DealsCount = g.Count()
+                    })
                     .ToListAsync();
 
-                var salesData = wonOpps
-                    .GroupBy(o => o.AssignedToUserId)
-                    .Select(g => new 
-                    { 
-                        UserId = g.Key, 
-                        TotalSales = g.Sum(x => x.EstimatedValue), 
-                        DealsCount = g.Count() 
-                    })
-                    .ToList();
 
-                int rank = 1;
                 foreach (var user in salesStaffRole)
                 {
                     var data = salesData.FirstOrDefault(d => d.UserId == user.Id);

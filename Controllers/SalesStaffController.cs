@@ -4,7 +4,8 @@ using ClientSphere.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // Added this line
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace ClientSphere.Controllers
 {
@@ -16,19 +17,22 @@ namespace ClientSphere.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly Data.ApplicationDbContext _context;
         private readonly ICalendarService _calendarService;
+        private readonly IDataProtector _tokenProtector;
 
         public SalesStaffController(
             ILeadService leadService, 
             IOpportunityService opportunityService, 
             UserManager<ApplicationUser> userManager, 
             Data.ApplicationDbContext context,
-            ICalendarService calendarService)
+            ICalendarService calendarService,
+            IDataProtectionProvider dataProtectionProvider)
         {
             _leadService = leadService;
             _opportunityService = opportunityService;
             _userManager = userManager;
             _context = context;
             _calendarService = calendarService;
+            _tokenProtector = dataProtectionProvider.CreateProtector("GraphToken.v1");
         }
 
         public async Task<IActionResult> Dashboard()
@@ -284,8 +288,20 @@ namespace ClientSphere.Controllers
         {
             var userId = _userManager.GetUserId(User);
             
-            // Check if user has access token stored (simplified - in production use secure token storage)
-            var accessToken = HttpContext.Session.GetString($"GraphToken_{userId}");
+            string? accessToken = null;
+            var encryptedToken = HttpContext.Session.GetString($"GraphToken_{userId}");
+            if (!string.IsNullOrEmpty(encryptedToken))
+            {
+                try
+                {
+                    accessToken = _tokenProtector.Unprotect(encryptedToken);
+                }
+                catch (Exception)
+                {
+                    // Token is invalid or expired — treat as missing, redirect to OAuth
+                    accessToken = null;
+                }
+            }
             
             if (string.IsNullOrEmpty(accessToken))
             {
@@ -317,7 +333,10 @@ namespace ClientSphere.Controllers
             if (!string.IsNullOrEmpty(code))
             {
                 var accessToken = await _calendarService.HandleCallbackAsync(code, state);
-                HttpContext.Session.SetString($"GraphToken_{state}", accessToken);
+                if (!string.IsNullOrEmpty(accessToken))
+                {
+                    HttpContext.Session.SetString($"GraphToken_{state}", _tokenProtector.Protect(accessToken));
+                }
                 TempData["Success"] = "Connected to Microsoft Outlook successfully!";
             }
             
