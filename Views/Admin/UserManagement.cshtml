@@ -179,57 +179,67 @@
                                         }
                                         else
                                         {
-                                            <!-- Suspend / Deactivate Dropdown -->
-                                            <div class="dropdown d-inline-block">
-                                                <button class="btn btn-sm btn-link text-danger text-decoration-none px-2" type="button" data-bs-toggle="dropdown" data-bs-boundary="window" aria-expanded="false" title="Suspend/Deactivate User">
-                                                    <i class="bi bi-person-slash"></i>
-                                                </button>
-                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="min-width: 220px; z-index: 9999; margin: 0; padding: 0.5rem 0;">
-                                                    <li><h6 class="dropdown-header text-muted">Suspension Options</h6></li>
-                                                    <li>
-                                                        <form asp-action="SuspendUser" asp-route-id="@user.Id" asp-route-durationDays="1" method="post" class="m-0 p-0">
-                                                            @Html.AntiForgeryToken()
-                                                            <button type="submit" class="dropdown-item text-warning py-2"
-                                                                    data-confirm="true"
-                                                                    data-confirm-title="Suspend @user.FullName for 1 Day?"
-                                                                    data-confirm-text="They will be locked out for 24 hours."
-                                                                    data-confirm-icon="warning"
-                                                                    data-confirm-ok="Yes, suspend"
-                                                                    data-confirm-ok-color="#ffc107">
-                                                                <i class="bi bi-clock me-2"></i>Suspend for 1 Day
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    <li>
-                                                        <form asp-action="SuspendUser" asp-route-id="@user.Id" asp-route-durationDays="7" method="post" class="m-0 p-0">
-                                                            @Html.AntiForgeryToken()
-                                                            <button type="submit" class="dropdown-item text-warning py-2"
-                                                                    data-confirm="true"
-                                                                    data-confirm-title="Suspend @user.FullName for 1 Week?"
-                                                                    data-confirm-text="They will be locked out for 7 days."
-                                                                    data-confirm-icon="warning"
-                                                                    data-confirm-ok="Yes, suspend"
-                                                                    data-confirm-ok-color="#ffc107">
-                                                                <i class="bi bi-calendar-event me-2"></i>Suspend for 1 Week
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                    <li><hr class="dropdown-divider"></li>
-                                                    <li>
-                                                        <form asp-action="DeactivateUser" asp-route-id="@user.Id" method="post" class="m-0 p-0">
-                                                            @Html.AntiForgeryToken()
-                                                            <button type="submit" class="dropdown-item text-danger fw-bold py-2"
-                                                                    data-confirm="true"
-                                                                    data-confirm-title="Deactivate @user.FullName?"
-                                                                    data-confirm-text="They will be deactivated indefinitely and cannot log in."
-                                                                    data-confirm-icon="warning"
-                                                                    data-confirm-ok="Yes, deactivate"
-                                                                    data-confirm-ok-color="#dc3545">
-                                                                <i class="bi bi-person-x me-2"></i>Deactivate (Permanent)
-                                                            </button>
-                                                        </form>
-                                                    </li>
-                                                </ul>
+                                            <!-- Suspend / Deactivate Modal Trigger -->
+                                            <button class="btn btn-sm btn-link text-danger text-decoration-none px-2" type="button" data-bs-toggle="modal" data-bs-target="#suspendModal_@user.Id" title="Suspend/Deactivate User">
+                                                <i class="bi bi-person-slash"></i>
+                                            </button>
+
+                                            <!-- Suspend Modal -->
+                                            <div class="modal fade" id="suspendModal_@user.Id" tabindex="-1" aria-labelledby="suspendModalLabel_@user.Id" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content shadow-lg border-0">
+                                                        <div class="modal-header border-bottom-0 pb-0">
+                                                            <h5 class="modal-title fw-bold" id="suspendModalLabel_@user.Id">Suspend or Deactivate User</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body text-start">
+                                                            <p class="text-muted mb-4">Choose an action for <strong class="text-body">@user.FullName</strong>. Suspended users are locked out temporarily. Deactivated users are permanently blocked.</p>
+                                                            
+                                                            <div class="d-grid gap-3 mb-2">
+                                                                <form asp-action="SuspendUser" asp-route-id="@user.Id" asp-route-durationDays="1" method="post" class="m-0 p-0">
+                                                                    @Html.AntiForgeryToken()
+                                                                    <button type="submit" class="btn btn-outline-warning w-100 text-start py-2" 
+                                                                            data-confirm="true" 
+                                                                            data-confirm-title="Suspend @user.FullName for 1 Day?" 
+                                                                            data-confirm-text="They will be locked out for 24 hours."
+                                                                            data-confirm-icon="warning"
+                                                                            data-confirm-ok="Yes, suspend"
+                                                                            data-confirm-ok-color="#ffc107">
+                                                                        <i class="bi bi-clock me-3"></i>Suspend for 1 Day
+                                                                    </button>
+                                                                </form>
+
+                                                                <form asp-action="SuspendUser" asp-route-id="@user.Id" asp-route-durationDays="7" method="post" class="m-0 p-0">
+                                                                    @Html.AntiForgeryToken()
+                                                                    <button type="submit" class="btn btn-outline-warning w-100 text-start py-2" 
+                                                                            data-confirm="true" 
+                                                                            data-confirm-title="Suspend @user.FullName for 1 Week?" 
+                                                                            data-confirm-text="They will be locked out for 7 days."
+                                                                            data-confirm-icon="warning"
+                                                                            data-confirm-ok="Yes, suspend"
+                                                                            data-confirm-ok-color="#ffc107">
+                                                                        <i class="bi bi-calendar-event me-3"></i>Suspend for 1 Week
+                                                                    </button>
+                                                                </form>
+                                                                
+                                                                <hr class="text-muted my-1" />
+
+                                                                <form asp-action="DeactivateUser" asp-route-id="@user.Id" method="post" class="m-0 p-0">
+                                                                    @Html.AntiForgeryToken()
+                                                                    <button type="submit" class="btn btn-outline-danger w-100 text-start py-2 fw-bold" 
+                                                                            data-confirm="true" 
+                                                                            data-confirm-title="Deactivate @user.FullName?" 
+                                                                            data-confirm-text="They will be deactivated indefinitely and cannot log in." 
+                                                                            data-confirm-icon="warning" 
+                                                                            data-confirm-ok="Yes, deactivate"
+                                                                            data-confirm-ok-color="#dc3545">
+                                                                        <i class="bi bi-person-x me-3"></i>Deactivate (Permanent)
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         }
                                     }
