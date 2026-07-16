@@ -1,8 +1,10 @@
-﻿@model ClientSphere.Models.Customer
+@model ClientSphere.Models.Customer
 
 @{
     ViewData["Title"] = "Delete Customer";
     ViewData["HideTopNavTitle"] = true;
+    Layout = "~/Views/Shared/_CrmLayout.cshtml";
+    ViewData["CurrentPage"] = "Customers";
 }
 
 <div class="container py-4">

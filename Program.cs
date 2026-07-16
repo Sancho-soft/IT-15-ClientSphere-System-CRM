@@ -72,8 +72,12 @@ builder.Services.AddScoped<ClientSphere.Services.INotificationService, ClientSph
 builder.Services.AddSingleton<ClientSphere.Services.RateLimitCacheService>(); // Dynamic Rate Limiting Cache
 
 builder.Services.AddScoped<ClientSphere.Filters.AuditLogFilter>();
+builder.Services.AddScoped<ClientSphere.Filters.EnforceMfaFilter>();
+builder.Services.AddScoped<ClientSphere.Filters.ReadOnlySuperAdminFilter>();
 builder.Services.AddControllersWithViews(options => {
     options.Filters.Add<ClientSphere.Filters.AuditLogFilter>();
+    options.Filters.Add<ClientSphere.Filters.EnforceMfaFilter>();
+    options.Filters.Add<ClientSphere.Filters.ReadOnlySuperAdminFilter>();
     options.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute());
 });
 
@@ -163,7 +167,7 @@ app.Use(async (context, next) =>
     context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
     context.Response.Headers.Append("X-Frame-Options", "DENY");
     context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
-    context.Response.Headers.Append("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https://res.cloudinary.com; frame-src https://challenges.cloudflare.com; connect-src 'self'");
+    context.Response.Headers.Append("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https://res.cloudinary.com; frame-src https://challenges.cloudflare.com; connect-src 'self'");
     context.Response.Headers.Append("Permissions-Policy", "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()");
     
     if (!app.Environment.IsDevelopment())
@@ -198,6 +202,36 @@ app.UseRouting();
 app.UseSession();
 
 app.UseAuthentication();
+
+// Session IP Binding Middleware (Anti-Session-Hijacking)
+app.Use(async (context, next) =>
+{
+    if (context.Session.IsAvailable && context.User.Identity?.IsAuthenticated == true)
+    {
+        var currentIp = context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
+        var sessionIp = context.Session.GetString("SessionIp");
+
+        if (string.IsNullOrEmpty(sessionIp))
+        {
+            context.Session.SetString("SessionIp", currentIp);
+        }
+        else if (sessionIp != currentIp)
+        {
+            var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+            logger.LogWarning("Session hijacking warning: session bound to IP '{SessionIp}' but request received from IP '{CurrentIp}'. Revoking authentication session.", sessionIp, currentIp);
+
+            // Log out the user and clear session
+            context.Session.Clear();
+            var signInManager = context.RequestServices.GetRequiredService<SignInManager<ApplicationUser>>();
+            await signInManager.SignOutAsync();
+
+            context.Response.Redirect("/Identity/Account/Login");
+            return;
+        }
+    }
+    await next();
+});
+
 app.UseAuthorization();
 
 app.UseStaticFiles();

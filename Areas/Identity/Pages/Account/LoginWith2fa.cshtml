@@ -5,67 +5,89 @@
     ViewData["Title"] = "Two-Factor Verification";
 }
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card shadow-lg border-0 rounded-3">
+<div class="container py-5 d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+    <div class="row justify-content-center w-100">
+        <div class="col-md-6 col-lg-5 col-xl-4">
+            <div class="card mfa-card border-0 rounded-4 overflow-hidden shadow-lg">
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
                         <div class="mb-3">
-                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary bg-opacity-10" style="width: 64px; height: 64px;">
-                                <i class="bi bi-shield-lock-fill text-primary" style="font-size: 28px;"></i>
+                            <span class="mfa-icon-badge">
+                                <i class="bi bi-shield-lock-fill"></i>
                             </span>
                         </div>
-                        <h2 class="fw-bold mb-2">Verify Your Identity</h2>
-                        <p class="text-muted">A 6-digit verification code has been sent to <strong>@Model.MaskedEmail</strong></p>
+                        @if (Model.HasAuthenticator)
+                        {
+                            <h2 class="fw-bold mb-2">Two-Factor Verification</h2>
+                            <p class="text-muted">Enter the code from your authenticator app or the code we sent to <strong>@Model.MaskedEmail</strong></p>
+                        }
+                        else
+                        {
+                            <h2 class="fw-bold mb-2">We sent you an email</h2>
+                            <p class="text-muted">Check your inbox and enter the six-digit code below. We sent it to <strong>@Model.MaskedEmail</strong></p>
+                        }
                     </div>
 
                     @if (!string.IsNullOrEmpty(Model.StatusMessage))
                     {
-                        <div class="alert alert-info alert-dismissible fade show border-0 shadow-sm" role="alert">
+                        <div class="alert alert-info alert-dismissible fade show border-0 shadow-sm rounded-3" role="alert">
                             <i class="bi bi-info-circle-fill me-2"></i>@Model.StatusMessage
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     }
 
-                    <form method="post" id="verify-form">
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+                    <form method="post" id="verify-form" asp-page="./LoginWith2fa" asp-page-handler="">
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3 text-center" role="alert"></div>
 
                         <input type="hidden" asp-for="RememberMe" />
                         <input type="hidden" asp-for="ReturnUrl" />
-                        <input type="hidden" asp-for="EncryptedOtp" />
+                        <input type="hidden" asp-for="EncryptedOtp" value="@Model.EncryptedOtp" />
+                        <input type="hidden" asp-for="Input.TwoFactorCode" id="mfa-full-code" />
 
-                        <div class="mb-3">
-                            <label asp-for="Input.TwoFactorCode" class="form-label fw-bold">Verification Code</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-key"></i></span>
-                                <input asp-for="Input.TwoFactorCode" class="form-control border-start-0 ps-0 text-center fw-bold"
-                                       autocomplete="off" placeholder="Enter 6-digit code"
-                                       style="letter-spacing: 6px; font-size: 1.2rem;"
-                                       maxlength="7" inputmode="numeric" autofocus />
+                        <div class="mb-4">
+                            <div class="mfa-code-container d-flex justify-content-center gap-2 mb-3">
+                                <label class="visually-hidden" for="mfa-digit-0">Digit 1</label>
+                                <input type="text" id="mfa-digit-0" class="mfa-input-box text-center fw-bold form-control" maxlength="1" pattern="[0-9]*" inputmode="numeric" data-index="0" autofocus />
+                                
+                                <label class="visually-hidden" for="mfa-digit-1">Digit 2</label>
+                                <input type="text" id="mfa-digit-1" class="mfa-input-box text-center fw-bold form-control" maxlength="1" pattern="[0-9]*" inputmode="numeric" data-index="1" />
+                                
+                                <label class="visually-hidden" for="mfa-digit-2">Digit 3</label>
+                                <input type="text" id="mfa-digit-2" class="mfa-input-box text-center fw-bold form-control" maxlength="1" pattern="[0-9]*" inputmode="numeric" data-index="2" />
+                                
+                                <label class="visually-hidden" for="mfa-digit-3">Digit 4</label>
+                                <input type="text" id="mfa-digit-3" class="mfa-input-box text-center fw-bold form-control" maxlength="1" pattern="[0-9]*" inputmode="numeric" data-index="3" />
+                                
+                                <label class="visually-hidden" for="mfa-digit-4">Digit 5</label>
+                                <input type="text" id="mfa-digit-4" class="mfa-input-box text-center fw-bold form-control" maxlength="1" pattern="[0-9]*" inputmode="numeric" data-index="4" />
+                                
+                                <label class="visually-hidden" for="mfa-digit-5">Digit 6</label>
+                                <input type="text" id="mfa-digit-5" class="mfa-input-box text-center fw-bold form-control" maxlength="1" pattern="[0-9]*" inputmode="numeric" data-index="5" />
                             </div>
-                            <span asp-validation-for="Input.TwoFactorCode" class="text-danger"></span>
+                            <div class="text-center">
+                                <span asp-validation-for="Input.TwoFactorCode" class="text-danger small"></span>
+                            </div>
                         </div>
 
-                        <div class="form-check mb-4">
-                            <input class="form-check-input" asp-for="Input.RememberMachine" />
-                            <label class="form-check-label" asp-for="Input.RememberMachine">
-                                Remember this device
+                        <div class="form-check mb-4 d-flex justify-content-center align-items-center gap-2">
+                            <input class="form-check-input mt-0" asp-for="Input.RememberMachine" id="remember-machine-check" style="cursor: pointer;" />
+                            <label class="form-check-label text-muted small cursor-pointer" for="remember-machine-check">
+                                Remember this app for 30 days
                             </label>
                         </div>
 
                         <div class="d-grid mb-3">
-                            <button type="submit" class="btn btn-primary btn-lg fw-bold" id="verify-code-btn">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold btn-verify py-3" id="verify-code-btn">
                                 <i class="bi bi-shield-check me-2"></i>Verify Code
                             </button>
                         </div>
                     </form>
 
-                    <div class="text-center">
+                    <div class="text-center mt-3">
                         <form method="post" asp-page-handler="ResendCode" class="d-inline">
                             <input type="hidden" asp-for="RememberMe" />
                             <input type="hidden" asp-for="ReturnUrl" />
-                            <button type="submit" class="btn btn-link text-decoration-none p-0" id="resend-code-btn">
+                            <button type="submit" class="btn btn-link text-decoration-none p-0 text-primary fw-semibold" id="resend-code-btn">
                                 <i class="bi bi-arrow-clockwise me-1"></i>Resend Code
                             </button>
                         </form>
@@ -75,8 +97,8 @@
 
                     <div class="text-center">
                         <small class="text-muted">
-                            Don't have access to your email?
-                            <a asp-page="./LoginWithRecoveryCode" asp-route-returnUrl="@Model.ReturnUrl" class="text-decoration-none fw-bold">
+                            Don't have access to your email? 
+                            <a asp-page="./LoginWithRecoveryCode" asp-route-returnUrl="@Model.ReturnUrl" class="text-decoration-none fw-bold text-primary">
                                 Use a recovery code
                             </a>
                         </small>
@@ -86,12 +108,169 @@
 
             <div class="mt-4 text-center text-muted small">
                 <i class="bi bi-shield-check text-success me-1"></i>
-                Protecting your account with MFA. Read our <a asp-controller="Home" asp-action="SecurityPolicy" target="_blank" class="fw-semibold text-decoration-none">Security Policy</a>.
+                Protecting your account with MFA. Read our <a asp-controller="Home" asp-action="SecurityPolicy" target="_blank" class="fw-semibold text-decoration-none text-primary">Security Policy</a>.
             </div>
         </div>
     </div>
 </div>
 
+<style>
+    .mfa-card {
+        background: var(--bs-card-bg, #fff);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .mfa-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+    }
+
+    .mfa-icon-badge {
+        width: 72px;
+        height: 72px;
+        font-size: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: rgba(13, 110, 253, 0.1);
+        color: #0d6efd;
+    }
+
+    .mfa-code-container {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .mfa-input-box {
+        width: 48px;
+        height: 56px;
+        font-size: 24px;
+        border-radius: 10px;
+        border: 2px solid #dee2e6;
+        transition: all 0.2s ease;
+        background-color: var(--bs-body-bg, #fff);
+        color: var(--bs-body-color, #212529);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    .mfa-input-box:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+        outline: none;
+        transform: scale(1.05);
+    }
+    
+    [data-bs-theme="dark"] .mfa-input-box {
+        border-color: #495057;
+    }
+    [data-bs-theme="dark"] .mfa-input-box:focus {
+        border-color: #0d6efd;
+    }
+
+    .btn-verify {
+        border-radius: 12px;
+        transition: all 0.2s ease;
+    }
+    
+    .btn-verify:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+    }
+    
+    .cursor-pointer {
+        cursor: pointer;
+    }
+</style>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const boxes = document.querySelectorAll(".mfa-input-box");
+            const fullCodeInput = document.getElementById("mfa-full-code");
+            const verifyForm = document.getElementById("verify-form");
+
+            function updateFullCode() {
+                let code = "";
+                boxes.forEach(box => {
+                    code += box.value;
+                });
+                fullCodeInput.value = code;
+            }
+
+            boxes.forEach((box, index) => {
+                box.addEventListener("input", function (e) {
+                    let val = box.value.replace(/[^0-9]/g, "");
+                    if (val.length > 1) {
+                        val = val.substring(val.length - 1);
+                    }
+                    box.value = val;
+
+                    if (val.length > 0) {
+                        if (index < boxes.length - 1) {
+                            boxes[index + 1].focus();
+                        }
+                    }
+                    updateFullCode();
+
+                    // Auto submit if all filled
+                    if (Array.from(boxes).every(b => b.value.length === 1)) {
+                        verifyForm.submit();
+                    }
+                });
+
+                box.addEventListener("keydown", function (e) {
+                    if (e.key === "Backspace") {
+                        if (box.value.length === 0 && index > 0) {
+                            boxes[index - 1].focus();
+                            boxes[index - 1].value = "";
+                            updateFullCode();
+                            e.preventDefault();
+                        } else {
+                            box.value = "";
+                            updateFullCode();
+                        }
+                    } else if (e.key === "ArrowLeft" && index > 0) {
+                        boxes[index - 1].focus();
+                        e.preventDefault();
+                    } else if (e.key === "ArrowRight" && index < boxes.length - 1) {
+                        boxes[index + 1].focus();
+                        e.preventDefault();
+                    }
+                });
+                
+                box.addEventListener("focus", function() {
+                    box.select();
+                });
+            });
+
+            // Handle paste event
+            document.addEventListener("paste", function (e) {
+                const activeEl = document.activeElement;
+                if (activeEl && activeEl.classList.contains("mfa-input-box")) {
+                    e.preventDefault();
+                    const pastedData = (e.clipboardData || window.clipboardData).getData("text");
+                    const cleanData = pastedData.replace(/[^0-9]/g, "").substring(0, 6);
+                    
+                    for (let i = 0; i < cleanData.length; i++) {
+                        if (boxes[i]) {
+                            boxes[i].value = cleanData[i];
+                        }
+                    }
+                    updateFullCode();
+
+                    if (cleanData.length === 6) {
+                        verifyForm.submit();
+                    } else if (cleanData.length > 0) {
+                        boxes[Math.min(cleanData.length, boxes.length - 1)].focus();
+                    }
+                }
+            });
+        });
+    </script>
 }

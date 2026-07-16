@@ -1,4 +1,23 @@
 <!DOCTYPE html>
+@{
+    var routeArea = ViewContext.RouteData.Values["area"]?.ToString();
+    var routeController = ViewContext.RouteData.Values["controller"]?.ToString();
+    
+    var isAllowedWriteContext = false;
+    if (string.Equals(routeArea, "Identity", StringComparison.OrdinalIgnoreCase))
+    {
+        isAllowedWriteContext = true;
+    }
+    else if (string.Equals(routeController, "Profile", StringComparison.OrdinalIgnoreCase) || 
+             string.Equals(routeController, "Home", StringComparison.OrdinalIgnoreCase) || 
+             string.Equals(routeController, "Notifications", StringComparison.OrdinalIgnoreCase) || 
+             string.Equals(routeController, "Admin", StringComparison.OrdinalIgnoreCase))
+    {
+        isAllowedWriteContext = true;
+    }
+
+    var isCrmWriteRestricted = User.IsInRole("Super Admin") && !isAllowedWriteContext;
+}
 <html lang="en" id="htmlRoot">
 <head>
     <meta charset="utf-8" />
@@ -48,6 +67,20 @@
             .sidebar-overlay.active { display: block; }
         }
     </style>
+    @if (isCrmWriteRestricted)
+    {
+        <style>
+            /* Visual feedback for View-Only mode */
+            .write-restricted-element {
+                pointer-events: none !important;
+                opacity: 0.65 !important;
+                cursor: not-allowed !important;
+            }
+            input[disabled], select[disabled], textarea[disabled], button[disabled] {
+                cursor: not-allowed !important;
+            }
+        </style>
+    }
 </head>
 <body>
 
@@ -307,7 +340,9 @@
                         }
                         else
                         {
-                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; font-size: 0.75rem; flex-shrink: 0;">@navInitials</div>
+                            <div class="text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; font-size: 0.9rem; flex-shrink: 0; background-color: #ff6b35 !important;">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
                         }
                         <div class="text-start overflow-hidden d-none d-md-block">
                             <div class="fw-semibold text-truncate" style="font-size: 0.82rem; line-height: 1.2;">@navFullName</div>
@@ -324,7 +359,7 @@
                         </li>
                         <li>
                             <a class="dropdown-item d-flex align-items-center gap-2" asp-controller="Profile" asp-action="Index">
-                                <i class="bi bi-person-circle text-primary"></i> My Profile
+                                <i class="bi bi-person-circle text-primary"></i> Profile Settings
                             </a>
                         </li>
                         <li><hr class="dropdown-divider"></li>
@@ -340,6 +375,26 @@
                 </div>
             </div>
         </header>
+
+        @if (isCrmWriteRestricted)
+        {
+            <div class="card border-0 mb-4 overflow-hidden shadow-sm gsap-fade-in" style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 145, 0, 0.05) 100%); border-left: 5px solid #ff9100 !important;">
+                <div class="card-body py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-warning bg-opacity-20 text-warning rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 42px; height: 42px; animation: pulse-yellow 2s infinite; flex-shrink: 0;">
+                            <i class="bi bi-shield-fill-lock fs-5"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0 fw-bold text-warning-emphasis">Super Admin - Restricted View-Only Mode</h6>
+                            <small class="text-muted d-block mt-0.5" style="font-size: 0.82rem;">For system integrity, CRM module write privileges are disabled. You can inspect all data but cannot perform updates.</small>
+                        </div>
+                    </div>
+                    <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill d-flex align-items-center gap-1 border border-warning border-opacity-20 shadow-sm" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                        <i class="bi bi-eye-fill"></i> READ ONLY
+                    </span>
+                </div>
+            </div>
+        }
 
         <main role="main" class="gsap-slide-up">
             @RenderBody()
@@ -447,6 +502,44 @@
                 .then(() => loadNotifications());
         }
     </script>
+    @if (isCrmWriteRestricted)
+    {
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const mainContent = document.querySelector('main');
+                if (mainContent) {
+                    // Only disable and prevent submit on forms that perform mutation operations (POST/PUT/DELETE)
+                    mainContent.querySelectorAll('form').forEach(form => {
+                        const method = (form.getAttribute('method') || 'get').toLowerCase();
+                        if (method === 'post' || method === 'put' || method === 'delete') {
+                            form.addEventListener('submit', function(e) {
+                                e.preventDefault();
+                                return false;
+                            });
+
+                            // Disable inputs/buttons inside this mutation form
+                            form.querySelectorAll('input, select, textarea, button').forEach(el => {
+                                el.disabled = true;
+                                el.classList.add('write-restricted-element');
+                            });
+                        }
+                    });
+
+                    // Disable action links that mutate state or lead to creation/edition/deletion
+                    mainContent.querySelectorAll('a[href*="/Edit"], a[href*="/Delete"], a[href*="/Create"], a[href*="/Add"], a[href*="/Toggle"], a[href*="/Archive"], a[href*="/MarkAsPaid"], a[href*="/GeneratePaymongoLink"], a[href*="/SendInvoiceEmail"]').forEach(link => {
+                        const href = link.getAttribute('href') || '';
+                        // Do not disable Details, Index or other read-only view/search clear links
+                        if (!href.includes('Details') && !href.includes('Index')) {
+                            link.style.pointerEvents = 'none';
+                            link.classList.add('disabled');
+                            link.setAttribute('tabindex', '-1');
+                            link.classList.add('write-restricted-element');
+                        }
+                    });
+                }
+            });
+        </script>
+    }
 </body>
 </html>
 

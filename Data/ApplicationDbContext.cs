@@ -1,14 +1,24 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ClientSphere.Models;
 
 namespace ClientSphere.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        private readonly IDataProtector? _protector;
+
+        public ApplicationDbContext(
+            DbContextOptions<ApplicationDbContext> options,
+            IDataProtectionProvider? dataProtectionProvider = null)
             : base(options)
         {
+            if (dataProtectionProvider != null)
+            {
+                _protector = dataProtectionProvider.CreateProtector("ClientSphere.PII.Encryption.v1");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -17,6 +27,25 @@ namespace ClientSphere.Data
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
+
+            if (_protector != null)
+            {
+                var piiConverter = new ValueConverter<string, string>(
+                    v => string.IsNullOrEmpty(v) ? v : _protector.Protect(v),
+                    v => string.IsNullOrEmpty(v) ? v : _protector.Unprotect(v)
+                );
+
+                builder.Entity<Customer>()
+                    .Property(c => c.Address)
+                    .HasMaxLength(2000)
+                    .HasConversion(piiConverter);
+            }
+            else
+            {
+                builder.Entity<Customer>()
+                    .Property(c => c.Address)
+                    .HasMaxLength(2000);
+            }
 
             builder.Entity<Campaign>()
                 .Property(c => c.Budget)

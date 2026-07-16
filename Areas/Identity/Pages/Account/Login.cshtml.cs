@@ -101,6 +101,13 @@ namespace ClientSphere.Areas.Identity.Pages.Account
                     return Page();
                 }
 
+                var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
+                if (user != null && !user.IsActive)
+                {
+                    ModelState.AddModelError(string.Empty, "This account has been deactivated.");
+                    return Page();
+                }
+
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
@@ -108,7 +115,6 @@ namespace ClientSphere.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User logged in.");
                     
-                    var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
                     if (user != null)
                     {
                         // Geolocation Login Protection

@@ -45,7 +45,8 @@ namespace ClientSphere.Areas.Identity.Pages.Account
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
             if (user == null)
             {
-                throw new InvalidOperationException("Unable to load two-factor authentication user.");
+                _logger.LogWarning("MFA Recovery: Two-factor user was null, redirecting to Login.");
+                return RedirectToPage("./Login");
             }
 
             ReturnUrl = returnUrl ?? Url.Content("~/");
@@ -59,7 +60,8 @@ namespace ClientSphere.Areas.Identity.Pages.Account
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
             if (user == null)
             {
-                throw new InvalidOperationException("Unable to load two-factor authentication user.");
+                _logger.LogWarning("MFA Recovery: Two-factor user was null, redirecting to Login.");
+                return RedirectToPage("./Login");
             }
 
             if (!ModelState.IsValid)

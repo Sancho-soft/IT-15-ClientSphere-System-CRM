@@ -21,12 +21,15 @@
             <p class="text-muted mb-0">Manage invoices, payments, and billing records</p>
         </div>
         <div class="col-md-6 text-md-end">
-            <a asp-action="Create" class="btn btn-primary px-4 shadow-sm">
-                <i class="bi bi-plus-lg me-2"></i>Generate Invoice
-            </a>
-            <a href="@Url.Action("ExportCsv", "Billing", new { archived = Context.Request.Query["archived"] })" class="btn btn-outline-secondary shadow-sm ms-2">
-                <i class="bi bi-download me-2"></i>Export
-            </a>
+            @if (!User.IsInRole(ClientSphere.Constants.Roles.SuperAdmin))
+            {
+                <a asp-action="Create" class="btn btn-primary px-4 shadow-sm">
+                    <i class="bi bi-plus-lg me-2"></i>Generate Invoice
+                </a>
+                <a href="@Url.Action("ExportCsv", "Billing", new { archived = Context.Request.Query["archived"] })" class="btn btn-outline-secondary shadow-sm ms-2">
+                    <i class="bi bi-download me-2"></i>Export
+                </a>
+            }
         </div>
     </div>
 
@@ -220,54 +223,57 @@
                                 <td class="pe-4 text-end">
                                     <div class="d-flex justify-content-end gap-2">
                                         <a asp-action="Details" asp-route-id="@invoice.Id" class="btn btn-sm btn-link text-decoration-none px-0" title="View Details"><i class="bi bi-eye"></i></a>
-                                        <a asp-action="Edit" asp-route-id="@invoice.Id" class="btn btn-sm btn-link text-decoration-none px-0" title="Edit Invoice"><i class="bi bi-pencil-square"></i></a>
-                                        <a href="javascript:window.print()" class="btn btn-sm btn-link text-decoration-none px-0" title="Download PDF"><i class="bi bi-download"></i></a>
-                                        @if(invoice.Status == "Unpaid" || invoice.Status == "Overdue" || invoice.Status == "Processing" || invoice.Status == "Partial")
+                                        @if (!User.IsInRole(ClientSphere.Constants.Roles.SuperAdmin))
                                         {
-                                            <form asp-action="MarkAsPaid" asp-route-id="@invoice.Id" method="post" style="display:inline;">
-                                                <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 py-0 d-flex align-items-center" style="font-size: 0.75rem;" title="Mark Paid Manually">Mark Paid</button>
+                                            <a asp-action="Edit" asp-route-id="@invoice.Id" class="btn btn-sm btn-link text-decoration-none px-0" title="Edit Invoice"><i class="bi bi-pencil-square"></i></a>
+                                            <a href="javascript:window.print()" class="btn btn-sm btn-link text-decoration-none px-0" title="Download PDF"><i class="bi bi-download"></i></a>
+                                            @if(invoice.Status == "Unpaid" || invoice.Status == "Overdue" || invoice.Status == "Processing" || invoice.Status == "Partial")
+                                            {
+                                                <form asp-action="MarkAsPaid" asp-route-id="@invoice.Id" method="post" style="display:inline;">
+                                                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 py-0 d-flex align-items-center" style="font-size: 0.75rem;" title="Mark Paid Manually">Mark Paid</button>
+                                                </form>
+                                                @if(invoice.Status != "Processing")
+                                                {
+                                                    <form asp-action="GeneratePaymongoLink" asp-route-id="@invoice.Id" method="post" style="display:inline;">
+                                                        <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3 py-0 d-flex align-items-center" style="font-size: 0.75rem;" title="Pay via Paymongo (GCash, PayMaya, Card)"><i class="bi bi-wallet2 me-1"></i> Paymongo</button>
+                                                    </form>
+                                                }
+                                            }
+                                            <form asp-action="SendInvoiceEmail" asp-route-id="@invoice.Id" method="post" style="display:inline;">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-info rounded-pill px-3 py-0 d-flex align-items-center text-white" style="font-size: 0.75rem;" title="Email Invoice via SendGrid"><i class="bi bi-envelope me-1"></i> Email</button>
                                             </form>
-                                            @if(invoice.Status != "Processing")
+                                            @if (User.IsInRole("Admin") || User.IsInRole("Super Admin") || User.IsInRole("Billing Staff"))
                                             {
-                                                <form asp-action="GeneratePaymongoLink" asp-route-id="@invoice.Id" method="post" style="display:inline;">
-                                                    <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3 py-0 d-flex align-items-center" style="font-size: 0.75rem;" title="Pay via Paymongo (GCash, PayMaya, Card)"><i class="bi bi-wallet2 me-1"></i> Paymongo</button>
-                                                </form>
-                                            }
-                                        }
-                                        <form asp-action="SendInvoiceEmail" asp-route-id="@invoice.Id" method="post" style="display:inline;">
-                                            @Html.AntiForgeryToken()
-                                            <button type="submit" class="btn btn-sm btn-info rounded-pill px-3 py-0 d-flex align-items-center text-white" style="font-size: 0.75rem;" title="Email Invoice via SendGrid"><i class="bi bi-envelope me-1"></i> Email</button>
-                                        </form>
-                                        @if (User.IsInRole("Admin") || User.IsInRole("Super Admin") || User.IsInRole("Billing Staff"))
-                                        {
-                                            @if (!isBillingArchived)
-                                            {
-                                                <form asp-action="ArchiveInvoice" asp-route-id="@invoice.Id" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" style="font-size:0.75rem;" title="Archive"
-                                                            data-confirm="true"
-                                                            data-confirm-title="Archive Invoice @invoice.InvoiceId?"
-                                                            data-confirm-text="This invoice will be moved to the archived list."
-                                                            data-confirm-icon="warning"
-                                                            data-confirm-ok="Yes, archive">
-                                                        <i class="bi bi-archive"></i>
-                                                    </button>
-                                                </form>
-                                            }
-                                            else
-                                            {
-                                                <form asp-action="UnarchiveInvoice" asp-route-id="@invoice.Id" method="post" class="d-inline">
-                                                    @Html.AntiForgeryToken()
-                                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2 py-0" style="font-size:0.75rem;" title="Restore"
-                                                            data-confirm="true"
-                                                            data-confirm-title="Restore Invoice @invoice.InvoiceId?"
-                                                            data-confirm-text="This invoice will be moved back to the active list."
-                                                            data-confirm-icon="question"
-                                                            data-confirm-ok="Yes, restore"
-                                                            data-confirm-ok-color="#198754">
-                                                        <i class="bi bi-arrow-counterclockwise"></i> Restore
-                                                    </button>
-                                                </form>
+                                                @if (!isBillingArchived)
+                                                {
+                                                    <form asp-action="ArchiveInvoice" asp-route-id="@invoice.Id" method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-2 py-0" style="font-size:0.75rem;" title="Archive"
+                                                                data-confirm="true"
+                                                                data-confirm-title="Archive Invoice @invoice.InvoiceId?"
+                                                                data-confirm-text="This invoice will be moved to the archived list."
+                                                                data-confirm-icon="warning"
+                                                                data-confirm-ok="Yes, archive">
+                                                            <i class="bi bi-archive"></i>
+                                                        </button>
+                                                    </form>
+                                                }
+                                                else
+                                                {
+                                                    <form asp-action="UnarchiveInvoice" asp-route-id="@invoice.Id" method="post" class="d-inline">
+                                                        @Html.AntiForgeryToken()
+                                                        <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-2 py-0" style="font-size:0.75rem;" title="Restore"
+                                                                data-confirm="true"
+                                                                data-confirm-title="Restore Invoice @invoice.InvoiceId?"
+                                                                data-confirm-text="This invoice will be moved back to the active list."
+                                                                data-confirm-icon="question"
+                                                                data-confirm-ok="Yes, restore"
+                                                                data-confirm-ok-color="#198754">
+                                                            <i class="bi bi-arrow-counterclockwise"></i> Restore
+                                                        </button>
+                                                    </form>
+                                                }
                                             }
                                         }
                                     </div>

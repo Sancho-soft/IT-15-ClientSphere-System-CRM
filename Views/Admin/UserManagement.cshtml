@@ -88,7 +88,7 @@
             </div>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive" style="overflow: visible;">
             <table class="table table-hover align-middle mb-0" id="usersTable">
                 <thead class="table-light">
                     <tr>
@@ -102,6 +102,9 @@
                 <tbody>
                     @foreach (var user in Model.Users)
                     {
+                        var isCurrentUser = User.Identity?.Name == user.Email;
+                        var isSuperAdmin = User.IsInRole(ClientSphere.Constants.Roles.SuperAdmin);
+                        var canManage = isSuperAdmin || user.Role != ClientSphere.Constants.Roles.SuperAdmin;
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
@@ -136,52 +139,104 @@
                             </td>
                             <td class="text-muted small" style="font-size: 0.85rem;">@user.LastActiveDisplay</td>
                             <td class="text-end">
-                                <a asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-sm btn-link text-primary text-decoration-none px-2" title="Edit User"><i class="bi bi-pencil-square"></i></a>
-                                <a asp-action="ResetPassword" asp-route-userId="@user.Id" class="btn btn-sm btn-link text-warning text-decoration-none px-2" title="Reset Password"><i class="bi bi-key"></i></a>
-                                @if (user.IsLockedOut)
+                                @if (canManage)
                                 {
-                                    <form asp-action="UnlockUser" asp-route-id="@user.Id" method="post" class="d-inline">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-link text-success text-decoration-none px-2" title="Unlock User"
-                                                data-confirm="true"
-                                                data-confirm-title="Unlock @user.FullName?"
-                                                data-confirm-text="This will lift the temporary account lockout."
-                                                data-confirm-icon="question"
-                                                data-confirm-ok="Yes, unlock"
-                                                data-confirm-ok-color="#198754">
-                                            <i class="bi bi-unlock"></i>
-                                        </button>
-                                    </form>
-                                }
-                                @if (user.Status == "Active" || user.Status == "Locked Out")
-                                {
-                                    <form asp-action="DeactivateUser" asp-route-id="@user.Id" method="post" class="d-inline">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-link text-danger text-decoration-none px-2" title="Deactivate User"
-                                                data-confirm="true"
-                                                data-confirm-title="Deactivate @user.FullName?"
-                                                data-confirm-text="They will be locked out immediately and cannot log in."
-                                                data-confirm-icon="warning"
-                                                data-confirm-ok="Yes, deactivate"
-                                                data-confirm-ok-color="#dc3545">
-                                            <i class="bi bi-person-slash"></i>
-                                        </button>
-                                    </form>
+                                    <a asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-sm btn-link text-primary text-decoration-none px-2" title="Edit User"><i class="bi bi-pencil-square"></i></a>
+                                    <a asp-action="ResetPassword" asp-route-userId="@user.Id" class="btn btn-sm btn-link text-warning text-decoration-none px-2" title="Reset Password"><i class="bi bi-key"></i></a>
+                                    
+                                    @if (!isCurrentUser)
+                                    {
+                                        @if (user.IsLockedOut)
+                                        {
+                                            <form asp-action="UnlockUser" asp-route-id="@user.Id" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-link text-success text-decoration-none px-2" title="Unlock User"
+                                                        data-confirm="true"
+                                                        data-confirm-title="Unlock @user.FullName?"
+                                                        data-confirm-text="This will lift the temporary account lockout or suspension."
+                                                        data-confirm-icon="question"
+                                                        data-confirm-ok="Yes, unlock"
+                                                        data-confirm-ok-color="#198754">
+                                                    <i class="bi bi-unlock"></i>
+                                                </button>
+                                            </form>
+                                        }
+
+                                        @if (user.Status == "Inactive")
+                                        {
+                                            <form asp-action="ReactivateUser" asp-route-id="@user.Id" method="post" class="d-inline">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-link text-success text-decoration-none px-2" title="Reactivate User"
+                                                        data-confirm="true"
+                                                        data-confirm-title="Reactivate @user.FullName?"
+                                                        data-confirm-text="This will restore their login access."
+                                                        data-confirm-icon="question"
+                                                        data-confirm-ok="Yes, reactivate"
+                                                        data-confirm-ok-color="#198754">
+                                                    <i class="bi bi-person-check"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <!-- Suspend / Deactivate Dropdown -->
+                                            <div class="dropdown d-inline-block">
+                                                <button class="btn btn-sm btn-link text-danger text-decoration-none px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Suspend/Deactivate User">
+                                                    <i class="bi bi-person-slash"></i>
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="min-width: 220px;">
+                                                    <li><h6 class="dropdown-header text-muted">Suspension Options</h6></li>
+                                                    <li>
+                                                        <form asp-action="SuspendUser" asp-route-id="@user.Id" asp-route-durationDays="1" method="post">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="dropdown-item text-warning"
+                                                                    data-confirm="true"
+                                                                    data-confirm-title="Suspend @user.FullName for 1 Day?"
+                                                                    data-confirm-text="They will be locked out for 24 hours."
+                                                                    data-confirm-icon="warning"
+                                                                    data-confirm-ok="Yes, suspend"
+                                                                    data-confirm-ok-color="#ffc107">
+                                                                <i class="bi bi-clock me-2"></i>Suspend for 1 Day
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li>
+                                                        <form asp-action="SuspendUser" asp-route-id="@user.Id" asp-route-durationDays="7" method="post">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="dropdown-item text-warning"
+                                                                    data-confirm="true"
+                                                                    data-confirm-title="Suspend @user.FullName for 1 Week?"
+                                                                    data-confirm-text="They will be locked out for 7 days."
+                                                                    data-confirm-icon="warning"
+                                                                    data-confirm-ok="Yes, suspend"
+                                                                    data-confirm-ok-color="#ffc107">
+                                                                <i class="bi bi-calendar-event me-2"></i>Suspend for 1 Week
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <form asp-action="DeactivateUser" asp-route-id="@user.Id" method="post">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="dropdown-item text-danger fw-bold"
+                                                                    data-confirm="true"
+                                                                    data-confirm-title="Deactivate @user.FullName?"
+                                                                    data-confirm-text="They will be deactivated indefinitely and cannot log in."
+                                                                    data-confirm-icon="warning"
+                                                                    data-confirm-ok="Yes, deactivate"
+                                                                    data-confirm-ok-color="#dc3545">
+                                                                <i class="bi bi-person-x me-2"></i>Deactivate (Permanent)
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        }
+                                    }
                                 }
                                 else
                                 {
-                                    <form asp-action="ReactivateUser" asp-route-id="@user.Id" method="post" class="d-inline">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-sm btn-link text-success text-decoration-none px-2" title="Reactivate User"
-                                                data-confirm="true"
-                                                data-confirm-title="Reactivate @user.FullName?"
-                                                data-confirm-text="This will restore their login access."
-                                                data-confirm-icon="question"
-                                                data-confirm-ok="Yes, reactivate"
-                                                data-confirm-ok-color="#198754">
-                                            <i class="bi bi-person-check"></i>
-                                        </button>
-                                    </form>
+                                    <span class="text-muted small"><i class="bi bi-shield-lock me-1"></i>Protected</span>
                                 }
                             </td>
                         </tr>

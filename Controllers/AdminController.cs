@@ -56,8 +56,8 @@ namespace ClientSphere.Controllers
         }
 
 
-        // User Management - Super Admin Only
-        [Authorize(Roles = "Super Admin")]
+        // User Management - Super Admin Only View, Admin Manages
+        [Authorize(Roles = "Super Admin, Admin")]
         public async Task<IActionResult> UserManagement()
         {
             ViewData[CurrentPageKey] = "User Management";
@@ -236,7 +236,7 @@ namespace ClientSphere.Controllers
         }
 
         // GET: Admin/CreateUser
-        [Authorize(Roles = "Super Admin")]
+        [Authorize(Roles = "Super Admin, Admin")]
         public IActionResult CreateUser()
         {
             ViewData[CurrentPageKey] = "User Management";
@@ -244,11 +244,17 @@ namespace ClientSphere.Controllers
         }
 
         // POST: Admin/CreateUser
-        [Authorize(Roles = "Super Admin")]
+        [Authorize(Roles = "Super Admin, Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUser(string email, string password, string firstName, string lastName, string role)
         {
+            if (role == Roles.SuperAdmin && !User.IsInRole(Roles.SuperAdmin))
+            {
+                ModelState.AddModelError("", "Access Denied: Admins cannot create Super Admin accounts.");
+                return View();
+            }
+
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password) || string.IsNullOrWhiteSpace(role))
             {
                 ModelState.AddModelError("", "Email, password, and role are required.");
@@ -282,7 +288,7 @@ namespace ClientSphere.Controllers
                 _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
                 {
                     Action = "User Created",
-                    Description = $"Super Admin created user {email} with role '{role}'",
+                    Description = $"User {email} created with role '{role}' by {User.Identity?.Name ?? UnknownValue}",
                     UserId = _userManager.GetUserId(User) ?? UnknownValue,
                     UserName = User.Identity?.Name ?? UnknownValue,
                     Timestamp = DateTime.UtcNow,
@@ -301,7 +307,7 @@ namespace ClientSphere.Controllers
         }
 
         // GET: Admin/EditUser/5
-        [Authorize(Roles = "Super Admin")]
+        [Authorize(Roles = "Super Admin, Admin")]
         public async Task<IActionResult> EditUser(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -316,13 +322,19 @@ namespace ClientSphere.Controllers
             }
 
             var roles = await _userManager.GetRolesAsync(user);
+            if (roles.Contains(Roles.SuperAdmin) && !User.IsInRole(Roles.SuperAdmin))
+            {
+                TempData[ErrorMessageKey] = "Access Denied: Admins cannot edit Super Admin accounts.";
+                return RedirectToAction(nameof(UserManagement));
+            }
+
             ViewData[CurrentPageKey] = "User Management";
             ViewBag.CurrentRole = roles.FirstOrDefault() ?? "No Role";
             return View(user);
         }
 
         // POST: Admin/EditUser/5
-        [Authorize(Roles = "Super Admin")]
+        [Authorize(Roles = "Super Admin, Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditUser(string id, string firstName, string lastName, string companyName, string email, string role)
@@ -336,6 +348,20 @@ namespace ClientSphere.Controllers
             if (user == null)
             {
                 return NotFound();
+            }
+
+            var targetRoles = await _userManager.GetRolesAsync(user);
+            if (targetRoles.Contains(Roles.SuperAdmin) && !User.IsInRole(Roles.SuperAdmin))
+            {
+                TempData[ErrorMessageKey] = "Access Denied: Admins cannot modify Super Admin accounts.";
+                return RedirectToAction(nameof(UserManagement));
+            }
+
+            if (role == Roles.SuperAdmin && !User.IsInRole(Roles.SuperAdmin))
+            {
+                ModelState.AddModelError("", "Access Denied: Admins cannot assign the Super Admin role.");
+                ViewBag.CurrentRole = targetRoles.FirstOrDefault() ?? "No Role";
+                return View(user);
             }
 
             user.FirstName = firstName;
@@ -361,7 +387,7 @@ namespace ClientSphere.Controllers
                 _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
                 {
                     Action = "User Role Changed",
-                    Description = $"Super Admin changed role for {user.Email} to '{role}'",
+                    Description = $"Role for {user.Email} changed to '{role}' by {User.Identity?.Name ?? UnknownValue}",
                     UserId = _userManager.GetUserId(User) ?? UnknownValue,
                     UserName = User.Identity?.Name ?? UnknownValue,
                     Timestamp = DateTime.UtcNow,
@@ -378,19 +404,85 @@ namespace ClientSphere.Controllers
                 ModelState.AddModelError("", error.Description);
             }
 
-            var roles = await _userManager.GetRolesAsync(user);
-            ViewBag.CurrentRole = roles.FirstOrDefault() ?? "No Role";
+            ViewBag.CurrentRole = targetRoles.FirstOrDefault() ?? "No Role";
             return View(user);
         }
 
+        // POST: Admin/SuspendUser
+        [Authorize(Roles = "Super Admin, Admin")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SuspendUser(string id, int durationDays)
+        {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return Challenge();
+
+            var targetUser = await _userManager.FindByIdAsync(id);
+            if (targetUser == null) return NotFound();
+
+            if (targetUser.Id == currentUser.Id)
+            {
+                TempData[ErrorMessageKey] = "You cannot suspend your own account.";
+                return RedirectToAction(nameof(UserManagement));
+            }
+
+            var targetRoles = await _userManager.GetRolesAsync(targetUser);
+            if (targetRoles.Contains(Roles.SuperAdmin) && !User.IsInRole(Roles.SuperAdmin))
+            {
+                TempData[ErrorMessageKey] = "Access Denied: Admins cannot suspend a Super Admin.";
+                return RedirectToAction(nameof(UserManagement));
+            }
+
+            targetUser.LockoutEnabled = true;
+            targetUser.LockoutEnd = DateTimeOffset.UtcNow.AddDays(durationDays);
+            
+            var result = await _userManager.UpdateAsync(targetUser);
+            if (result.Succeeded)
+            {
+                _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
+                {
+                    Action = "User Suspended",
+                    Description = $"User {targetUser.Email} (ID: {targetUser.Id}) suspended for {durationDays} days by {currentUser.Email}",
+                    UserId = currentUser.Id,
+                    UserName = currentUser.Email ?? UnknownValue,
+                    Timestamp = DateTime.UtcNow,
+                    IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? UnknownLowerValue
+                });
+                await _context.SaveChangesAsync();
+                TempData[SuccessMessageKey] = $"User '{targetUser.Email}' has been suspended for {durationDays} day(s).";
+            }
+            else
+            {
+                TempData[ErrorMessageKey] = "Failed to suspend user.";
+            }
+
+            return RedirectToAction(nameof(UserManagement));
+        }
+
         // POST: Admin/DeactivateUser — disables login without data loss
-        [Authorize(Roles = "Super Admin")]
+        [Authorize(Roles = "Super Admin, Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeactivateUser(string id)
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return Challenge();
+
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
+
+            if (user.Id == currentUser.Id)
+            {
+                TempData[ErrorMessageKey] = "You cannot deactivate your own account.";
+                return RedirectToAction(nameof(UserManagement));
+            }
+
+            var targetRoles = await _userManager.GetRolesAsync(user);
+            if (targetRoles.Contains(Roles.SuperAdmin) && !User.IsInRole(Roles.SuperAdmin))
+            {
+                TempData[ErrorMessageKey] = "Access Denied: Admins cannot deactivate a Super Admin.";
+                return RedirectToAction(nameof(UserManagement));
+            }
 
             user.IsActive = false;
             user.LockoutEnabled = true;
@@ -401,9 +493,9 @@ namespace ClientSphere.Controllers
                 _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
                 {
                     Action = "User Deactivated",
-                    Description = $"Super Admin deactivated user {user.Email} (ID: {user.Id})",
-                    UserId = _userManager.GetUserId(User) ?? UnknownValue,
-                    UserName = User.Identity?.Name ?? UnknownValue,
+                    Description = $"User {user.Email} deactivated by {currentUser.Email}",
+                    UserId = currentUser.Id,
+                    UserName = currentUser.Email ?? UnknownValue,
                     Timestamp = DateTime.UtcNow,
                     IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? UnknownLowerValue
                 });
@@ -414,13 +506,23 @@ namespace ClientSphere.Controllers
         }
 
         // POST: Admin/ReactivateUser
-        [Authorize(Roles = "Super Admin")]
+        [Authorize(Roles = "Super Admin, Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ReactivateUser(string id)
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return Challenge();
+
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
+
+            var targetRoles = await _userManager.GetRolesAsync(user);
+            if (targetRoles.Contains(Roles.SuperAdmin) && !User.IsInRole(Roles.SuperAdmin))
+            {
+                TempData[ErrorMessageKey] = "Access Denied: Admins cannot reactivate a Super Admin.";
+                return RedirectToAction(nameof(UserManagement));
+            }
 
             user.IsActive = true;
             user.LockoutEnd = null; // Remove lockout
@@ -430,9 +532,9 @@ namespace ClientSphere.Controllers
                 _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
                 {
                     Action = "User Reactivated",
-                    Description = $"Super Admin reactivated user {user.Email} (ID: {user.Id})",
-                    UserId = _userManager.GetUserId(User) ?? UnknownValue,
-                    UserName = User.Identity?.Name ?? UnknownValue,
+                    Description = $"User {user.Email} reactivated by {currentUser.Email}",
+                    UserId = currentUser.Id,
+                    UserName = currentUser.Email ?? UnknownValue,
                     Timestamp = DateTime.UtcNow,
                     IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? UnknownLowerValue
                 });
@@ -443,13 +545,23 @@ namespace ClientSphere.Controllers
         }
 
         // POST: Admin/UnlockUser — unlocks locked out users
-        [Authorize(Roles = "Super Admin")]
+        [Authorize(Roles = "Super Admin, Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UnlockUser(string id)
         {
+            var currentUser = await _userManager.GetUserAsync(User);
+            if (currentUser == null) return Challenge();
+
             var user = await _userManager.FindByIdAsync(id);
             if (user == null) return NotFound();
+
+            var targetRoles = await _userManager.GetRolesAsync(user);
+            if (targetRoles.Contains(Roles.SuperAdmin) && !User.IsInRole(Roles.SuperAdmin))
+            {
+                TempData[ErrorMessageKey] = "Access Denied: Admins cannot unlock a Super Admin.";
+                return RedirectToAction(nameof(UserManagement));
+            }
 
             var result = await _userManager.SetLockoutEndDateAsync(user, null);
             if (result.Succeeded)
@@ -459,9 +571,9 @@ namespace ClientSphere.Controllers
                 _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
                 {
                     Action = "User Unlocked",
-                    Description = $"Super Admin unlocked user {user.Email} (ID: {user.Id})",
-                    UserId = _userManager.GetUserId(User) ?? UnknownValue,
-                    UserName = User.Identity?.Name ?? UnknownValue,
+                    Description = $"User {user.Email} unlocked by {currentUser.Email}",
+                    UserId = currentUser.Id,
+                    UserName = currentUser.Email ?? UnknownValue,
                     Timestamp = DateTime.UtcNow,
                     IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? UnknownLowerValue
                 });
@@ -806,8 +918,8 @@ namespace ClientSphere.Controllers
             await _context.Database.ExecuteSqlRawAsync($"SET IDENTITY_INSERT {tableName} OFF");
         }
 
-        // Reset Password - Super Admin Only
-        [Authorize(Roles = "Super Admin")]
+        // Reset Password - Super Admin and Admin
+        [Authorize(Roles = "Super Admin, Admin")]
         public async Task<IActionResult> ResetPassword(string? userId = null)
         {
             ViewData[CurrentPageKey] = "ResetPassword";
@@ -820,13 +932,18 @@ namespace ClientSphere.Controllers
                 .GroupBy(x => x.UserId)
                 .ToDictionary(g => g.Key, g => g.Select(x => x.RoleName).ToList());
 
+            var isCurrentSuperAdmin = User.IsInRole(Roles.SuperAdmin);
             var userList = new List<(string Id, string DisplayName)>();
             foreach (var u in users)
             {
                 roleMap.TryGetValue(u.Id, out var roles);
+                var role = roles?.FirstOrDefault() ?? StatusValues.NoRole;
+                if (role == Roles.SuperAdmin && !isCurrentSuperAdmin)
+                {
+                    continue; // Skip Super Admin accounts for non-Super Admin users
+                }
                 var fullName = $"{u.FirstName} {u.LastName}".Trim();
                 if (string.IsNullOrWhiteSpace(fullName)) fullName = u.UserName ?? u.Email ?? StatusValues.Unknown;
-                var role = roles?.FirstOrDefault() ?? StatusValues.NoRole;
                 userList.Add((u.Id, $"{fullName} ({u.Email}) — {role}"));
             }
 
@@ -835,7 +952,7 @@ namespace ClientSphere.Controllers
             return View();
         }
 
-        [Authorize(Roles = "Super Admin")]
+        [Authorize(Roles = "Super Admin, Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(string userId, string newPassword, string confirmPassword)
@@ -851,13 +968,18 @@ namespace ClientSphere.Controllers
                 .GroupBy(x => x.UserId)
                 .ToDictionary(g => g.Key, g => g.Select(x => x.RoleName).ToList());
 
+            var isCurrentSuperAdmin = User.IsInRole(Roles.SuperAdmin);
             var userList = new List<(string Id, string DisplayName)>();
             foreach (var u in users)
             {
                 roleMap.TryGetValue(u.Id, out var roles);
+                var role = roles?.FirstOrDefault() ?? StatusValues.NoRole;
+                if (role == Roles.SuperAdmin && !isCurrentSuperAdmin)
+                {
+                    continue; // Skip Super Admin accounts for non-Super Admin users
+                }
                 var fullName = $"{u.FirstName} {u.LastName}".Trim();
                 if (string.IsNullOrWhiteSpace(fullName)) fullName = u.UserName ?? u.Email ?? StatusValues.Unknown;
-                var role = roles?.FirstOrDefault() ?? StatusValues.NoRole;
                 userList.Add((u.Id, $"{fullName} ({u.Email}) — {role}"));
             }
             ViewBag.UserList = userList;
@@ -882,6 +1004,13 @@ namespace ClientSphere.Controllers
                 return View();
             }
 
+            var targetRoles = await _userManager.GetRolesAsync(user);
+            if (targetRoles.Contains(Roles.SuperAdmin) && !isCurrentSuperAdmin)
+            {
+                ModelState.AddModelError("", "Access Denied: Admins cannot reset Super Admin passwords.");
+                return View();
+            }
+
             // Remove existing password then add new one
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
@@ -891,7 +1020,7 @@ namespace ClientSphere.Controllers
                 _context.AuditLogs.Add(new ClientSphere.Models.AuditLog
                 {
                     Action = "Password Reset",
-                    Description = $"Super Admin reset password for {user.Email} (ID: {user.Id})",
+                    Description = $"Password for {user.Email} (ID: {user.Id}) reset by {User.Identity?.Name ?? UnknownValue}",
                     UserId = _userManager.GetUserId(User) ?? UnknownValue,
                     UserName = User.Identity?.Name ?? UnknownValue,
                     Timestamp = DateTime.UtcNow,

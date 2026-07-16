@@ -18,9 +18,12 @@
             <h3 class="fw-bold mb-1">Customer Support & Ticketing</h3>
             <p class="text-muted mb-0">Manage customer inquiries and support requests</p>
         </div>
-        <a asp-action="Create" class="btn btn-primary px-4">
-            <i class="bi bi-plus-lg me-2"></i>Create New Ticket
-        </a>
+        @if (!User.IsInRole(ClientSphere.Constants.Roles.SuperAdmin))
+        {
+            <a asp-action="Create" class="btn btn-primary px-4">
+                <i class="bi bi-plus-lg me-2"></i>Create New Ticket
+            </a>
+        }
     </div>
 
     <!-- Status Tabs -->
@@ -158,28 +161,31 @@
                 <hr class="my-3 opacity-25"> 
 
                 <div class="d-flex gap-3 align-items-center flex-wrap">
-                    <a asp-action="Edit" asp-route-id="@ticket.Id" class="text-decoration-none small fw-bold"><i class="bi bi-pencil-square me-1"></i> Edit Ticket</a>
-                    <a href="#" class="text-decoration-none small fw-bold text-secondary" data-bs-toggle="modal" data-bs-target="#commentModal-@ticket.Id">
-                        <i class="bi bi-chat-left-text me-1"></i> Add Comment
-                    </a>
-                    @if (ticket.Status != "Closed")
+                    @if (!User.IsInRole(ClientSphere.Constants.Roles.SuperAdmin))
                     {
-                        <form asp-action="CloseTicket" asp-route-id="@ticket.Id" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-link p-0 text-decoration-none small fw-bold text-success border-0"
-                                    data-confirm="true"
-                                    data-confirm-title="Close Ticket @ticket.TicketId?"
-                                    data-confirm-text="The ticket will be marked as Closed and no further updates will be expected."
-                                    data-confirm-icon="question"
-                                    data-confirm-ok="Yes, close ticket"
-                                    data-confirm-ok-color="#198754">
-                                <i class="bi bi-check2-circle me-1"></i> Mark as Closed
-                            </button>
-                        </form>
-                    }
-                    else
-                    {
-                        <span class="small text-muted"><i class="bi bi-check2-circle me-1"></i> Closed</span>
+                        <a asp-action="Edit" asp-route-id="@ticket.Id" class="text-decoration-none small fw-bold"><i class="bi bi-pencil-square me-1"></i> Edit Ticket</a>
+                        <a href="#" class="text-decoration-none small fw-bold text-secondary" data-bs-toggle="modal" data-bs-target="#commentModal-@ticket.Id">
+                            <i class="bi bi-chat-left-text me-1"></i> Add Comment
+                        </a>
+                        @if (ticket.Status != "Closed")
+                        {
+                            <form asp-action="CloseTicket" asp-route-id="@ticket.Id" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-link p-0 text-decoration-none small fw-bold text-success border-0"
+                                        data-confirm="true"
+                                        data-confirm-title="Close Ticket @ticket.TicketId?"
+                                        data-confirm-text="The ticket will be marked as Closed and no further updates will be expected."
+                                        data-confirm-icon="question"
+                                        data-confirm-ok="Yes, close ticket"
+                                        data-confirm-ok-color="#198754">
+                                    <i class="bi bi-check2-circle me-1"></i> Mark as Closed
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="small text-muted"><i class="bi bi-check2-circle me-1"></i> Closed</span>
+                        }
                     }
                 </div>
 

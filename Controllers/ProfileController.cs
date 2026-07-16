@@ -27,6 +27,7 @@ namespace ClientSphere.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return NotFound();
             ViewBag.Roles = await _userManager.GetRolesAsync(user);
+            ViewBag.IsTwoFactorEnabled = await _userManager.GetTwoFactorEnabledAsync(user);
             return View(user);
         }
 

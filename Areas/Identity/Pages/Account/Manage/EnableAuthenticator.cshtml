@@ -22,11 +22,11 @@
         <h6 class="fw-bold mb-3"><span class="badge bg-primary me-2">Step 1</span> Download an Authenticator App</h6>
         <p class="text-muted small mb-0">
             Download a two-factor authenticator app like Microsoft Authenticator for
-            <a href="https://go.microsoft.com/fwlink/?Linkid=825072" class="text-decoration-none fw-semibold" target="_blank">Android</a> and
-            <a href="https://go.microsoft.com/fwlink/?Linkid=825073" class="text-decoration-none fw-semibold" target="_blank">iOS</a> or
+            <a href="https://go.microsoft.com/fwlink/?Linkid=825072" class="text-decoration-none fw-semibold" target="_blank">Android (Microsoft)</a> and
+            <a href="https://go.microsoft.com/fwlink/?Linkid=825073" class="text-decoration-none fw-semibold" target="_blank">iOS (Microsoft)</a> or
             Google Authenticator for
-            <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&amp;hl=en" class="text-decoration-none fw-semibold" target="_blank">Android</a> and
-            <a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8" class="text-decoration-none fw-semibold" target="_blank">iOS</a>.
+            <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&amp;hl=en" class="text-decoration-none fw-semibold" target="_blank">Android (Google)</a> and
+            <a href="https://itunes.apple.com/us/app/google-authenticator/id388497605?mt=8" class="text-decoration-none fw-semibold" target="_blank">iOS (Google)</a>.
         </p>
     </div>
 </div>
@@ -71,23 +71,55 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0uVDtk0s3243IGfGq/f/gR0yQ0lS60p9r//6A6sA7T0Z+Dmt60aQQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="~/js/qrcode.min.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const qrCodeDataElement = document.getElementById("qrCodeData");
-            if (qrCodeDataElement) {
-                const uri = qrCodeDataElement.getAttribute('data-url');
-                if (uri) {
-                    new QRCode(document.getElementById("qrCode"), {
+        (function initQrCode() {
+            function generateQR() {
+                var qrCodeDataElement = document.getElementById("qrCodeData");
+                var qrCodeElement = document.getElementById("qrCode");
+                if (!qrCodeDataElement || !qrCodeElement) {
+                    console.error("[MFA] QR code container elements not found.");
+                    return;
+                }
+
+                var uri = qrCodeDataElement.getAttribute('data-url');
+                if (!uri) {
+                    console.error("[MFA] No authenticator URI found in data-url attribute.");
+                    qrCodeElement.innerHTML = '<p class="text-danger small text-center mb-0">Unable to generate QR code. Please use the manual key above.</p>';
+                    return;
+                }
+
+                // Check if QRCode library is loaded
+                if (typeof QRCode === 'undefined') {
+                    console.warn("[MFA] QRCode library not yet loaded, retrying...");
+                    setTimeout(generateQR, 200);
+                    return;
+                }
+
+                try {
+                    // Clear any existing content
+                    qrCodeElement.innerHTML = '';
+                    new QRCode(qrCodeElement, {
                         text: uri,
                         width: 150,
                         height: 150,
-                        colorDark : "#0d6efd", // Primary color for a cohesive look
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.H
+                        colorDark: "#0d6efd",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
                     });
+                    console.log("[MFA] QR code generated successfully.");
+                } catch (e) {
+                    console.error("[MFA] QR code generation failed:", e);
+                    qrCodeElement.innerHTML = '<p class="text-danger small text-center mb-0"><i class="bi bi-exclamation-triangle me-1"></i>QR code rendering failed. Please enter the setup key manually.</p>';
                 }
             }
-        });
+
+            // Try on DOMContentLoaded or immediately if already loaded
+            if (document.readyState === 'loading') {
+                document.addEventListener("DOMContentLoaded", generateQR);
+            } else {
+                generateQR();
+            }
+        })();
     </script>
 }

@@ -49,11 +49,13 @@ namespace ClientSphere.Areas.Identity.Pages.Account
         /// Format after decryption: code|userId|expiryUtc
         /// </summary>
         [BindProperty]
-        public string EncryptedOtp { get; set; } = string.Empty;
+        public string? EncryptedOtp { get; set; }
 
         public string MaskedEmail { get; set; } = string.Empty;
 
         public string? StatusMessage { get; set; }
+
+        public bool HasAuthenticator { get; set; }
 
         public class InputModel
         {
@@ -155,6 +157,7 @@ namespace ClientSphere.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl ?? Url.Content("~/");
             RememberMe = rememberMe;
             MaskedEmail = MaskEmail(user.Email ?? "");
+            HasAuthenticator = await _userManager.GetAuthenticatorKeyAsync(user) != null;
 
             // Generate OTP, encrypt it, put it in the hidden field
             var otpCode = GenerateOtpCode();
@@ -184,6 +187,7 @@ namespace ClientSphere.Areas.Identity.Pages.Account
             if (user == null) return RedirectToPage("./Login");
 
             MaskedEmail = MaskEmail(user.Email ?? "");
+            HasAuthenticator = await _userManager.GetAuthenticatorKeyAsync(user) != null;
 
             if (!ModelState.IsValid)
             {
@@ -191,34 +195,31 @@ namespace ClientSphere.Areas.Identity.Pages.Account
                 return Page();
             }
 
-            // Read the encrypted OTP from the hidden field
-            if (string.IsNullOrEmpty(EncryptedOtp))
-            {
-                _logger.LogWarning("2FA: EncryptedOtp is empty on POST");
-                ModelState.AddModelError(string.Empty, "Session expired. Please click Resend Code to get a new code.");
-                return Page();
-            }
-
-            var (storedCode, storedUserId) = DecryptOtp(EncryptedOtp);
-
-            if (storedCode == null || storedUserId == null)
-            {
-                ModelState.AddModelError(string.Empty, "Your code has expired. Please click Resend Code.");
-                return Page();
-            }
-
-            if (storedUserId != user.Id)
-            {
-                ModelState.AddModelError(string.Empty, "Invalid session. Please log in again.");
-                return Page();
-            }
-
             var enteredCode = Input.TwoFactorCode.Replace(" ", "").Replace("-", "");
+            bool isValid = false;
 
-            _logger.LogInformation("2FA: Comparing entered={Entered} vs stored={Stored} for user {UserId}",
-                enteredCode, storedCode, user.Id);
+            // 1. Try verifying as Email OTP if EncryptedOtp is present
+            if (!string.IsNullOrEmpty(EncryptedOtp))
+            {
+                var (storedCode, storedUserId) = DecryptOtp(EncryptedOtp);
+                if (storedCode != null && storedUserId == user.Id && enteredCode == storedCode)
+                {
+                    isValid = true;
+                }
+            }
 
-            if (enteredCode == storedCode)
+            // 2. Try verifying as Authenticator App TOTP if Email OTP did not match
+            if (!isValid)
+            {
+                var isAuthenticatorValid = await _userManager.VerifyTwoFactorTokenAsync(
+                    user, _userManager.Options.Tokens.AuthenticatorTokenProvider, enteredCode);
+                if (isAuthenticatorValid)
+                {
+                    isValid = true;
+                }
+            }
+
+            if (isValid)
             {
                 // ✅ Code matches — sign in the user
                 await _signInManager.SignInAsync(user, isPersistent: RememberMe);
@@ -262,6 +263,7 @@ namespace ClientSphere.Areas.Identity.Pages.Account
             if (user == null) return RedirectToPage("./Login");
 
             MaskedEmail = MaskEmail(user.Email ?? "");
+            HasAuthenticator = await _userManager.GetAuthenticatorKeyAsync(user) != null;
 
             var otpCode = GenerateOtpCode();
             EncryptedOtp = EncryptOtp(otpCode, user.Id);

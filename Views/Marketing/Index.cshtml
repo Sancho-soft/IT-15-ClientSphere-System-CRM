@@ -11,9 +11,25 @@
     var isCampaignArchived = Context.Request.Query["archived"].ToString().ToLower() == "true";
 }
 
+<div class="container-fluid p-0">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Marketing Campaigns</h3>
+            <p class="text-muted mb-0">Track and manage outreach campaigns and performance metrics</p>
+        </div>
+        <div>
+            @if (!User.IsInRole(ClientSphere.Constants.Roles.SuperAdmin))
+            {
+                <a asp-action="Create" class="btn btn-primary px-4 shadow-sm">
+                    <i class="bi bi-plus-lg me-2"></i>Create Campaign
+                </a>
+            }
+        </div>
+    </div>
 
     <!-- Status Tabs -->
-    <ul class="nav nav-tabs mb-3">
+    <ul class="nav nav-tabs mb-4">
         <li class="nav-item">
             <a class="nav-link @(!isCampaignArchived ? "active fw-bold" : "")" href="?archived=false">
                 <i class="bi bi-megaphone me-1"></i> Active Campaigns
@@ -25,13 +41,6 @@
             </a>
         </li>
     </ul>
-
-    <!-- Create Campaign Button row -->
-    <div class="d-flex justify-content-end mb-4">
-        <a asp-action="Create" class="btn btn-primary px-4">
-            <i class="bi bi-plus-lg me-2"></i>Create New Campaign
-        </a>
-    </div>
 
     <!-- Stats Cards -->
     <div class="row mb-4">
@@ -192,42 +201,45 @@
                         <div class="d-flex justify-content-between align-items-center pt-2">
                              <div class="d-flex align-items-center">
                                 <div class="avatar-circle-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 30px; height: 30px; font-size: 0.8rem;">
-                                    @campaign.ManagedBy.Substring(0, 1)M
+                                    @(campaign.ManagedBy.Length > 0 ? campaign.ManagedBy.Substring(0, 1).ToUpper() : "M")
                                 </div>
                                 <div class="small text-muted">Managed by <br> @campaign.ManagedBy</div>
                              </div>
                             
-                             <a asp-action="Edit" asp-route-id="@campaign.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
-                                <i class="bi bi-pencil-square me-1"></i> Edit
-                            </a>
-                            @if (isCampaignArchived)
+                            @if (!User.IsInRole(ClientSphere.Constants.Roles.SuperAdmin))
                             {
-                                <form asp-action="UnarchiveCampaign" asp-route-id="@campaign.Id" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3"
-                                            data-confirm="true"
-                                            data-confirm-title="Restore @campaign.Name?"
-                                            data-confirm-text="This campaign will be moved back to the active list."
-                                            data-confirm-icon="question"
-                                            data-confirm-ok="Yes, restore"
-                                            data-confirm-ok-color="#198754">
-                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
-                                    </button>
-                                </form>
-                            }
-                            else
-                            {
-                                <form asp-action="ArchiveCampaign" asp-route-id="@campaign.Id" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3"
-                                            data-confirm="true"
-                                            data-confirm-title="Archive @campaign.Name?"
-                                            data-confirm-text="This campaign will be hidden from the active list."
-                                            data-confirm-icon="warning"
-                                            data-confirm-ok="Yes, archive">
-                                        <i class="bi bi-archive me-1"></i> Archive
-                                    </button>
-                                </form>
+                                <a asp-action="Edit" asp-route-id="@campaign.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2">
+                                    <i class="bi bi-pencil-square me-1"></i> Edit
+                                </a>
+                                @if (isCampaignArchived)
+                                {
+                                    <form asp-action="UnarchiveCampaign" asp-route-id="@campaign.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-success rounded-pill px-3"
+                                                data-confirm="true"
+                                                data-confirm-title="Restore @campaign.Name?"
+                                                data-confirm-text="This campaign will be moved back to the active list."
+                                                data-confirm-icon="question"
+                                                data-confirm-ok="Yes, restore"
+                                                data-confirm-ok-color="#198754">
+                                            <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="ArchiveCampaign" asp-route-id="@campaign.Id" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                                data-confirm="true"
+                                                data-confirm-title="Archive @campaign.Name?"
+                                                data-confirm-text="This campaign will be hidden from the active list."
+                                                data-confirm-icon="warning"
+                                                data-confirm-ok="Yes, archive">
+                                            <i class="bi bi-archive me-1"></i> Archive
+                                        </button>
+                                    </form>
+                                }
                             }
                         </div>
                     </div>

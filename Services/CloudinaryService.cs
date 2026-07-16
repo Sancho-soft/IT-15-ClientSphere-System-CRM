@@ -27,6 +27,35 @@ namespace ClientSphere.Services
             _cloudinary.Api.Secure = true;
         }
 
+        private static bool ValidateImageHeaders(System.IO.Stream stream)
+        {
+            var jpeg = new byte[] { 0xFF, 0xD8, 0xFF };
+            var png = new byte[] { 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A };
+            var gif = new byte[] { 0x47, 0x49, 0x46, 0x38 }; // "GIF8"
+            var webp = new byte[] { 0x52, 0x49, 0x46, 0x46 }; // RIFF header for webp
+
+            var buffer = new byte[12];
+            int read = stream.Read(buffer, 0, 12);
+            stream.Position = 0; // Reset stream position
+
+            if (read < 4) return false;
+
+            if (System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Take(buffer, jpeg.Length), jpeg)) return true;
+            if (read >= png.Length && System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Take(buffer, png.Length), png)) return true;
+            if (System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Take(buffer, gif.Length), gif)) return true;
+
+            // For WEBP, check RIFF at start and WEBP at index 8
+            if (System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Take(buffer, webp.Length), webp))
+            {
+                var webpSignature = new byte[] { 0x57, 0x45, 0x42, 0x50 }; // "WEBP"
+                if (read >= 12 && System.Linq.Enumerable.SequenceEqual(System.Linq.Enumerable.Take(System.Linq.Enumerable.Skip(buffer, 8), 4), webpSignature))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public async Task<string?> UploadImageAsync(IFormFile file, string folderName)
         {
             if (file == null || file.Length == 0) return null;
@@ -42,6 +71,15 @@ namespace ClientSphere.Services
             if (!System.Linq.Enumerable.Contains(allowedTypes, file.ContentType.ToLower()))
             {
                 throw new Exception("Invalid file type. Only JPG, PNG, GIF, and WEBP images are allowed.");
+            }
+
+            // Security: Enforce Magic Bytes Validation
+            using (var validationStream = file.OpenReadStream())
+            {
+                if (!ValidateImageHeaders(validationStream))
+                {
+                    throw new Exception("Invalid file content. The file signature does not match a valid image.");
+                }
             }
 
             // If keys are not set, simulate an upload for development

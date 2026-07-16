@@ -128,7 +128,22 @@
                                         <i class="bi bi-eye" id="toggleRegisterPasswordIcon"></i>
                                     </button>
                                 </div>
-                                <small class="text-muted">Minimum 6 characters</small>
+                                <small class="text-muted" id="defaultLengthText">Minimum 8 characters</small>
+                                <div class="password-strength-container mt-2 d-none" id="pwStrengthContainer">
+                                    <div class="progress mb-2" style="height: 6px; border-radius: 3px;">
+                                        <div class="progress-bar" id="pwStrengthBar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="small text-muted" id="pwStrengthLabel" style="font-size: 0.8rem;">Strength: <strong class="text-danger">Too Weak</strong></span>
+                                    </div>
+                                    <ul class="list-unstyled mb-0" id="pwRequirements" style="font-size: 0.78rem;">
+                                        <li class="text-danger mb-1" id="req-length"><i class="bi bi-x-circle-fill me-1"></i> At least 8 characters</li>
+                                        <li class="text-danger mb-1" id="req-upper"><i class="bi bi-x-circle-fill me-1"></i> At least one uppercase letter</li>
+                                        <li class="text-danger mb-1" id="req-lower"><i class="bi bi-x-circle-fill me-1"></i> At least one lowercase letter</li>
+                                        <li class="text-danger mb-1" id="req-digit"><i class="bi bi-x-circle-fill me-1"></i> At least one number</li>
+                                        <li class="text-danger" id="req-special"><i class="bi bi-x-circle-fill me-1"></i> At least one special character</li>
+                                    </ul>
+                                </div>
                                 <span asp-validation-for="Input.Password" class="text-danger d-block"></span>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -284,6 +299,105 @@
                 passwordInput.type = 'password';
                 icon.classList.remove('bi-eye-slash');
                 icon.classList.add('bi-eye');
+            }
+        });
+
+        // Password strength and requirements check
+        const registerPasswordInput = document.getElementById('registerPassword');
+        const pwStrengthContainer = document.getElementById('pwStrengthContainer');
+        const defaultLengthText = document.getElementById('defaultLengthText');
+        const pwStrengthBar = document.getElementById('pwStrengthBar');
+        const pwStrengthLabel = document.getElementById('pwStrengthLabel');
+
+        const reqLength = document.getElementById('req-length');
+        const reqUpper = document.getElementById('req-upper');
+        const reqLower = document.getElementById('req-lower');
+        const reqDigit = document.getElementById('req-digit');
+        const reqSpecial = document.getElementById('req-special');
+
+        registerPasswordInput.addEventListener('focus', function () {
+            pwStrengthContainer.classList.remove('d-none');
+            if (defaultLengthText) defaultLengthText.classList.add('d-none');
+        });
+
+        registerPasswordInput.addEventListener('input', function () {
+            const val = registerPasswordInput.value;
+
+            const hasLength = val.length >= 8;
+            const hasUpper = /[A-Z]/.test(val);
+            const hasLower = /[a-z]/.test(val);
+            const hasDigit = /[0-9]/.test(val);
+            const hasSpecial = /[^A-Za-z0-9]/.test(val);
+
+            function updateRequirement(el, met) {
+                if (met) {
+                    el.classList.remove('text-danger');
+                    el.classList.add('text-success');
+                    el.querySelector('i').className = 'bi bi-check-circle-fill me-1';
+                } else {
+                    el.classList.remove('text-success');
+                    el.classList.add('text-danger');
+                    el.querySelector('i').className = 'bi bi-x-circle-fill me-1';
+                }
+            }
+
+            updateRequirement(reqLength, hasLength);
+            updateRequirement(reqUpper, hasUpper);
+            updateRequirement(reqLower, hasLower);
+            updateRequirement(reqDigit, hasDigit);
+            updateRequirement(reqSpecial, hasSpecial);
+
+            let score = 0;
+            if (hasLength) score++;
+            if (hasUpper) score++;
+            if (hasLower) score++;
+            if (hasDigit) score++;
+            if (hasSpecial) score++;
+
+            const pct = (score / 5) * 100;
+            pwStrengthBar.style.width = pct + '%';
+
+            if (score === 0) {
+                pwStrengthBar.className = 'progress-bar bg-danger';
+                pwStrengthLabel.innerHTML = 'Strength: <strong class="text-danger">Too Weak</strong>';
+            } else if (score === 1) {
+                pwStrengthBar.className = 'progress-bar bg-danger';
+                pwStrengthLabel.innerHTML = 'Strength: <strong class="text-danger">Weak</strong>';
+            } else if (score === 2) {
+                pwStrengthBar.className = 'progress-bar bg-warning';
+                pwStrengthLabel.innerHTML = 'Strength: <strong class="text-warning">Fair</strong>';
+            } else if (score === 3) {
+                pwStrengthBar.className = 'progress-bar bg-info';
+                pwStrengthLabel.innerHTML = 'Strength: <strong class="text-info">Good</strong>';
+            } else if (score === 4) {
+                pwStrengthBar.className = 'progress-bar bg-primary';
+                pwStrengthLabel.innerHTML = 'Strength: <strong class="text-primary">Very Good</strong>';
+            } else if (score === 5) {
+                pwStrengthBar.className = 'progress-bar bg-success';
+                pwStrengthLabel.innerHTML = 'Strength: <strong class="text-success">Strong</strong>';
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', function (e) {
+            const val = registerPasswordInput.value;
+            const hasLength = val.length >= 8;
+            const hasUpper = /[A-Z]/.test(val);
+            const hasLower = /[a-z]/.test(val);
+            const hasDigit = /[0-9]/.test(val);
+            const hasSpecial = /[^A-Za-z0-9]/.test(val);
+
+            if (!(hasLength && hasUpper && hasLower && hasDigit && hasSpecial)) {
+                e.preventDefault();
+                pwStrengthContainer.classList.remove('d-none');
+                if (defaultLengthText) defaultLengthText.classList.add('d-none');
+                registerPasswordInput.focus();
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Password Too Weak',
+                    text: 'Please ensure your password meets all strength requirements before proceeding.',
+                    confirmButtonColor: '#0d6efd'
+                });
             }
         });
 
