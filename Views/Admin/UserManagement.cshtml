@@ -181,15 +181,15 @@
                                         {
                                             <!-- Suspend / Deactivate Dropdown -->
                                             <div class="dropdown d-inline-block">
-                                                <button class="btn btn-sm btn-link text-danger text-decoration-none px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Suspend/Deactivate User">
+                                                <button class="btn btn-sm btn-link text-danger text-decoration-none px-2" type="button" data-bs-toggle="dropdown" data-bs-boundary="window" aria-expanded="false" title="Suspend/Deactivate User">
                                                     <i class="bi bi-person-slash"></i>
                                                 </button>
-                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="min-width: 220px;">
+                                                <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="min-width: 220px; z-index: 9999; margin: 0; padding: 0.5rem 0;">
                                                     <li><h6 class="dropdown-header text-muted">Suspension Options</h6></li>
                                                     <li>
-                                                        <form asp-action="SuspendUser" asp-route-id="@user.Id" asp-route-durationDays="1" method="post">
+                                                        <form asp-action="SuspendUser" asp-route-id="@user.Id" asp-route-durationDays="1" method="post" class="m-0 p-0">
                                                             @Html.AntiForgeryToken()
-                                                            <button type="submit" class="dropdown-item text-warning"
+                                                            <button type="submit" class="dropdown-item text-warning py-2"
                                                                     data-confirm="true"
                                                                     data-confirm-title="Suspend @user.FullName for 1 Day?"
                                                                     data-confirm-text="They will be locked out for 24 hours."
@@ -201,9 +201,9 @@
                                                         </form>
                                                     </li>
                                                     <li>
-                                                        <form asp-action="SuspendUser" asp-route-id="@user.Id" asp-route-durationDays="7" method="post">
+                                                        <form asp-action="SuspendUser" asp-route-id="@user.Id" asp-route-durationDays="7" method="post" class="m-0 p-0">
                                                             @Html.AntiForgeryToken()
-                                                            <button type="submit" class="dropdown-item text-warning"
+                                                            <button type="submit" class="dropdown-item text-warning py-2"
                                                                     data-confirm="true"
                                                                     data-confirm-title="Suspend @user.FullName for 1 Week?"
                                                                     data-confirm-text="They will be locked out for 7 days."
@@ -216,9 +216,9 @@
                                                     </li>
                                                     <li><hr class="dropdown-divider"></li>
                                                     <li>
-                                                        <form asp-action="DeactivateUser" asp-route-id="@user.Id" method="post">
+                                                        <form asp-action="DeactivateUser" asp-route-id="@user.Id" method="post" class="m-0 p-0">
                                                             @Html.AntiForgeryToken()
-                                                            <button type="submit" class="dropdown-item text-danger fw-bold"
+                                                            <button type="submit" class="dropdown-item text-danger fw-bold py-2"
                                                                     data-confirm="true"
                                                                     data-confirm-title="Deactivate @user.FullName?"
                                                                     data-confirm-text="They will be deactivated indefinitely and cannot log in."
