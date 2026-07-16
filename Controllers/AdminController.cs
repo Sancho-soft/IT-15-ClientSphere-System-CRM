@@ -436,6 +436,9 @@ namespace ClientSphere.Controllers
             targetUser.LockoutEnabled = true;
             targetUser.LockoutEnd = DateTimeOffset.UtcNow.AddDays(durationDays);
             
+            // Immediately invalidate any active login sessions for this user
+            await _userManager.UpdateSecurityStampAsync(targetUser);
+
             var result = await _userManager.UpdateAsync(targetUser);
             if (result.Succeeded)
             {
@@ -494,6 +497,10 @@ namespace ClientSphere.Controllers
             user.IsActive = false;
             user.LockoutEnabled = true;
             user.LockoutEnd = DateTimeOffset.MaxValue; // Lock indefinitely
+
+            // Immediately invalidate any active login sessions for this user
+            await _userManager.UpdateSecurityStampAsync(user);
+
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
             {

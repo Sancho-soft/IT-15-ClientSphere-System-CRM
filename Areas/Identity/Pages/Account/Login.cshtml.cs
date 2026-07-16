@@ -102,10 +102,18 @@ namespace ClientSphere.Areas.Identity.Pages.Account
                 }
 
                 var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
-                if (user != null && !user.IsActive)
+                if (user != null)
                 {
-                    ModelState.AddModelError(string.Empty, "This account has been deactivated.");
-                    return Page();
+                    if (!user.IsActive)
+                    {
+                        ModelState.AddModelError(string.Empty, "This account is permanently deactivated. Please contact support.");
+                        return Page();
+                    }
+                    if (user.LockoutEnd.HasValue && user.LockoutEnd.Value > DateTimeOffset.UtcNow)
+                    {
+                        ModelState.AddModelError(string.Empty, $"This account is suspended until {user.LockoutEnd.Value.ToLocalTime():MMM dd, yyyy h:mm tt}.");
+                        return Page();
+                    }
                 }
 
                 // This doesn't count login failures towards account lockout
