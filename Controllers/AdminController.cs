@@ -463,7 +463,7 @@ namespace ClientSphere.Controllers
         [Authorize(Roles = "Super Admin, Admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeactivateUser(string id)
+        public async Task<IActionResult> DeactivateUser(string id, string confirmPassword)
         {
             var currentUser = await _userManager.GetUserAsync(User);
             if (currentUser == null) return Challenge();
@@ -474,6 +474,13 @@ namespace ClientSphere.Controllers
             if (user.Id == currentUser.Id)
             {
                 TempData[ErrorMessageKey] = "You cannot deactivate your own account.";
+                return RedirectToAction(nameof(UserManagement));
+            }
+
+            // Verify the current admin's password before proceeding with deactivation
+            if (string.IsNullOrEmpty(confirmPassword) || !await _userManager.CheckPasswordAsync(currentUser, confirmPassword))
+            {
+                TempData[ErrorMessageKey] = "Authentication failed. Invalid password entered.";
                 return RedirectToAction(nameof(UserManagement));
             }
 

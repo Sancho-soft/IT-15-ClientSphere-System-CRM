@@ -33,7 +33,6 @@
         return document.documentElement.getAttribute('data-bs-theme') === 'dark';
     }
 
-    // Build SweetAlert2 options from data attributes
     function buildSwalOptions(el) {
         const title   = el.dataset.confirmTitle  || 'Are you sure?';
         const text    = el.dataset.confirmText   || 'This action cannot be undone.';
@@ -42,7 +41,7 @@
         const cancelText = el.dataset.confirmCancel || 'Cancel';
         const okColor = el.dataset.confirmOkColor || (icon === 'error' || icon === 'warning' ? '#dc3545' : '#0d6efd');
 
-        return {
+        const options = {
             title,
             text,
             icon,
@@ -56,6 +55,17 @@
             background: isDarkMode() ? '#212529' : '#fff',
             color: isDarkMode() ? '#dee2e6' : '#212529',
         };
+
+        if (el.dataset.confirmInput === 'password') {
+            options.input = 'password';
+            options.inputPlaceholder = 'Enter your password';
+            options.inputAttributes = { autocapitalize: 'off', autocomplete: 'new-password' };
+            options.inputValidator = (value) => {
+                if (!value) return 'Password is required to proceed!';
+            };
+        }
+
+        return options;
     }
 
     // Handle form submit buttons
@@ -71,6 +81,15 @@
 
         Swal.fire(buildSwalOptions(btn)).then(function (result) {
             if (result.isConfirmed) {
+                // If there's an input value (like a password), append it to the form
+                if (result.value) {
+                    const hiddenInput = document.createElement('input');
+                    hiddenInput.type = 'hidden';
+                    hiddenInput.name = 'confirmPassword';
+                    hiddenInput.value = result.value;
+                    form.appendChild(hiddenInput);
+                }
+                
                 // Disable button to prevent double-submit
                 btn.disabled = true;
                 form.submit();
