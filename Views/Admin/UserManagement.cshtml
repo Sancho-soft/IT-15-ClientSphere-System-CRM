@@ -274,6 +274,13 @@
 }
 
 <script>
+    // Move all modals to body to prevent z-index/backdrop overlap issues
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.modal').forEach(function(modal) {
+            document.body.appendChild(modal);
+        });
+    });
+
     // Simple client-side search
     document.getElementById('userSearch').addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase();
